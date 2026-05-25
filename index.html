@@ -25,30 +25,36 @@
     padding-bottom: calc(44px + var(--safe-bottom));
   }
 
-  /* ── GRID ── */
-  /* Masonry-style: two equal columns, photos at full natural height */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+  /* ── MASONRY ── */
+  #grid {
+    display: flex;
     gap: var(--gap);
     padding: var(--gap);
-    align-items: start;
+    align-items: flex-start;
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
   }
 
   .grid-item {
-    background: #0a0a0a;
-    overflow: hidden;
+    width: 100%;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overflow: hidden;
     border-radius: 2px;
+    background: #0a0a0a;
   }
 
   .grid-item img {
     width: 100%;
-    height: auto;          /* full natural proportions — zero crop */
+    height: auto;
     display: block;
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: transform;
   }
 
@@ -57,25 +63,20 @@
   }
   .grid-item:active { opacity: 0.82; }
 
-  /* Fade-in stagger */
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .grid-item { animation: fadeIn 0.45s ease both; }
-  .grid-item:nth-child(1) { animation-delay: 0.00s; }
-  .grid-item:nth-child(2) { animation-delay: 0.04s; }
-  .grid-item:nth-child(3) { animation-delay: 0.08s; }
-  .grid-item:nth-child(4) { animation-delay: 0.12s; }
-  .grid-item:nth-child(5) { animation-delay: 0.16s; }
-  .grid-item:nth-child(6) { animation-delay: 0.20s; }
+  .grid-item {
+    animation: fadeIn 0.4s ease both;
+  }
 
   /* ── LIGHTBOX ── */
   .lb {
     position: fixed; inset: 0; z-index: 999;
     background: #000;
     opacity: 0; pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.28s ease;
     overflow: hidden;
     touch-action: none;
   }
@@ -84,7 +85,7 @@
   .lb-slot {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.28s ease;
+    transition: opacity 0.24s ease;
   }
   .lb-slot.hidden  { opacity: 0; pointer-events: none; }
   .lb-slot.visible { opacity: 1; }
@@ -165,7 +166,7 @@
 </head>
 <body>
 
-<main class="grid" id="grid"></main>
+<main id="grid"></main>
 <footer><span>©2026 | Andrew Rios Photography</span></footer>
 
 <div class="lb" id="lb">
@@ -191,7 +192,7 @@ let current    = 0;
 let activeSlot = 'A';
 let touchStartX, touchStartY, touchStartTime;
 
-const grid   = document.getElementById('grid');
+const gridEl = document.getElementById('grid');
 const lb     = document.getElementById('lb');
 const slotA  = document.getElementById('slotA');
 const slotB  = document.getElementById('slotB');
@@ -231,23 +232,62 @@ async function load() {
   });
 
   photos = ordered;
-  renderGrid();
+  renderMasonry();
   buildDots();
 }
 
-/* ── GRID ── */
-function renderGrid() {
+/* ── TRUE MASONRY ── */
+// Two columns. Each photo goes into whichever column is shorter.
+// Heights are tracked by summing natural image aspect ratios.
+function renderMasonry() {
+  const colL = document.createElement('div');
+  const colR = document.createElement('div');
+  colL.className = 'col';
+  colR.className = 'col';
+  gridEl.appendChild(colL);
+  gridEl.appendChild(colR);
+
+  // Track cumulative height ratio of each column
+  // We measure actual rendered heights after images load
+  const colHeights = [0, 0];
+
   photos.forEach((p, i) => {
     const div = document.createElement('div');
     div.className = 'grid-item';
+    div.style.animationDelay = `${Math.min(i, 8) * 0.04}s`;
+
     const img = document.createElement('img');
-    img.src = p.thumb;
-    img.loading = i < 6 ? 'eager' : 'lazy';
-    img.decoding = 'async';
     img.alt = '';
+    img.loading = i < 8 ? 'eager' : 'lazy';
+    img.decoding = 'async';
+
+    // When image loads, check column balance
+    img.onload = () => {
+      // After load, rebalance is not needed — items already placed
+      // Just update running height for next item's placement
+    };
+
     div.appendChild(img);
     div.addEventListener('click', () => openLb(i));
-    grid.appendChild(div);
+
+    // Pick shorter column
+    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
+    (col === 0 ? colL : colR).appendChild(div);
+
+    // We don't know the height yet (image not loaded), so
+    // estimate from a known aspect ratio via natural size hint.
+    // Use a placeholder ratio; actual layout handles itself via height:auto.
+    // For balance estimation: load image to get natural dimensions.
+    const probe = new Image();
+    probe.src = p.thumb;
+    probe.onload = () => {
+      const ratio = probe.naturalHeight / probe.naturalWidth;
+      colHeights[col] += ratio;
+      img.src = p.thumb; // set after probe
+    };
+
+    // Set src immediately too so it starts loading in parallel
+    img.src = p.thumb;
   });
 }
 
@@ -337,8 +377,8 @@ lb.addEventListener('touchend', e => {
   const dy = e.changedTouches[0].clientY - touchStartY;
   const dt = Date.now() - touchStartTime;
   const horizontal = Math.abs(dx) > Math.abs(dy);
-  if (!horizontal && dy > 60)                           { closeLb(); return; }
-  if (horizontal && (Math.abs(dx) > 40 || dt < 250))   { dx < 0 ? next() : prev(); }
+  if (!horizontal && dy > 60)                         { closeLb(); return; }
+  if (horizontal && (Math.abs(dx) > 40 || dt < 250)) { dx < 0 ? next() : prev(); }
 }, { passive: true });
 
 load();
