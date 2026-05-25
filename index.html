@@ -25,7 +25,7 @@
     padding-bottom: calc(44px + var(--safe-bottom));
   }
 
-  /* ── MASONRY ── */
+  /* ── MASONRY: two independent flex columns ── */
   #grid {
     display: flex;
     gap: var(--gap);
@@ -38,6 +38,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--gap);
+    min-width: 0;
   }
 
   .grid-item {
@@ -47,7 +48,7 @@
     touch-action: manipulation;
     overflow: hidden;
     border-radius: 2px;
-    background: #0a0a0a;
+    background: #111;
   }
 
   .grid-item img {
@@ -55,7 +56,6 @@
     height: auto;
     display: block;
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
   }
 
   @media (hover: hover) {
@@ -66,9 +66,6 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
-  }
-  .grid-item {
-    animation: fadeIn 0.4s ease both;
   }
 
   /* ── LIGHTBOX ── */
@@ -91,8 +88,7 @@
   .lb-slot.visible { opacity: 1; }
 
   .lb-slot img {
-    max-width: 100%;
-    max-height: 100dvh;
+    max-width: 100%; max-height: 100dvh;
     width: auto; height: auto;
     object-fit: contain; display: block;
     user-select: none; -webkit-user-drag: none;
@@ -100,54 +96,37 @@
 
   .lb-close {
     position: absolute;
-    top: calc(var(--safe-top) + 14px);
-    right: 18px;
+    top: calc(var(--safe-top) + 14px); right: 18px;
     z-index: 10;
-    width: 34px; height: 34px;
-    border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     background: rgba(255,255,255,0.1);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border: none;
-    color: rgba(255,255,255,0.75);
-    font-size: 15px;
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border: none; color: rgba(255,255,255,0.75); font-size: 15px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.2s;
-    font-family: -apple-system, sans-serif;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s; font-family: -apple-system, sans-serif;
   }
   .lb-close:active { background: rgba(255,255,255,0.22); }
 
   .lb-prev, .lb-next {
-    position: absolute; top: 0; bottom: 0;
-    width: 28%; z-index: 8;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    position: absolute; top: 0; bottom: 0; width: 28%; z-index: 8;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
     border: none; background: none;
   }
-  .lb-prev { left: 0; }
-  .lb-next { right: 0; }
+  .lb-prev { left: 0; } .lb-next { right: 0; }
 
   .lb-dots {
     position: absolute;
     bottom: calc(var(--safe-bottom) + 20px);
     left: 50%; transform: translateX(-50%);
-    display: flex; gap: 5px; align-items: center;
-    z-index: 10;
+    display: flex; gap: 5px; align-items: center; z-index: 10;
   }
   .lb-dot {
-    width: 4px; height: 4px;
-    border-radius: 50%;
+    width: 4px; height: 4px; border-radius: 50%;
     background: rgba(255,255,255,0.3);
-    transition: all 0.25s ease;
-    flex-shrink: 0;
+    transition: all 0.25s ease; flex-shrink: 0;
   }
-  .lb-dot.active {
-    background: #fff;
-    width: 16px;
-    border-radius: 2px;
-  }
+  .lb-dot.active { background: #fff; width: 16px; border-radius: 2px; }
 
   /* ── FOOTER ── */
   footer {
@@ -236,9 +215,10 @@ async function load() {
   buildDots();
 }
 
-/* ── TRUE MASONRY ── */
-// Two columns. Each photo goes into whichever column is shorter.
-// Heights are tracked by summing natural image aspect ratios.
+/* ── MASONRY ── 
+   Strategy: place all items into DOM immediately in alternating columns.
+   Then after all images load, rebalance by moving items to the shorter column.
+   This avoids the race condition of probe-then-place. */
 function renderMasonry() {
   const colL = document.createElement('div');
   const colR = document.createElement('div');
@@ -247,48 +227,55 @@ function renderMasonry() {
   gridEl.appendChild(colL);
   gridEl.appendChild(colR);
 
-  // Track cumulative height ratio of each column
-  // We measure actual rendered heights after images load
-  const colHeights = [0, 0];
-
+  // Place items alternately first so page isn't blank while images load
   photos.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'grid-item';
-    div.style.animationDelay = `${Math.min(i, 8) * 0.04}s`;
-
-    const img = document.createElement('img');
-    img.alt = '';
-    img.loading = i < 8 ? 'eager' : 'lazy';
-    img.decoding = 'async';
-
-    // When image loads, check column balance
-    img.onload = () => {
-      // After load, rebalance is not needed — items already placed
-      // Just update running height for next item's placement
-    };
-
-    div.appendChild(img);
-    div.addEventListener('click', () => openLb(i));
-
-    // Pick shorter column
-    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
-    (col === 0 ? colL : colR).appendChild(div);
-
-    // We don't know the height yet (image not loaded), so
-    // estimate from a known aspect ratio via natural size hint.
-    // Use a placeholder ratio; actual layout handles itself via height:auto.
-    // For balance estimation: load image to get natural dimensions.
-    const probe = new Image();
-    probe.src = p.thumb;
-    probe.onload = () => {
-      const ratio = probe.naturalHeight / probe.naturalWidth;
-      colHeights[col] += ratio;
-      img.src = p.thumb; // set after probe
-    };
-
-    // Set src immediately too so it starts loading in parallel
-    img.src = p.thumb;
+    const div = createItem(p, i);
+    (i % 2 === 0 ? colL : colR).appendChild(div);
   });
+
+  // After all images load, rebalance columns by actual rendered height
+  let loaded = 0;
+  const imgs = gridEl.querySelectorAll('.grid-item img');
+  
+  function tryRebalance() {
+    loaded++;
+    if (loaded < imgs.length) return;
+    
+    // Move all items out, then re-insert shortest-column-first
+    const items = Array.from(gridEl.querySelectorAll('.grid-item'));
+    colL.innerHTML = '';
+    colR.innerHTML = '';
+
+    items.forEach(item => {
+      const lh = colL.getBoundingClientRect().height;
+      const rh = colR.getBoundingClientRect().height;
+      (lh <= rh ? colL : colR).appendChild(item);
+    });
+  }
+
+  imgs.forEach(img => {
+    if (img.complete) { tryRebalance(); }
+    else {
+      img.addEventListener('load',  tryRebalance, { once: true });
+      img.addEventListener('error', tryRebalance, { once: true });
+    }
+  });
+}
+
+function createItem(p, i) {
+  const div = document.createElement('div');
+  div.className = 'grid-item';
+  div.style.animation = `fadeIn 0.4s ease ${Math.min(i, 8) * 0.04}s both`;
+
+  const img = document.createElement('img');
+  img.src = p.thumb;
+  img.loading = i < 8 ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  img.alt = '';
+
+  div.appendChild(img);
+  div.addEventListener('click', () => openLb(i));
+  return div;
 }
 
 /* ── DOTS ── */
@@ -328,11 +315,15 @@ function closeLb() {
 }
 
 function goTo(i) {
+  // Clamp — no looping, stop at first and last
+  const target = Math.max(0, Math.min(i, photos.length - 1));
+  if (target === current) return;
+
   const fromSlot = activeSlot === 'A' ? slotA : slotB;
   const toSlot   = activeSlot === 'A' ? slotB : slotA;
   const toImg    = activeSlot === 'A' ? imgB  : imgA;
 
-  current = ((i % photos.length) + photos.length) % photos.length;
+  current = target;
   toImg.src = '';
   toImg.src = photos[current].full;
 
@@ -350,7 +341,8 @@ function next() { goTo(current + 1); }
 function prev() { goTo(current - 1); }
 
 function preloadAdjacent() {
-  [(current + 1) % photos.length, (current - 1 + photos.length) % photos.length]
+  [current + 1, current - 1]
+    .filter(idx => idx >= 0 && idx < photos.length)
     .forEach(idx => { const p = new Image(); p.src = photos[idx].full; });
 }
 
