@@ -9,7 +9,11 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root { --safe-bottom: env(safe-area-inset-bottom); }
+  :root {
+    --gap: 2px;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
 
   html, body {
     background: #000;
@@ -17,78 +21,144 @@
     overflow-x: hidden;
   }
 
-  body { padding-bottom: calc(48px + var(--safe-bottom)); }
+  body {
+    padding-bottom: calc(44px + var(--safe-bottom));
+  }
 
+  /* ── GRID ── */
+  /* Masonry-style: two equal columns, photos at full natural height */
   .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 3px;
-    padding: 3px;
+    gap: var(--gap);
+    padding: var(--gap);
+    align-items: start;
   }
 
-  .grid-item:first-child                          { grid-column: 1 / -1; aspect-ratio: 4/3; }
-  .grid-item:nth-child(7n+1):not(:first-child)    { grid-column: 1 / -1; aspect-ratio: 16/9; }
-
   .grid-item {
-    aspect-ratio: 3/4;
-    background: #111;
+    background: #0a0a0a;
     overflow: hidden;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    border-radius: 2px;
   }
 
   .grid-item img {
-    width: 100%; height: 100%;
-    object-fit: cover; display: block;
-    transition: transform 0.4s ease;
+    width: 100%;
+    height: auto;          /* full natural proportions — zero crop */
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
   }
-  .grid-item:active img { transform: scale(0.97); }
+
+  @media (hover: hover) {
+    .grid-item:hover img { transform: scale(1.03); }
+  }
+  .grid-item:active { opacity: 0.82; }
+
+  /* Fade-in stagger */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .grid-item { animation: fadeIn 0.45s ease both; }
+  .grid-item:nth-child(1) { animation-delay: 0.00s; }
+  .grid-item:nth-child(2) { animation-delay: 0.04s; }
+  .grid-item:nth-child(3) { animation-delay: 0.08s; }
+  .grid-item:nth-child(4) { animation-delay: 0.12s; }
+  .grid-item:nth-child(5) { animation-delay: 0.16s; }
+  .grid-item:nth-child(6) { animation-delay: 0.20s; }
 
   /* ── LIGHTBOX ── */
   .lb {
     position: fixed; inset: 0; z-index: 999;
     background: #000;
-    display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.3s ease;
+    overflow: hidden;
+    touch-action: none;
   }
   .lb.open { opacity: 1; pointer-events: all; }
 
-  .lb img {
-    max-width: 100%; max-height: 100dvh;
+  .lb-slot {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.28s ease;
+  }
+  .lb-slot.hidden  { opacity: 0; pointer-events: none; }
+  .lb-slot.visible { opacity: 1; }
+
+  .lb-slot img {
+    max-width: 100%;
+    max-height: 100dvh;
     width: auto; height: auto;
     object-fit: contain; display: block;
-    touch-action: pinch-zoom;
-    transition: opacity 0.2s ease;
     user-select: none; -webkit-user-drag: none;
   }
 
   .lb-close {
-    position: absolute; top: 0; right: 0;
-    width: 72px; height: 72px;
-    display: flex; align-items: flex-start; justify-content: flex-end;
-    padding-top: calc(env(safe-area-inset-top) + 16px);
-    padding-right: 20px;
-    cursor: pointer; z-index: 10;
+    position: absolute;
+    top: calc(var(--safe-top) + 14px);
+    right: 18px;
+    z-index: 10;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: none;
+    color: rgba(255,255,255,0.75);
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-  }
-  .lb-close::before {
-    content: '✕';
-    font-size: 18px; color: rgba(255,255,255,0.5);
+    transition: background 0.2s;
     font-family: -apple-system, sans-serif;
   }
+  .lb-close:active { background: rgba(255,255,255,0.22); }
 
+  .lb-prev, .lb-next {
+    position: absolute; top: 0; bottom: 0;
+    width: 28%; z-index: 8;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border: none; background: none;
+  }
+  .lb-prev { left: 0; }
+  .lb-next { right: 0; }
+
+  .lb-dots {
+    position: absolute;
+    bottom: calc(var(--safe-bottom) + 20px);
+    left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; align-items: center;
+    z-index: 10;
+  }
+  .lb-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+  }
+  .lb-dot.active {
+    background: #fff;
+    width: 16px;
+    border-radius: 2px;
+  }
+
+  /* ── FOOTER ── */
   footer {
-    height: 48px;
+    height: 44px;
     display: flex; align-items: center; justify-content: center;
     padding-bottom: var(--safe-bottom);
     background: #000;
   }
   footer span {
     font-family: -apple-system, 'Helvetica Neue', sans-serif;
-    font-size: 11px; font-weight: 300;
-    letter-spacing: 0.08em; color: rgba(255,255,255,0.25);
+    font-size: 10px; font-weight: 300;
+    letter-spacing: 0.1em; color: rgba(255,255,255,0.2);
     text-transform: uppercase;
   }
 </style>
@@ -99,8 +169,12 @@
 <footer><span>©2026 | Andrew Rios Photography</span></footer>
 
 <div class="lb" id="lb">
-  <div class="lb-close" id="lbClose"></div>
-  <img id="lbImg" src="" alt="" />
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
+  <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
+  <button class="lb-prev" id="lbPrev" aria-label="Previous"></button>
+  <button class="lb-next" id="lbNext" aria-label="Next"></button>
+  <div class="lb-dots" id="lbDots"></div>
 </div>
 
 <script>
@@ -108,61 +182,60 @@ const GITHUB_USER   = 'andrewsportal';
 const GITHUB_REPO   = 'andrewriosphotography';
 const GITHUB_FOLDER = '';
 
-const EXTS    = ['jpg','jpeg','png','webp','heic'];
-const RAW     = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
-const API     = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+const EXTS = ['jpg','jpeg','png','webp','heic'];
+const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
-let photos  = [];
-let current = 0;
-let touchX  = 0;
-let touchY  = 0;
+let photos     = [];
+let current    = 0;
+let activeSlot = 'A';
+let touchStartX, touchStartY, touchStartTime;
 
-const grid  = document.getElementById('grid');
-const lb    = document.getElementById('lb');
-const lbImg = document.getElementById('lbImg');
+const grid   = document.getElementById('grid');
+const lb     = document.getElementById('lb');
+const slotA  = document.getElementById('slotA');
+const slotB  = document.getElementById('slotB');
+const imgA   = document.getElementById('imgA');
+const imgB   = document.getElementById('imgB');
+const dotsEl = document.getElementById('lbDots');
 
 /* ── LOAD ── */
 async function load() {
   const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
-
-  // Fetch file list and order.txt in parallel
   const [filesRes, orderRes] = await Promise.all([
     fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
-    fetch(`${RAW}${folder ? '/'+GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
+    fetch(`${RAW}${GITHUB_FOLDER ? '/'+GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
   ]);
 
   const files = await filesRes.json();
-
-  // Build a map of filename → download_url
   const fileMap = {};
   files
     .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
     .forEach(f => { fileMap[f.name] = f.download_url; });
 
   let ordered = [];
-
   if (orderRes && orderRes.ok) {
     const text = await orderRes.text();
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-
-    // Photos listed in order.txt — in that order
-    lines.forEach(name => {
-      if (fileMap[name]) {
-        ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
-        delete fileMap[name]; // remove so it doesn't appear twice
-      }
-    });
+    text.split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'))
+      .forEach(name => {
+        if (fileMap[name]) {
+          ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
+          delete fileMap[name];
+        }
+      });
   }
-
-  // Any remaining photos not in order.txt — appended alphabetically
   Object.keys(fileMap).sort().forEach(name => {
     ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
   });
 
   photos = ordered;
   renderGrid();
+  buildDots();
 }
 
+/* ── GRID ── */
 function renderGrid() {
   photos.forEach((p, i) => {
     const div = document.createElement('div');
@@ -173,50 +246,99 @@ function renderGrid() {
     img.decoding = 'async';
     img.alt = '';
     div.appendChild(img);
-    div.addEventListener('click', () => open(i));
+    div.addEventListener('click', () => openLb(i));
     grid.appendChild(div);
   });
 }
 
-function open(i)  { current = i; showPhoto(); lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
-function close()  { lb.classList.remove('open'); document.body.style.overflow = ''; }
-function next()   { current = (current + 1) % photos.length; showPhoto(); }
-function prev()   { current = (current - 1 + photos.length) % photos.length; showPhoto(); }
-
-function showPhoto() {
-  lbImg.style.opacity = '0';
-  lbImg.src = photos[current].full;
-  lbImg.onload  = () => { lbImg.style.opacity = '1'; };
-  lbImg.onerror = () => { lbImg.src = photos[current].thumb; lbImg.style.opacity = '1'; };
+/* ── DOTS ── */
+const MAX_DOTS = 7;
+function buildDots() {
+  dotsEl.innerHTML = '';
+  const count = Math.min(photos.length, MAX_DOTS);
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'lb-dot';
+    dotsEl.appendChild(d);
+  }
+  updateDots();
+}
+function updateDots() {
+  const dots = dotsEl.querySelectorAll('.lb-dot');
+  if (!dots.length) return;
+  const half  = Math.floor(MAX_DOTS / 2);
+  const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
+  dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
 }
 
-document.getElementById('lbClose').addEventListener('click', close);
+/* ── LIGHTBOX ── */
+function openLb(i) {
+  current = i;
+  const img = activeSlot === 'A' ? imgA : imgB;
+  img.src = photos[i].full;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  updateDots();
+  preloadAdjacent();
+}
 
-lb.addEventListener('click', e => {
-  if (e.target.closest('#lbClose')) return;
-  const x = e.clientX / window.innerWidth;
-  if (x < 0.3) prev();
-  else if (x > 0.7) next();
-  else close();
-});
+function closeLb() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function goTo(i) {
+  const fromSlot = activeSlot === 'A' ? slotA : slotB;
+  const toSlot   = activeSlot === 'A' ? slotB : slotA;
+  const toImg    = activeSlot === 'A' ? imgB  : imgA;
+
+  current = ((i % photos.length) + photos.length) % photos.length;
+  toImg.src = '';
+  toImg.src = photos[current].full;
+
+  toImg.onload = () => {
+    toSlot.classList.replace('hidden', 'visible');
+    fromSlot.classList.replace('visible', 'hidden');
+    activeSlot = activeSlot === 'A' ? 'B' : 'A';
+    updateDots();
+    preloadAdjacent();
+  };
+  toImg.onerror = () => { toImg.src = photos[current].thumb; };
+}
+
+function next() { goTo(current + 1); }
+function prev() { goTo(current - 1); }
+
+function preloadAdjacent() {
+  [(current + 1) % photos.length, (current - 1 + photos.length) % photos.length]
+    .forEach(idx => { const p = new Image(); p.src = photos[idx].full; });
+}
+
+/* ── CONTROLS ── */
+document.getElementById('lbClose').addEventListener('click', closeLb);
+document.getElementById('lbPrev').addEventListener('click', prev);
+document.getElementById('lbNext').addEventListener('click', next);
 
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
-  if (e.key === 'Escape')     close();
+  if (e.key === 'Escape')     closeLb();
   if (e.key === 'ArrowRight') next();
   if (e.key === 'ArrowLeft')  prev();
 });
 
 lb.addEventListener('touchstart', e => {
-  touchX = e.changedTouches[0].clientX;
-  touchY = e.changedTouches[0].clientY;
+  touchStartX    = e.changedTouches[0].clientX;
+  touchStartY    = e.changedTouches[0].clientY;
+  touchStartTime = Date.now();
 }, { passive: true });
 
 lb.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchX;
-  const dy = e.changedTouches[0].clientY - touchY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 35) { dx < 0 ? next() : prev(); }
-  else if (dy > 80 && Math.abs(dy) > Math.abs(dx))       { close(); }
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartTime;
+  const horizontal = Math.abs(dx) > Math.abs(dy);
+  if (!horizontal && dy > 60)                           { closeLb(); return; }
+  if (horizontal && (Math.abs(dx) > 40 || dt < 250))   { dx < 0 ? next() : prev(); }
 }, { passive: true });
 
 load();
