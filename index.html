@@ -10,7 +10,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --gap: 2px;
+    --gap: 1px;
+    --page-size: 12;
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
     --safe-left: env(safe-area-inset-left);
@@ -28,10 +29,38 @@
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    /* no padding-bottom — footer handles safe area */
   }
 
-  /* ── MASONRY ── */
+  /* ── HEADER ── */
+  header {
+    padding-top: calc(var(--safe-top) + 18px);
+    padding-bottom: 14px;
+    padding-left: calc(var(--safe-left) + 16px);
+    padding-right: calc(var(--safe-right) + 16px);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    background: #000;
+  }
+
+  header h1 {
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: #fff;
+    line-height: 1;
+  }
+
+  #photoCount {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.38);
+    letter-spacing: 0;
+  }
+
+  /* ── MASONRY GRID ── */
   #grid {
     display: flex;
     gap: var(--gap);
@@ -45,7 +74,6 @@
   .col {
     flex: 1 1 0;
     min-width: 0;
-    max-width: calc(50% - var(--gap) / 2);
     display: flex;
     flex-direction: column;
     gap: var(--gap);
@@ -57,60 +85,157 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     overflow: hidden;
-    border-radius: 3px;
     background: #111;
-    /* Apple HIG: 44pt minimum tap target handled by natural photo height */
+    position: relative;
   }
 
   .grid-item img {
     width: 100%;
     height: auto;
     display: block;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: transform;
   }
 
-  @media (hover: hover) {
-    .grid-item:hover img { transform: scale(1.02); }
+  /* HIG tap feedback — opacity, not scale */
+  .grid-item:active img {
+    opacity: 0.82;
+    transition: opacity 0.08s ease;
   }
 
-  /* Apple HIG tap feedback — subtle opacity, not scale */
-  .grid-item:active img {
-    opacity: 0.85;
-    transition: opacity 0.1s ease;
+  @media (hover: hover) {
+    .grid-item:hover img {
+      transform: scale(1.015);
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
   }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .grid-item { animation: fadeUp 0.4s ease both; }
+  .grid-item {
+    animation: fadeUp 0.35s ease both;
+  }
 
-  /* ── FOOTER ── */
-  footer {
-    margin-top: 32px;
-    padding-top: 16px;
-    padding-bottom: calc(var(--safe-bottom) + 20px);
-    padding-left: var(--safe-left);
-    padding-right: var(--safe-right);
+  /* ── PAGINATION BAR ── */
+  #paginationBar {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    padding: 28px 20px;
+    padding-bottom: calc(var(--safe-bottom) + 28px);
+  }
+
+  /* Page indicator — Apple-style dot strip */
+  #pageIndicator {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    height: 8px;
+  }
+
+  .page-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .page-dot.active {
+    background: #fff;
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* Load more — pill button, frosted glass */
+  #loadMoreBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 22px;
+    border: none;
+    background: rgba(255,255,255,0.12);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    color: rgba(255,255,255,0.88);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.12s ease;
+  }
+
+  #loadMoreBtn.visible {
+    display: flex;
+  }
+
+  #loadMoreBtn:active {
+    background: rgba(255,255,255,0.2);
+    transform: scale(0.97);
+  }
+
+  #loadMoreBtn .btn-chevron {
+    font-size: 13px;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+  }
+
+  #loadMoreBtn:active .btn-chevron {
+    transform: translateY(2px);
+  }
+
+  /* Page counter text */
+  #pageCounter {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.04em;
+  }
+
+  /* All-loaded state */
+  #allLoadedMsg {
+    display: none;
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  #allLoadedMsg.visible { display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 14px 20px;
+    padding-bottom: calc(var(--safe-bottom) + 16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
     background: #000;
-    border-top: 1px solid rgba(255,255,255,0.06);
   }
 
   footer span {
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: 11px;
     font-weight: 400;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.07em;
+    color: rgba(255,255,255,0.18);
     text-transform: uppercase;
   }
 
   /* ── LIGHTBOX ── */
-  /* Apple HIG: full-screen modal, black scrim, no chrome */
   .lb {
     position: fixed;
     inset: 0;
@@ -118,24 +243,25 @@
     background: #000;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: opacity 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     touch-action: none;
     user-select: none;
   }
+
   .lb.open {
     opacity: 1;
     pointer-events: all;
   }
 
-  /* Two slots crossfade */
   .lb-slot {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.22s ease;
   }
+
   .lb-slot.hidden  { opacity: 0; pointer-events: none; }
   .lb-slot.visible { opacity: 1; }
 
@@ -147,20 +273,19 @@
     object-fit: contain;
     display: block;
     -webkit-user-drag: none;
-    border-radius: 0;
   }
 
-  /* Apple HIG close button — top right, 44×44pt, frosted glass */
+  /* HIG close — 44×44pt, frosted pill */
   .lb-close {
     position: absolute;
-    top: calc(var(--safe-top) + 12px);
+    top: calc(var(--safe-top) + 14px);
     right: calc(var(--safe-right) + 16px);
     z-index: 10;
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: none;
-    background: rgba(60,60,67,0.6);
+    background: rgba(60,60,67,0.65);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
     color: rgba(255,255,255,0.9);
@@ -171,18 +296,33 @@
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    /* Extend tap target to Apple HIG 44pt */
+    /* Extend hit area to HIG 44pt */
     padding: 7px;
     margin: -7px;
     font-family: -apple-system, sans-serif;
-    transition: background 0.15s ease;
-  }
-  .lb-close:active {
-    background: rgba(60,60,67,0.85);
-    transform: scale(0.94);
+    transition: background 0.12s ease;
   }
 
-  /* Invisible nav tap zones — only active when lb is open */
+  .lb-close:active {
+    background: rgba(60,60,67,0.9);
+    transform: scale(0.93);
+  }
+
+  /* Counter top-left */
+  .lb-counter {
+    position: absolute;
+    top: calc(var(--safe-top) + 18px);
+    left: calc(var(--safe-left) + 18px);
+    z-index: 10;
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    pointer-events: none;
+    letter-spacing: -0.2px;
+  }
+
+  /* Invisible 30% nav zones */
   .lb-prev, .lb-next {
     position: absolute;
     top: 0; bottom: 0;
@@ -194,49 +334,94 @@
     -webkit-tap-highlight-color: transparent;
     pointer-events: none;
   }
+
   .lb.open .lb-prev,
   .lb.open .lb-next {
     pointer-events: all;
   }
+
   .lb-prev { left: 0; }
   .lb-next { right: 0; }
 
-  /* Apple HIG page indicator dots */
+  /* HIG page indicator dots */
   .lb-dots {
     position: absolute;
-    bottom: calc(var(--safe-bottom) + 24px);
+    bottom: calc(var(--safe-bottom) + 22px);
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 6px;
+    gap: 5px;
     align-items: center;
     z-index: 10;
     pointer-events: none;
   }
+
   .lb-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.35);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: rgba(255,255,255,0.3);
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     flex-shrink: 0;
   }
+
   .lb-dot.active {
     background: #fff;
     width: 18px;
     border-radius: 3px;
   }
+
+  /* ── LOADING SKELETON ── */
+  .skeleton-grid {
+    display: flex;
+    gap: 1px;
+    padding: 1px;
+    align-items: flex-start;
+  }
+
+  .skeleton-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .skeleton-item {
+    background: #1a1a1a;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1; }
+  }
 </style>
 </head>
 <body>
 
+<header>
+  <h1>Andrew Rios</h1>
+  <span id="photoCount"></span>
+</header>
+
 <main id="grid"></main>
+
+<div id="paginationBar">
+  <div id="pageIndicator"></div>
+  <button id="loadMoreBtn" aria-label="Load more photos">
+    More photos
+    <span class="btn-chevron">↓</span>
+  </button>
+  <span id="pageCounter"></span>
+  <span id="allLoadedMsg">All photos</span>
+</div>
 
 <footer>
   <span>©2026 | Andrew Rios Photography</span>
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true">
+  <span class="lb-counter" id="lbCounter"></span>
   <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
   <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
@@ -249,24 +434,32 @@
 const GITHUB_USER   = 'andrewsportal';
 const GITHUB_REPO   = 'andrewriosphotography';
 const GITHUB_FOLDER = '';
+const PAGE_SIZE     = 12; // HIG: bounded pages, not infinite walls
 
 const EXTS = ['jpg','jpeg','png','webp','heic'];
 const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
-let photos     = [];
-let current    = 0;
-let activeSlot = 'A';
-let loaded     = false; // guard: prevent double-render
+let photos      = [];
+let visibleCount = 0;   // how many are currently rendered
+let current     = 0;
+let activeSlot  = 'A';
+let loaded      = false;
 let touchStartX, touchStartY, touchStartTime;
 
-const gridEl = document.getElementById('grid');
-const lb     = document.getElementById('lb');
-const slotA  = document.getElementById('slotA');
-const slotB  = document.getElementById('slotB');
-const imgA   = document.getElementById('imgA');
-const imgB   = document.getElementById('imgB');
-const dotsEl = document.getElementById('lbDots');
+const gridEl      = document.getElementById('grid');
+const lb          = document.getElementById('lb');
+const slotA       = document.getElementById('slotA');
+const slotB       = document.getElementById('slotB');
+const imgA        = document.getElementById('imgA');
+const imgB        = document.getElementById('imgB');
+const dotsEl      = document.getElementById('lbDots');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const pageCounter = document.getElementById('pageCounter');
+const pageIndEl   = document.getElementById('pageIndicator');
+const allLoaded   = document.getElementById('allLoadedMsg');
+const photoCount  = document.getElementById('photoCount');
+const lbCounter   = document.getElementById('lbCounter');
 
 /* ── LOAD ── */
 async function load() {
@@ -301,43 +494,53 @@ async function load() {
           }
         });
     }
-    // Remaining not in order.txt — append alphabetically
+
     Object.keys(fileMap).sort().forEach(name => {
       ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
     });
 
     photos = ordered;
-    await renderMasonry();
+    photoCount.textContent = `${photos.length} photos`;
+
+    // Render first page
+    await renderPage(0, PAGE_SIZE);
+    visibleCount = Math.min(PAGE_SIZE, photos.length);
+
     buildDots();
+    updatePagination();
 
   } catch(e) {
     console.error('Load error:', e);
   }
 }
 
-/* ── MASONRY ──
-   1. Probe all aspect ratios in parallel (hidden Image objects)
-   2. Place each photo into shorter column IN ORDER — once, never moved */
-async function renderMasonry() {
-  const colL = document.createElement('div');
-  const colR = document.createElement('div');
-  colL.className = 'col';
-  colR.className = 'col';
+/* ── MASONRY — render a slice of photos into the existing columns ── */
+let colL, colR, heights;
 
-  // Probe ratios first
-  const ratios = await Promise.all(photos.map(p => probeRatio(p.thumb)));
+async function renderPage(from, count) {
+  const to = Math.min(from + count, photos.length);
+  const slice = photos.slice(from, to);
 
-  // Place in order into shorter column
-  const heights = [0, 0];
-  photos.forEach((p, i) => {
+  // First page: create columns
+  if (from === 0) {
+    colL = document.createElement('div');
+    colR = document.createElement('div');
+    colL.className = 'col';
+    colR.className = 'col';
+    heights = [0, 0];
+    gridEl.appendChild(colL);
+    gridEl.appendChild(colR);
+  }
+
+  const ratios = await Promise.all(slice.map(p => probeRatio(p.thumb)));
+
+  slice.forEach((p, idx) => {
+    const globalIdx = from + idx;
     const col = heights[0] <= heights[1] ? 0 : 1;
-    const item = makeItem(p, i);
+    const item = makeItem(p, globalIdx, idx); // local idx for stagger
     (col === 0 ? colL : colR).appendChild(item);
-    heights[col] += ratios[i];
+    heights[col] += ratios[idx];
   });
-
-  gridEl.appendChild(colL);
-  gridEl.appendChild(colR);
 }
 
 function probeRatio(src) {
@@ -349,29 +552,78 @@ function probeRatio(src) {
   });
 }
 
-function makeItem(p, i) {
+function makeItem(p, globalIdx, localIdx = 0) {
   const div = document.createElement('div');
   div.className = 'grid-item';
-  div.style.animationDelay = `${Math.min(i, 10) * 0.035}s`;
+  div.style.animationDelay = `${Math.min(localIdx, 8) * 0.04}s`;
   div.setAttribute('role', 'button');
   div.setAttribute('tabindex', '0');
-  div.setAttribute('aria-label', `Photo ${i + 1}`);
+  div.setAttribute('aria-label', `Photo ${globalIdx + 1}`);
 
   const img = document.createElement('img');
-  img.src     = p.thumb;
-  img.loading = i < 8 ? 'eager' : 'lazy';
+  img.src      = p.thumb;
+  img.loading  = globalIdx < 8 ? 'eager' : 'lazy';
   img.decoding = 'async';
-  img.alt     = '';
+  img.alt      = '';
 
   div.appendChild(img);
-  div.addEventListener('click', () => openLb(i));
+  div.addEventListener('click', () => openLb(globalIdx));
   div.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') openLb(i);
+    if (e.key === 'Enter' || e.key === ' ') openLb(globalIdx);
   });
   return div;
 }
 
-/* ── DOTS ── */
+/* ── PAGINATION UI ── */
+function updatePagination() {
+  const remaining = photos.length - visibleCount;
+  const totalPages = Math.ceil(photos.length / PAGE_SIZE);
+  const currentPage = Math.ceil(visibleCount / PAGE_SIZE);
+
+  // Page dots — only show if ≤ 9 pages, otherwise use counter
+  pageIndEl.innerHTML = '';
+  if (totalPages <= 9) {
+    for (let i = 0; i < totalPages; i++) {
+      const d = document.createElement('div');
+      d.className = 'page-dot' + (i === currentPage - 1 ? ' active' : '');
+      pageIndEl.appendChild(d);
+    }
+    pageIndEl.style.display = 'flex';
+    pageCounter.style.display = 'none';
+  } else {
+    pageIndEl.style.display = 'none';
+    pageCounter.textContent = `${visibleCount} of ${photos.length}`;
+    pageCounter.style.display = 'block';
+  }
+
+  if (remaining > 0) {
+    loadMoreBtn.textContent = '';
+    loadMoreBtn.innerHTML = `${remaining} more <span class="btn-chevron">↓</span>`;
+    loadMoreBtn.classList.add('visible');
+    allLoaded.classList.remove('visible');
+  } else {
+    loadMoreBtn.classList.remove('visible');
+    allLoaded.classList.add('visible');
+    pageIndEl.innerHTML = '';
+    pageCounter.style.display = 'none';
+  }
+}
+
+loadMoreBtn.addEventListener('click', async () => {
+  loadMoreBtn.style.opacity = '0.5';
+  loadMoreBtn.style.pointerEvents = 'none';
+
+  const from = visibleCount;
+  await renderPage(from, PAGE_SIZE);
+  visibleCount = Math.min(visibleCount + PAGE_SIZE, photos.length);
+
+  loadMoreBtn.style.opacity = '';
+  loadMoreBtn.style.pointerEvents = '';
+
+  updatePagination();
+});
+
+/* ── LIGHTBOX DOTS ── */
 const MAX_DOTS = 7;
 
 function buildDots() {
@@ -391,6 +643,7 @@ function updateDots() {
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
+  lbCounter.textContent = `${current + 1} / ${photos.length}`;
 }
 
 /* ── LIGHTBOX ── */
@@ -410,7 +663,6 @@ function closeLb() {
 }
 
 function goTo(i) {
-  // Hard clamp — stop at first and last, no loop
   const target = Math.max(0, Math.min(i, photos.length - 1));
   if (target === current) return;
 
@@ -429,9 +681,7 @@ function goTo(i) {
     updateDots();
     preloadAdjacent();
   };
-  toImg.onerror = () => {
-    toImg.src = photos[current].thumb;
-  };
+  toImg.onerror = () => { toImg.src = photos[current].thumb; };
 }
 
 function next() { goTo(current + 1); }
@@ -447,11 +697,7 @@ function preloadAdjacent() {
 document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbPrev').addEventListener('click', prev);
 document.getElementById('lbNext').addEventListener('click', next);
-
-// Tap center of lightbox to close
-lb.addEventListener('click', e => {
-  if (e.target === lb) closeLb();
-});
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
@@ -460,7 +706,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  prev();
 });
 
-/* Apple HIG swipe gesture — velocity-aware */
 lb.addEventListener('touchstart', e => {
   touchStartX    = e.changedTouches[0].clientX;
   touchStartY    = e.changedTouches[0].clientY;
@@ -471,11 +716,11 @@ lb.addEventListener('touchend', e => {
   const dx  = e.changedTouches[0].clientX - touchStartX;
   const dy  = e.changedTouches[0].clientY - touchStartY;
   const dt  = Date.now() - touchStartTime;
-  const vel = Math.abs(dx) / dt; // px/ms
+  const vel = Math.abs(dx) / dt;
   const isH = Math.abs(dx) > Math.abs(dy);
 
-  if (!isH && dy > 72)                           { closeLb(); return; }
-  if (isH && (Math.abs(dx) > 50 || vel > 0.3))  { dx < 0 ? next() : prev(); }
+  if (!isH && dy > 72)                          { closeLb(); return; }
+  if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? next() : prev(); }
 }, { passive: true });
 
 load();
