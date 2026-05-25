@@ -211,15 +211,15 @@ async function load() {
   });
 
   photos = ordered;
-  renderMasonry();
+  await renderMasonry();
   buildDots();
 }
 
-/* ── MASONRY ── 
-   Strategy: place all items into DOM immediately in alternating columns.
-   Then after all images load, rebalance by moving items to the shorter column.
-   This avoids the race condition of probe-then-place. */
-function renderMasonry() {
+/* ── MASONRY ──
+   Strategy: probe each image's natural dimensions first (parallel),
+   then place every photo into the shorter column IN ORDER — once, permanently.
+   No rebalancing, no re-appending, no order disruption. */
+async function renderMasonry() {
   const colL = document.createElement('div');
   const colR = document.createElement('div');
   colL.className = 'col';
@@ -227,38 +227,25 @@ function renderMasonry() {
   gridEl.appendChild(colL);
   gridEl.appendChild(colR);
 
-  // Place items alternately first so page isn't blank while images load
+  // Probe all image aspect ratios in parallel
+  const ratios = await Promise.all(photos.map(p => getAspectRatio(p.thumb)));
+
+  // Place each photo into shorter column, in order
+  const colHeights = [0, 0];
   photos.forEach((p, i) => {
+    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
     const div = createItem(p, i);
-    (i % 2 === 0 ? colL : colR).appendChild(div);
+    (col === 0 ? colL : colR).appendChild(div);
+    colHeights[col] += ratios[i]; // accumulate height ratio
   });
+}
 
-  // After all images load, rebalance columns by actual rendered height
-  let loaded = 0;
-  const imgs = gridEl.querySelectorAll('.grid-item img');
-  
-  function tryRebalance() {
-    loaded++;
-    if (loaded < imgs.length) return;
-    
-    // Move all items out, then re-insert shortest-column-first
-    const items = Array.from(gridEl.querySelectorAll('.grid-item'));
-    colL.innerHTML = '';
-    colR.innerHTML = '';
-
-    items.forEach(item => {
-      const lh = colL.getBoundingClientRect().height;
-      const rh = colR.getBoundingClientRect().height;
-      (lh <= rh ? colL : colR).appendChild(item);
-    });
-  }
-
-  imgs.forEach(img => {
-    if (img.complete) { tryRebalance(); }
-    else {
-      img.addEventListener('load',  tryRebalance, { once: true });
-      img.addEventListener('error', tryRebalance, { once: true });
-    }
+function getAspectRatio(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload  = () => resolve(img.naturalHeight / (img.naturalWidth || 1));
+    img.onerror = () => resolve(1); // fallback: square
+    img.src = src;
   });
 }
 
