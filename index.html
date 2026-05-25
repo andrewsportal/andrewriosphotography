@@ -13,37 +13,42 @@
     --gap: 2px;
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
+    --safe-left: env(safe-area-inset-left);
+    --safe-right: env(safe-area-inset-right);
   }
 
   html {
     background: #000;
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     background: #000;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(44px + var(--safe-bottom));
+    /* no padding-bottom — footer handles safe area */
   }
 
-  /* ── MASONRY: two independent flex columns ── */
+  /* ── MASONRY ── */
   #grid {
     display: flex;
     gap: var(--gap);
     padding: var(--gap);
+    padding-left: calc(var(--safe-left) + var(--gap));
+    padding-right: calc(var(--safe-right) + var(--gap));
     align-items: flex-start;
     width: 100%;
   }
 
   .col {
     flex: 1 1 0;
+    min-width: 0;
+    max-width: calc(50% - var(--gap) / 2);
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    min-width: 0;
-    max-width: 50%;
   }
 
   .grid-item {
@@ -52,8 +57,9 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     overflow: hidden;
-    border-radius: 2px;
+    border-radius: 3px;
     background: #111;
+    /* Apple HIG: 44pt minimum tap target handled by natural photo height */
   }
 
   .grid-item img {
@@ -61,111 +67,182 @@
     height: auto;
     display: block;
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
   }
 
   @media (hover: hover) {
-    .grid-item:hover img { transform: scale(1.03); }
+    .grid-item:hover img { transform: scale(1.02); }
   }
-  .grid-item:active { opacity: 0.82; }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+  /* Apple HIG tap feedback — subtle opacity, not scale */
+  .grid-item:active img {
+    opacity: 0.85;
+    transition: opacity 0.1s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
+  }
+  .grid-item { animation: fadeUp 0.4s ease both; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    padding-bottom: calc(var(--safe-bottom) + 20px);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  footer span {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.22);
+    text-transform: uppercase;
   }
 
   /* ── LIGHTBOX ── */
+  /* Apple HIG: full-screen modal, black scrim, no chrome */
   .lb {
-    position: fixed; inset: 0; z-index: 999;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
     background: #000;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.28s ease;
-    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     touch-action: none;
+    user-select: none;
   }
-  .lb.open { opacity: 1; pointer-events: all; }
+  .lb.open {
+    opacity: 1;
+    pointer-events: all;
+  }
 
+  /* Two slots crossfade */
   .lb-slot {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.24s ease;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.25s ease;
   }
   .lb-slot.hidden  { opacity: 0; pointer-events: none; }
   .lb-slot.visible { opacity: 1; }
 
   .lb-slot img {
-    max-width: 100%; max-height: 100dvh;
-    width: auto; height: auto;
-    object-fit: contain; display: block;
-    user-select: none; -webkit-user-drag: none;
+    max-width: 100%;
+    max-height: 100dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    -webkit-user-drag: none;
+    border-radius: 0;
   }
 
+  /* Apple HIG close button — top right, 44×44pt, frosted glass */
   .lb-close {
     position: absolute;
-    top: calc(var(--safe-top) + 14px); right: 18px;
+    top: calc(var(--safe-top) + 12px);
+    right: calc(var(--safe-right) + 16px);
     z-index: 10;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-    border: none; color: rgba(255,255,255,0.75); font-size: 15px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-    transition: background 0.2s; font-family: -apple-system, sans-serif;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(60,60,67,0.6);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* Extend tap target to Apple HIG 44pt */
+    padding: 7px;
+    margin: -7px;
+    font-family: -apple-system, sans-serif;
+    transition: background 0.15s ease;
   }
-  .lb-close:active { background: rgba(255,255,255,0.22); }
+  .lb-close:active {
+    background: rgba(60,60,67,0.85);
+    transform: scale(0.94);
+  }
 
+  /* Invisible nav tap zones — only active when lb is open */
   .lb-prev, .lb-next {
-    position: absolute; top: 10%; bottom: 10%; width: 28%; z-index: 8;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-    border: none; background: none;
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 30%;
+    z-index: 8;
+    border: none;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     pointer-events: none;
   }
   .lb.open .lb-prev,
-  .lb.open .lb-next { pointer-events: all; }
-  .lb-prev { left: 0; } .lb-next { right: 0; }
+  .lb.open .lb-next {
+    pointer-events: all;
+  }
+  .lb-prev { left: 0; }
+  .lb-next { right: 0; }
 
+  /* Apple HIG page indicator dots */
   .lb-dots {
     position: absolute;
-    bottom: calc(var(--safe-bottom) + 20px);
-    left: 50%; transform: translateX(-50%);
-    display: flex; gap: 5px; align-items: center; z-index: 10;
+    bottom: calc(var(--safe-bottom) + 24px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
   }
   .lb-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    transition: all 0.25s ease; flex-shrink: 0;
-  }
-  .lb-dot.active { background: #fff; width: 16px; border-radius: 2px; }
-
-  /* ── FOOTER ── */
-  footer {
-    height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    padding-bottom: var(--safe-bottom);
-    background: #000;
-    position: relative;
-    z-index: 1;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     flex-shrink: 0;
   }
-  footer span {
-    font-family: -apple-system, 'Helvetica Neue', sans-serif;
-    font-size: 10px; font-weight: 300;
-    letter-spacing: 0.1em; color: rgba(255,255,255,0.2);
-    text-transform: uppercase;
+  .lb-dot.active {
+    background: #fff;
+    width: 18px;
+    border-radius: 3px;
   }
 </style>
 </head>
 <body>
 
 <main id="grid"></main>
-<footer><span>©2026 | Andrew Rios Photography</span></footer>
 
-<div class="lb" id="lb">
+<footer>
+  <span>©2026 | Andrew Rios Photography</span>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true">
   <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
   <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
-  <button class="lb-prev" id="lbPrev" aria-label="Previous"></button>
-  <button class="lb-next" id="lbNext" aria-label="Next"></button>
-  <div class="lb-dots" id="lbDots"></div>
+  <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
+  <button class="lb-next" id="lbNext" aria-label="Next photo"></button>
+  <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -180,6 +257,7 @@ const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/content
 let photos     = [];
 let current    = 0;
 let activeSlot = 'A';
+let loaded     = false; // guard: prevent double-render
 let touchStartX, touchStartY, touchStartTime;
 
 const gridEl = document.getElementById('grid');
@@ -192,104 +270,123 @@ const dotsEl = document.getElementById('lbDots');
 
 /* ── LOAD ── */
 async function load() {
-  const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
-  const [filesRes, orderRes] = await Promise.all([
-    fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
-    fetch(`${RAW}${GITHUB_FOLDER ? '/'+GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
-  ]);
+  if (loaded) return;
+  loaded = true;
 
-  const files = await filesRes.json();
-  const fileMap = {};
-  files
-    .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
-    .forEach(f => { fileMap[f.name] = f.download_url; });
+  try {
+    const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
+    const [filesRes, orderRes] = await Promise.all([
+      fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
+      fetch(`${RAW}${GITHUB_FOLDER ? '/'+GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
+    ]);
 
-  let ordered = [];
-  if (orderRes && orderRes.ok) {
-    const text = await orderRes.text();
-    text.split('\n')
-      .map(l => l.trim())
-      .filter(l => l && !l.startsWith('#'))
-      .forEach(name => {
-        if (fileMap[name]) {
-          ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
-          delete fileMap[name];
-        }
-      });
+    const files = await filesRes.json();
+    if (!Array.isArray(files)) { console.error('GitHub API error', files); return; }
+
+    const fileMap = {};
+    files
+      .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
+      .forEach(f => { fileMap[f.name] = f.download_url; });
+
+    let ordered = [];
+    if (orderRes && orderRes.ok) {
+      const text = await orderRes.text();
+      text.split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith('#'))
+        .forEach(name => {
+          if (fileMap[name]) {
+            ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
+            delete fileMap[name];
+          }
+        });
+    }
+    // Remaining not in order.txt — append alphabetically
+    Object.keys(fileMap).sort().forEach(name => {
+      ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
+    });
+
+    photos = ordered;
+    await renderMasonry();
+    buildDots();
+
+  } catch(e) {
+    console.error('Load error:', e);
   }
-  Object.keys(fileMap).sort().forEach(name => {
-    ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
-  });
-
-  photos = ordered;
-  await renderMasonry();
-  buildDots();
 }
 
 /* ── MASONRY ──
-   Strategy: probe each image's natural dimensions first (parallel),
-   then place every photo into the shorter column IN ORDER — once, permanently.
-   No rebalancing, no re-appending, no order disruption. */
+   1. Probe all aspect ratios in parallel (hidden Image objects)
+   2. Place each photo into shorter column IN ORDER — once, never moved */
 async function renderMasonry() {
   const colL = document.createElement('div');
   const colR = document.createElement('div');
   colL.className = 'col';
   colR.className = 'col';
+
+  // Probe ratios first
+  const ratios = await Promise.all(photos.map(p => probeRatio(p.thumb)));
+
+  // Place in order into shorter column
+  const heights = [0, 0];
+  photos.forEach((p, i) => {
+    const col = heights[0] <= heights[1] ? 0 : 1;
+    const item = makeItem(p, i);
+    (col === 0 ? colL : colR).appendChild(item);
+    heights[col] += ratios[i];
+  });
+
   gridEl.appendChild(colL);
   gridEl.appendChild(colR);
-
-  // Probe all image aspect ratios in parallel
-  const ratios = await Promise.all(photos.map(p => getAspectRatio(p.thumb)));
-
-  // Place each photo into shorter column, in order
-  const colHeights = [0, 0];
-  photos.forEach((p, i) => {
-    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
-    const div = createItem(p, i);
-    (col === 0 ? colL : colR).appendChild(div);
-    colHeights[col] += ratios[i]; // accumulate height ratio
-  });
 }
 
-function getAspectRatio(src) {
+function probeRatio(src) {
   return new Promise(resolve => {
     const img = new Image();
-    img.onload  = () => resolve(img.naturalHeight / (img.naturalWidth || 1));
-    img.onerror = () => resolve(1); // fallback: square
+    img.onload  = () => resolve(img.naturalHeight / Math.max(img.naturalWidth, 1));
+    img.onerror = () => resolve(1);
     img.src = src;
   });
 }
 
-function createItem(p, i) {
+function makeItem(p, i) {
   const div = document.createElement('div');
   div.className = 'grid-item';
-  div.style.animation = `fadeIn 0.4s ease ${Math.min(i, 8) * 0.04}s both`;
+  div.style.animationDelay = `${Math.min(i, 10) * 0.035}s`;
+  div.setAttribute('role', 'button');
+  div.setAttribute('tabindex', '0');
+  div.setAttribute('aria-label', `Photo ${i + 1}`);
 
   const img = document.createElement('img');
-  img.src = p.thumb;
+  img.src     = p.thumb;
   img.loading = i < 8 ? 'eager' : 'lazy';
   img.decoding = 'async';
-  img.alt = '';
+  img.alt     = '';
 
   div.appendChild(img);
   div.addEventListener('click', () => openLb(i));
+  div.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') openLb(i);
+  });
   return div;
 }
 
 /* ── DOTS ── */
 const MAX_DOTS = 7;
+
 function buildDots() {
   dotsEl.innerHTML = '';
-  const count = Math.min(photos.length, MAX_DOTS);
-  for (let i = 0; i < count; i++) {
+  const n = Math.min(photos.length, MAX_DOTS);
+  for (let i = 0; i < n; i++) {
     const d = document.createElement('div');
     d.className = 'lb-dot';
     dotsEl.appendChild(d);
   }
   updateDots();
 }
+
 function updateDots() {
-  const dots = dotsEl.querySelectorAll('.lb-dot');
+  const dots = [...dotsEl.querySelectorAll('.lb-dot')];
   if (!dots.length) return;
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
@@ -313,7 +410,7 @@ function closeLb() {
 }
 
 function goTo(i) {
-  // Clamp — no looping, stop at first and last
+  // Hard clamp — stop at first and last, no loop
   const target = Math.max(0, Math.min(i, photos.length - 1));
   if (target === current) return;
 
@@ -332,7 +429,9 @@ function goTo(i) {
     updateDots();
     preloadAdjacent();
   };
-  toImg.onerror = () => { toImg.src = photos[current].thumb; };
+  toImg.onerror = () => {
+    toImg.src = photos[current].thumb;
+  };
 }
 
 function next() { goTo(current + 1); }
@@ -349,6 +448,11 @@ document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbPrev').addEventListener('click', prev);
 document.getElementById('lbNext').addEventListener('click', next);
 
+// Tap center of lightbox to close
+lb.addEventListener('click', e => {
+  if (e.target === lb) closeLb();
+});
+
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape')     closeLb();
@@ -356,6 +460,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  prev();
 });
 
+/* Apple HIG swipe gesture — velocity-aware */
 lb.addEventListener('touchstart', e => {
   touchStartX    = e.changedTouches[0].clientX;
   touchStartY    = e.changedTouches[0].clientY;
@@ -363,12 +468,14 @@ lb.addEventListener('touchstart', e => {
 }, { passive: true });
 
 lb.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  const dt = Date.now() - touchStartTime;
-  const horizontal = Math.abs(dx) > Math.abs(dy);
-  if (!horizontal && dy > 60)                         { closeLb(); return; }
-  if (horizontal && (Math.abs(dx) > 40 || dt < 250)) { dx < 0 ? next() : prev(); }
+  const dx  = e.changedTouches[0].clientX - touchStartX;
+  const dy  = e.changedTouches[0].clientY - touchStartY;
+  const dt  = Date.now() - touchStartTime;
+  const vel = Math.abs(dx) / dt; // px/ms
+  const isH = Math.abs(dx) > Math.abs(dy);
+
+  if (!isH && dy > 72)                           { closeLb(); return; }
+  if (isH && (Math.abs(dx) > 50 || vel > 0.3))  { dx < 0 ? next() : prev(); }
 }, { passive: true });
 
 load();
