@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Andrew Rios Photography</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
+
+  html, body {
+    background: #000;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body {
+    padding-bottom: calc(48px + var(--safe-bottom));
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+    padding: 3px;
+  }
+
+  .grid-item:first-child        { grid-column: 1 / -1; aspect-ratio: 4/3; }
+  .grid-item:nth-child(7n+1):not(:first-child) { grid-column: 1 / -1; aspect-ratio: 16/9; }
+
+  .grid-item {
+    aspect-ratio: 3/4;
+    background: #111;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .grid-item:active img { transform: scale(0.97); }
+
+  /* ── LIGHTBOX ── */
+  .lb {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .lb.open { opacity: 1; pointer-events: all; }
+
+  .lb img {
+    max-width: 100%;
+    max-height: 100dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    touch-action: pinch-zoom;
+    transition: opacity 0.2s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* close tap zone — top right corner */
+  .lb-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 72px;
+    height: 72px;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: calc(env(safe-area-inset-top) + 16px);
+    padding-right: 20px;
+    cursor: pointer;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lb-close::before {
+    content: '✕';
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    font-family: -apple-system, sans-serif;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: var(--safe-bottom);
+    background: #000;
+  }
+  footer span {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<main class="grid" id="grid"></main>
+
+<footer><span>©2026 | Andrew Rios Photography</span></footer>
+
+<div class="lb" id="lb">
+  <div class="lb-close" id="lbClose"></div>
+  <img id="lbImg" src="" alt="" />
+</div>
+
+<script>
+/* ╔══════════════════════════════╗
+   ║  CONFIG — edit these lines  ║
+   ╚══════════════════════════════╝ */
+const GITHUB_USER   = 'your-username';
+const GITHUB_REPO   = 'your-photos-repo';
+const GITHUB_FOLDER = '';          // subfolder inside repo, or '' for root
+/* ─────────────────────────────── */
+
+const EXTS = ['jpg','jpeg','png','webp','heic'];
+let photos = [];
+let current = 0;
+let touchX = 0;
+let touchY = 0;
+
+const grid  = document.getElementById('grid');
+const lb    = document.getElementById('lb');
+const lbImg = document.getElementById('lbImg');
+
+async function load() {
+  const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
+  const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents${folder}`;
+  try {
+    const res = await fetch(url, { headers: { Accept: 'application/vnd.github.v3+json' } });
+    const files = await res.json();
+    photos = files.filter(f =>
+      f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e))
+    ).map(f => ({
+      thumb: `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${f.path}`,
+      full:  f.download_url
+    }));
+    renderGrid();
+  } catch(e) { console.error(e); }
+}
+
+function renderGrid() {
+  photos.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'grid-item';
+    const img = document.createElement('img');
+    img.src = p.thumb;
+    img.loading = i < 6 ? 'eager' : 'lazy';
+    img.decoding = 'async';
+    img.alt = '';
+    div.appendChild(img);
+    div.addEventListener('click', () => open(i));
+    grid.appendChild(div);
+  });
+}
+
+function open(i) {
+  current = i;
+  showPhoto();
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function close() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showPhoto() {
+  lbImg.style.opacity = '0';
+  lbImg.src = photos[current].full;
+  lbImg.onload = () => { lbImg.style.opacity = '1'; };
+  lbImg.onerror = () => { lbImg.src = photos[current].thumb; lbImg.style.opacity = '1'; };
+}
+
+// infinite wrap
+function next() { current = (current + 1) % photos.length; showPhoto(); }
+function prev() { current = (current - 1 + photos.length) % photos.length; showPhoto(); }
+
+// close button
+document.getElementById('lbClose').addEventListener('click', close);
+
+// tap left/right thirds of lightbox to nav; tap close zone handled above
+lb.addEventListener('click', e => {
+  if (e.target === document.getElementById('lbClose')) return;
+  if (e.target.closest('#lbClose')) return;
+  const x = e.clientX / window.innerWidth;
+  if (x < 0.3) prev();
+  else if (x > 0.7) next();
+  else close();
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape')      close();
+  if (e.key === 'ArrowRight')  next();
+  if (e.key === 'ArrowLeft')   prev();
+});
+
+// swipe
+lb.addEventListener('touchstart', e => {
+  touchX = e.changedTouches[0].clientX;
+  touchY = e.changedTouches[0].clientY;
+}, { passive: true });
+
+lb.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  const dy = e.changedTouches[0].clientY - touchY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 35) {
+    dx < 0 ? next() : prev();
+  } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+    close();
+  }
+}, { passive: true });
+
+load();
+</script>
+</body>
+</html>
