@@ -11,7 +11,6 @@
 
   :root {
     --gap: 1px;
-    --page-size: 12;
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
     --safe-left: env(safe-area-inset-left);
@@ -37,9 +36,6 @@
     padding-bottom: 14px;
     padding-left: calc(var(--safe-left) + 16px);
     padding-right: calc(var(--safe-right) + 16px);
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
     background: #000;
   }
 
@@ -50,14 +46,6 @@
     letter-spacing: -0.4px;
     color: #fff;
     line-height: 1;
-  }
-
-  #photoCount {
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.38);
-    letter-spacing: 0;
   }
 
   /* ── MASONRY GRID ── */
@@ -86,7 +74,6 @@
     touch-action: manipulation;
     overflow: hidden;
     background: #111;
-    position: relative;
   }
 
   .grid-item img {
@@ -96,7 +83,6 @@
     will-change: transform;
   }
 
-  /* HIG tap feedback — opacity, not scale */
   .grid-item:active img {
     opacity: 0.82;
     transition: opacity 0.08s ease;
@@ -113,22 +99,20 @@
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .grid-item {
-    animation: fadeUp 0.35s ease both;
-  }
+  .grid-item { animation: fadeUp 0.35s ease both; }
 
-  /* ── PAGINATION BAR ── */
-  #paginationBar {
+  /* ── BOTTOM BAR ── */
+  #bottomBar {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: 16px;
-    padding: 28px 20px;
-    padding-bottom: calc(var(--safe-bottom) + 28px);
+    gap: 14px;
+    padding: 32px 20px;
+    padding-bottom: calc(var(--safe-bottom) + 32px);
   }
 
-  /* Page indicator — Apple-style dot strip */
+  /* Page dots */
   #pageIndicator {
     display: flex;
     gap: 5px;
@@ -140,7 +124,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.22);
     flex-shrink: 0;
     transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -151,7 +135,7 @@
     border-radius: 3px;
   }
 
-  /* Load more — pill button, frosted glass */
+  /* Load more pill */
   #loadMoreBtn {
     display: none;
     align-items: center;
@@ -161,59 +145,57 @@
     padding: 0 22px;
     border-radius: 22px;
     border: none;
-    background: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.1);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
-    color: rgba(255,255,255,0.88);
+    color: rgba(255,255,255,0.82);
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: 15px;
     font-weight: 500;
     letter-spacing: -0.1px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s ease, transform 0.12s ease;
+    transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
   }
 
-  #loadMoreBtn.visible {
-    display: flex;
-  }
+  #loadMoreBtn.visible { display: flex; }
 
   #loadMoreBtn:active {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.18);
     transform: scale(0.97);
   }
 
-  #loadMoreBtn .btn-chevron {
-    font-size: 13px;
-    opacity: 0.6;
-    transition: transform 0.2s ease;
-  }
+  #loadMoreBtn.loading { opacity: 0.45; pointer-events: none; }
 
-  #loadMoreBtn:active .btn-chevron {
-    transform: translateY(2px);
-  }
-
-  /* Page counter text */
-  #pageCounter {
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.28);
-    letter-spacing: 0.04em;
-  }
-
-  /* All-loaded state */
-  #allLoadedMsg {
+  /* Back to top pill — shown when all loaded */
+  #backTopBtn {
     display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 22px;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    color: rgba(255,255,255,0.5);
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
-    color: rgba(255,255,255,0.2);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: -0.1px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.12s ease;
   }
 
-  #allLoadedMsg.visible { display: block; }
+  #backTopBtn.visible { display: flex; }
+
+  #backTopBtn:active {
+    background: rgba(255,255,255,0.14);
+    transform: scale(0.97);
+  }
 
   /* ── FOOTER ── */
   footer {
@@ -223,7 +205,6 @@
     align-items: center;
     justify-content: center;
     border-top: 1px solid rgba(255,255,255,0.05);
-    background: #000;
   }
 
   footer span {
@@ -231,7 +212,7 @@
     font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.07em;
-    color: rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.16);
     text-transform: uppercase;
   }
 
@@ -275,7 +256,7 @@
     -webkit-user-drag: none;
   }
 
-  /* HIG close — 44×44pt, frosted pill */
+  /* HIG close — 44×44pt hit area */
   .lb-close {
     position: absolute;
     top: calc(var(--safe-top) + 14px);
@@ -296,30 +277,15 @@
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    /* Extend hit area to HIG 44pt */
     padding: 7px;
     margin: -7px;
     font-family: -apple-system, sans-serif;
-    transition: background 0.12s ease;
+    transition: background 0.12s ease, transform 0.1s ease;
   }
 
   .lb-close:active {
     background: rgba(60,60,67,0.9);
     transform: scale(0.93);
-  }
-
-  /* Counter top-left */
-  .lb-counter {
-    position: absolute;
-    top: calc(var(--safe-top) + 18px);
-    left: calc(var(--safe-left) + 18px);
-    z-index: 10;
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    pointer-events: none;
-    letter-spacing: -0.2px;
   }
 
   /* Invisible 30% nav zones */
@@ -336,14 +302,12 @@
   }
 
   .lb.open .lb-prev,
-  .lb.open .lb-next {
-    pointer-events: all;
-  }
+  .lb.open .lb-next { pointer-events: all; }
 
   .lb-prev { left: 0; }
   .lb-next { right: 0; }
 
-  /* HIG page indicator dots */
+  /* HIG page dots */
   .lb-dots {
     position: absolute;
     bottom: calc(var(--safe-bottom) + 22px);
@@ -370,50 +334,24 @@
     width: 18px;
     border-radius: 3px;
   }
-
-  /* ── LOADING SKELETON ── */
-  .skeleton-grid {
-    display: flex;
-    gap: 1px;
-    padding: 1px;
-    align-items: flex-start;
-  }
-
-  .skeleton-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .skeleton-item {
-    background: #1a1a1a;
-    animation: shimmer 1.4s ease-in-out infinite;
-  }
-
-  @keyframes shimmer {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1; }
-  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Andrew Rios</h1>
-  <span id="photoCount"></span>
 </header>
 
 <main id="grid"></main>
 
-<div id="paginationBar">
+<div id="bottomBar">
   <div id="pageIndicator"></div>
   <button id="loadMoreBtn" aria-label="Load more photos">
-    More photos
-    <span class="btn-chevron">↓</span>
+    More ↓
   </button>
-  <span id="pageCounter"></span>
-  <span id="allLoadedMsg">All photos</span>
+  <button id="backTopBtn" aria-label="Back to top">
+    ↑ Back to top
+  </button>
 </div>
 
 <footer>
@@ -421,7 +359,6 @@
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true">
-  <span class="lb-counter" id="lbCounter"></span>
   <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
   <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
@@ -434,19 +371,20 @@
 const GITHUB_USER   = 'andrewsportal';
 const GITHUB_REPO   = 'andrewriosphotography';
 const GITHUB_FOLDER = '';
-const PAGE_SIZE     = 12; // HIG: bounded pages, not infinite walls
+const PAGE_SIZE     = 12;
 
 const EXTS = ['jpg','jpeg','png','webp','heic'];
 const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
-let photos      = [];
-let visibleCount = 0;   // how many are currently rendered
-let current     = 0;
-let activeSlot  = 'A';
-let loaded      = false;
-let touchStartX, touchStartY, touchStartTime;
+let photos       = [];
+let visibleCount = 0;
+let current      = 0;
+let activeSlot   = 'A';
+let isLoading    = false; // prevent double-render on load more
+let appLoaded    = false; // prevent double-init
 
+// DOM refs
 const gridEl      = document.getElementById('grid');
 const lb          = document.getElementById('lb');
 const slotA       = document.getElementById('slotA');
@@ -455,16 +393,18 @@ const imgA        = document.getElementById('imgA');
 const imgB        = document.getElementById('imgB');
 const dotsEl      = document.getElementById('lbDots');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
-const pageCounter = document.getElementById('pageCounter');
+const backTopBtn  = document.getElementById('backTopBtn');
 const pageIndEl   = document.getElementById('pageIndicator');
-const allLoaded   = document.getElementById('allLoadedMsg');
-const photoCount  = document.getElementById('photoCount');
-const lbCounter   = document.getElementById('lbCounter');
 
-/* ── LOAD ── */
+// Persistent column refs — created once, appended to across pages
+let colL, colR, colHeights;
+
+let touchStartX, touchStartY, touchStartTime;
+
+/* ── INIT ── */
 async function load() {
-  if (loaded) return;
-  loaded = true;
+  if (appLoaded) return;
+  appLoaded = true;
 
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
@@ -494,52 +434,47 @@ async function load() {
           }
         });
     }
-
     Object.keys(fileMap).sort().forEach(name => {
       ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
     });
 
     photos = ordered;
-    photoCount.textContent = `${photos.length} photos`;
 
-    // Render first page
-    await renderPage(0, PAGE_SIZE);
+    // Create columns ONCE here — never recreated
+    colL = document.createElement('div');
+    colR = document.createElement('div');
+    colL.className = 'col';
+    colR.className = 'col';
+    colHeights = [0, 0];
+    gridEl.appendChild(colL);
+    gridEl.appendChild(colR);
+
+    await appendPhotos(0, PAGE_SIZE);
     visibleCount = Math.min(PAGE_SIZE, photos.length);
 
-    buildDots();
-    updatePagination();
+    buildLbDots();
+    updateBottomBar();
 
   } catch(e) {
     console.error('Load error:', e);
   }
 }
 
-/* ── MASONRY — render a slice of photos into the existing columns ── */
-let colL, colR, heights;
-
-async function renderPage(from, count) {
-  const to = Math.min(from + count, photos.length);
+/* ── APPEND — adds a slice to the existing columns, never recreates them ── */
+async function appendPhotos(from, count) {
+  const to    = Math.min(from + count, photos.length);
   const slice = photos.slice(from, to);
 
-  // First page: create columns
-  if (from === 0) {
-    colL = document.createElement('div');
-    colR = document.createElement('div');
-    colL.className = 'col';
-    colR.className = 'col';
-    heights = [0, 0];
-    gridEl.appendChild(colL);
-    gridEl.appendChild(colR);
-  }
+  if (!slice.length) return;
 
   const ratios = await Promise.all(slice.map(p => probeRatio(p.thumb)));
 
   slice.forEach((p, idx) => {
     const globalIdx = from + idx;
-    const col = heights[0] <= heights[1] ? 0 : 1;
-    const item = makeItem(p, globalIdx, idx); // local idx for stagger
+    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
+    const item = makeItem(p, globalIdx, idx);
     (col === 0 ? colL : colR).appendChild(item);
-    heights[col] += ratios[idx];
+    colHeights[col] += ratios[idx];
   });
 }
 
@@ -552,7 +487,7 @@ function probeRatio(src) {
   });
 }
 
-function makeItem(p, globalIdx, localIdx = 0) {
+function makeItem(p, globalIdx, localIdx) {
   const div = document.createElement('div');
   div.className = 'grid-item';
   div.style.animationDelay = `${Math.min(localIdx, 8) * 0.04}s`;
@@ -574,59 +509,55 @@ function makeItem(p, globalIdx, localIdx = 0) {
   return div;
 }
 
-/* ── PAGINATION UI ── */
-function updatePagination() {
-  const remaining = photos.length - visibleCount;
+/* ── BOTTOM BAR ── */
+function updateBottomBar() {
+  const remaining  = photos.length - visibleCount;
   const totalPages = Math.ceil(photos.length / PAGE_SIZE);
-  const currentPage = Math.ceil(visibleCount / PAGE_SIZE);
+  const curPage    = Math.ceil(visibleCount / PAGE_SIZE);
 
-  // Page dots — only show if ≤ 9 pages, otherwise use counter
+  // Page dots — up to 9 pages
   pageIndEl.innerHTML = '';
-  if (totalPages <= 9) {
+  if (totalPages > 1 && totalPages <= 9) {
     for (let i = 0; i < totalPages; i++) {
       const d = document.createElement('div');
-      d.className = 'page-dot' + (i === currentPage - 1 ? ' active' : '');
+      d.className = 'page-dot' + (i === curPage - 1 ? ' active' : '');
       pageIndEl.appendChild(d);
     }
-    pageIndEl.style.display = 'flex';
-    pageCounter.style.display = 'none';
-  } else {
-    pageIndEl.style.display = 'none';
-    pageCounter.textContent = `${visibleCount} of ${photos.length}`;
-    pageCounter.style.display = 'block';
   }
 
   if (remaining > 0) {
-    loadMoreBtn.textContent = '';
-    loadMoreBtn.innerHTML = `${remaining} more <span class="btn-chevron">↓</span>`;
+    loadMoreBtn.textContent = `${remaining} more ↓`;
     loadMoreBtn.classList.add('visible');
-    allLoaded.classList.remove('visible');
+    backTopBtn.classList.remove('visible');
   } else {
     loadMoreBtn.classList.remove('visible');
-    allLoaded.classList.add('visible');
-    pageIndEl.innerHTML = '';
-    pageCounter.style.display = 'none';
+    backTopBtn.classList.add('visible');
   }
 }
 
 loadMoreBtn.addEventListener('click', async () => {
-  loadMoreBtn.style.opacity = '0.5';
-  loadMoreBtn.style.pointerEvents = 'none';
+  if (isLoading) return;
+  isLoading = true;
+  loadMoreBtn.classList.add('loading');
 
   const from = visibleCount;
-  await renderPage(from, PAGE_SIZE);
-  visibleCount = Math.min(visibleCount + PAGE_SIZE, photos.length);
+  const next = Math.min(PAGE_SIZE, photos.length - from);
+  await appendPhotos(from, next);
+  visibleCount = Math.min(visibleCount + next, photos.length);
 
-  loadMoreBtn.style.opacity = '';
-  loadMoreBtn.style.pointerEvents = '';
+  loadMoreBtn.classList.remove('loading');
+  isLoading = false;
+  updateBottomBar();
+});
 
-  updatePagination();
+backTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 /* ── LIGHTBOX DOTS ── */
 const MAX_DOTS = 7;
 
-function buildDots() {
+function buildLbDots() {
   dotsEl.innerHTML = '';
   const n = Math.min(photos.length, MAX_DOTS);
   for (let i = 0; i < n; i++) {
@@ -634,16 +565,15 @@ function buildDots() {
     d.className = 'lb-dot';
     dotsEl.appendChild(d);
   }
-  updateDots();
+  updateLbDots();
 }
 
-function updateDots() {
+function updateLbDots() {
   const dots = [...dotsEl.querySelectorAll('.lb-dot')];
   if (!dots.length) return;
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
-  lbCounter.textContent = `${current + 1} / ${photos.length}`;
 }
 
 /* ── LIGHTBOX ── */
@@ -653,7 +583,7 @@ function openLb(i) {
   img.src = photos[i].full;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
-  updateDots();
+  updateLbDots();
   preloadAdjacent();
 }
 
@@ -678,14 +608,14 @@ function goTo(i) {
     toSlot.classList.replace('hidden', 'visible');
     fromSlot.classList.replace('visible', 'hidden');
     activeSlot = activeSlot === 'A' ? 'B' : 'A';
-    updateDots();
+    updateLbDots();
     preloadAdjacent();
   };
   toImg.onerror = () => { toImg.src = photos[current].thumb; };
 }
 
-function next() { goTo(current + 1); }
-function prev() { goTo(current - 1); }
+function goNext() { goTo(current + 1); }
+function goPrev() { goTo(current - 1); }
 
 function preloadAdjacent() {
   [current + 1, current - 1]
@@ -695,15 +625,15 @@ function preloadAdjacent() {
 
 /* ── CONTROLS ── */
 document.getElementById('lbClose').addEventListener('click', closeLb);
-document.getElementById('lbPrev').addEventListener('click', prev);
-document.getElementById('lbNext').addEventListener('click', next);
+document.getElementById('lbPrev').addEventListener('click', goPrev);
+document.getElementById('lbNext').addEventListener('click', goNext);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape')     closeLb();
-  if (e.key === 'ArrowRight') next();
-  if (e.key === 'ArrowLeft')  prev();
+  if (e.key === 'ArrowRight') goNext();
+  if (e.key === 'ArrowLeft')  goPrev();
 });
 
 lb.addEventListener('touchstart', e => {
@@ -720,7 +650,7 @@ lb.addEventListener('touchend', e => {
   const isH = Math.abs(dx) > Math.abs(dy);
 
   if (!isH && dy > 72)                          { closeLb(); return; }
-  if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? next() : prev(); }
+  if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? goNext() : goPrev(); }
 }, { passive: true });
 
 load();
