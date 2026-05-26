@@ -382,6 +382,14 @@ async function load() {
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
       .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
 
+    // stemMap: order.txt can use bare names or any extension.
+    // "beach", "beach.jpg", "beach.PNG" all resolve to the same file.
+    const stemMap = {};
+    Object.keys(fileMap).forEach(key => {
+      const stem = key.replace(/\.[^.]+$/, '');
+      if (!stemMap[stem]) stemMap[stem] = key;
+    });
+
     let ordered = [];
     const seen = new Set();
 
@@ -391,11 +399,14 @@ async function load() {
         .map(l => l.trim())
         .filter(l => l && !l.startsWith('#'))
         .forEach(name => {
-          const key = name.toLowerCase();
-          if (fileMap[key] && !seen.has(key)) {
+          // Strip extension from order.txt entry if present, match by stem
+          const stem = name.toLowerCase().replace(/\.[^.]+$/, '');
+          const key  = stemMap[stem];
+          if (key && !seen.has(key)) {
             seen.add(key);
             ordered.push({ thumb: `${RAW}/${fileMap[key].name}`, full: fileMap[key].url });
             delete fileMap[key];
+            delete stemMap[stem];
           }
         });
     }
