@@ -30,22 +30,10 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ── HEADER ── */
-  header {
-    padding-top: calc(var(--safe-top) + 18px);
-    padding-bottom: 14px;
-    padding-left: calc(var(--safe-left) + 16px);
-    padding-right: calc(var(--safe-right) + 16px);
+  /* ── SAFE AREA SPACER ── */
+  #topSpacer {
+    height: calc(var(--safe-top) + 4px);
     background: #000;
-  }
-
-  header h1 {
-    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-    color: #fff;
-    line-height: 1;
   }
 
   /* ── MASONRY GRID ── */
@@ -106,70 +94,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    gap: 14px;
     padding: 32px 20px;
     padding-bottom: calc(var(--safe-bottom) + 32px);
   }
 
-  /* Page dots */
-  #pageIndicator {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    height: 8px;
-  }
-
-  .page-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.22);
-    flex-shrink: 0;
-    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .page-dot.active {
-    background: #fff;
-    width: 20px;
-    border-radius: 3px;
-  }
-
-  /* Load more pill */
-  #loadMoreBtn {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    height: 44px;
-    padding: 0 22px;
-    border-radius: 22px;
-    border: none;
-    background: rgba(255,255,255,0.1);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    color: rgba(255,255,255,0.82);
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: -0.1px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
-  }
-
-  #loadMoreBtn.visible { display: flex; }
-
-  #loadMoreBtn:active {
-    background: rgba(255,255,255,0.18);
-    transform: scale(0.97);
-  }
-
-  #loadMoreBtn.loading { opacity: 0.45; pointer-events: none; }
-
-  /* Back to top pill — shown when all loaded */
+  /* Back to top pill */
   #backTopBtn {
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
@@ -180,7 +111,7 @@
     background: rgba(255,255,255,0.08);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.45);
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: 14px;
     font-weight: 400;
@@ -189,8 +120,6 @@
     -webkit-tap-highlight-color: transparent;
     transition: background 0.15s ease, transform 0.12s ease;
   }
-
-  #backTopBtn.visible { display: flex; }
 
   #backTopBtn:active {
     background: rgba(255,255,255,0.14);
@@ -338,20 +267,12 @@
 </head>
 <body>
 
-<header>
-  <h1>Andrew Rios</h1>
-</header>
+<div id="topSpacer"></div>
 
 <main id="grid"></main>
 
 <div id="bottomBar">
-  <div id="pageIndicator"></div>
-  <button id="loadMoreBtn" aria-label="Load more photos">
-    More ↓
-  </button>
-  <button id="backTopBtn" aria-label="Back to top">
-    ↑ Back to top
-  </button>
+  <button id="backTopBtn" aria-label="Back to top">↑ Back to top</button>
 </div>
 
 <footer>
@@ -371,18 +292,14 @@
 const GITHUB_USER   = 'andrewsportal';
 const GITHUB_REPO   = 'andrewriosphotography';
 const GITHUB_FOLDER = '';
-const PAGE_SIZE     = 12;
-
 const EXTS = ['jpg','jpeg','png','webp','heic'];
 const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
 let photos       = [];
-let visibleCount = 0;
 let current      = 0;
 let activeSlot   = 'A';
-let isLoading    = false; // prevent double-render on load more
-let appLoaded    = false; // prevent double-init
+let appLoaded    = false;
 
 // DOM refs
 const gridEl      = document.getElementById('grid');
@@ -392,11 +309,9 @@ const slotB       = document.getElementById('slotB');
 const imgA        = document.getElementById('imgA');
 const imgB        = document.getElementById('imgB');
 const dotsEl      = document.getElementById('lbDots');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
 const backTopBtn  = document.getElementById('backTopBtn');
-const pageIndEl   = document.getElementById('pageIndicator');
 
-// Persistent column refs — created once, appended to across pages
+// Persistent column refs — created once
 let colL, colR, colHeights;
 
 let touchStartX, touchStartY, touchStartTime;
@@ -450,7 +365,7 @@ async function load() {
 
     photos = ordered;
 
-    // Create columns ONCE here — never recreated
+    // Create columns ONCE
     colL = document.createElement('div');
     colR = document.createElement('div');
     colL.className = 'col';
@@ -459,11 +374,9 @@ async function load() {
     gridEl.appendChild(colL);
     gridEl.appendChild(colR);
 
-    await appendPhotos(0, PAGE_SIZE);
-    visibleCount = Math.min(PAGE_SIZE, photos.length);
+    await appendPhotos(0, photos.length);
 
     buildLbDots();
-    updateBottomBar();
 
   } catch(e) {
     console.error('Load error:', e);
@@ -518,47 +431,6 @@ function makeItem(p, globalIdx, localIdx) {
   });
   return div;
 }
-
-/* ── BOTTOM BAR ── */
-function updateBottomBar() {
-  const remaining  = photos.length - visibleCount;
-  const totalPages = Math.ceil(photos.length / PAGE_SIZE);
-  const curPage    = Math.ceil(visibleCount / PAGE_SIZE);
-
-  // Page dots — up to 9 pages
-  pageIndEl.innerHTML = '';
-  if (totalPages > 1 && totalPages <= 9) {
-    for (let i = 0; i < totalPages; i++) {
-      const d = document.createElement('div');
-      d.className = 'page-dot' + (i === curPage - 1 ? ' active' : '');
-      pageIndEl.appendChild(d);
-    }
-  }
-
-  if (remaining > 0) {
-    loadMoreBtn.textContent = `${remaining} more ↓`;
-    loadMoreBtn.classList.add('visible');
-    backTopBtn.classList.remove('visible');
-  } else {
-    loadMoreBtn.classList.remove('visible');
-    backTopBtn.classList.add('visible');
-  }
-}
-
-loadMoreBtn.addEventListener('click', async () => {
-  if (isLoading) return;
-  isLoading = true;
-  loadMoreBtn.classList.add('loading');
-
-  const from = visibleCount;
-  const next = Math.min(PAGE_SIZE, photos.length - from);
-  await appendPhotos(from, next);
-  visibleCount = Math.min(visibleCount + next, photos.length);
-
-  loadMoreBtn.classList.remove('loading');
-  isLoading = false;
-  updateBottomBar();
-});
 
 backTopBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
