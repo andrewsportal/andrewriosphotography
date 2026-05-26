@@ -416,26 +416,36 @@ async function load() {
     const files = await filesRes.json();
     if (!Array.isArray(files)) { console.error('GitHub API error', files); return; }
 
+    // Build fileMap keyed by lowercase name to catch any case mismatches
+    // Exclude non-image files (order.txt etc.) explicitly
     const fileMap = {};
     files
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
-      .forEach(f => { fileMap[f.name] = f.download_url; });
+      .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
 
     let ordered = [];
+    const seen = new Set(); // dedupe guard — never add same file twice
+
     if (orderRes && orderRes.ok) {
       const text = await orderRes.text();
       text.split('\n')
         .map(l => l.trim())
         .filter(l => l && !l.startsWith('#'))
         .forEach(name => {
-          if (fileMap[name]) {
-            ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
-            delete fileMap[name];
+          const key = name.toLowerCase();
+          if (fileMap[key] && !seen.has(key)) {
+            seen.add(key);
+            ordered.push({ thumb: `${RAW}/${fileMap[key].name}`, full: fileMap[key].url });
+            delete fileMap[key];
           }
         });
     }
-    Object.keys(fileMap).sort().forEach(name => {
-      ordered.push({ thumb: `${RAW}/${name}`, full: fileMap[name] });
+    // Append anything not in order.txt, alphabetically, no dupes
+    Object.keys(fileMap).sort().forEach(key => {
+      if (!seen.has(key)) {
+        seen.add(key);
+        ordered.push({ thumb: `${RAW}/${fileMap[key].name}`, full: fileMap[key].url });
+      }
     });
 
     photos = ordered;
