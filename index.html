@@ -30,7 +30,7 @@
     --color-lb-close-text: rgba(255,255,255,0.92);
     --color-lb-dot:        rgba(255,255,255,0.35);
     --color-lb-dot-active: #ffffff;
-    
+
     /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
     --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
     --text-footnote: clamp(0.75rem,   3.0vw, 0.8125rem);
@@ -220,11 +220,11 @@
   /* ── LIGHTBOX CLOSE ── */
   .lb-close {
     position: absolute;
-    top:   calc(var(--safe-top)   + 8px);
+    top:   calc(var(--safe-top)   + 16px);
     right: calc(var(--safe-right) + 16px);
     z-index: 10;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
@@ -236,6 +236,13 @@
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Expands the invisible touch area to 44x44px to meet Apple HIG */
+  .lb-close::before {
+    content: '';
+    position: absolute;
+    inset: -4px; 
   }
 
   /* Prevent SVG from blocking taps */
@@ -318,8 +325,8 @@
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M1 1l12 12M13 1L1 13"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
   </button>
   <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
