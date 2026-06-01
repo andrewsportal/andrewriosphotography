@@ -17,7 +17,6 @@
     --safe-left:   env(safe-area-inset-left);
     --safe-right:  env(safe-area-inset-right);
 
-    /* ── LOCKED DARK — always black regardless of system setting ── */
     --color-bg:            #000000;
     --color-grid-item-bg:  #1c1c1e;
     --color-footer-border: rgba(84,84,88,0.65);
@@ -31,283 +30,77 @@
     --color-lb-dot:        rgba(255,255,255,0.35);
     --color-lb-dot-active: #ffffff;
 
-    /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
     --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
     --text-footnote: clamp(0.75rem,   3.0vw, 0.8125rem);
     --text-body:     clamp(0.8125rem, 3.3vw, 0.9375rem);
   }
 
-  html {
-    background: var(--color-bg);
-    -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
+  html { background: var(--color-bg); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { background: var(--color-bg); overflow-x: hidden; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
 
-  body {
-    background: var(--color-bg);
-    overflow-x: hidden;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* ── MASONRY GRID ── */
   #grid {
-    display: flex;
-    gap: var(--gap);
-    /* Safely pad the top so photos scroll behind the status bar natively */
+    display: flex; gap: var(--gap);
     padding-top: calc(var(--safe-top) + var(--gap));
     padding-bottom: var(--gap);
     padding-left:  calc(var(--safe-left)  + var(--gap));
     padding-right: calc(var(--safe-right) + var(--gap));
-    align-items: flex-start;
-    width: 100%;
+    align-items: flex-start; width: 100%;
   }
 
-  .col {
-    flex: 1 1 0;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
-  }
-
-  .grid-item {
-    width: 100%;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    touch-action: manipulation;
-    overflow: hidden;
-    background: var(--color-grid-item-bg);
-  }
-
-  .grid-item img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .grid-item:active img {
-    opacity: 0.75;
-  }
+  .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--gap); }
+  .grid-item { width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: manipulation; overflow: hidden; background: var(--color-grid-item-bg); }
+  .grid-item img { width: 100%; height: auto; display: block; }
+  .grid-item:active img { opacity: 0.75; }
 
   @media (prefers-reduced-motion: no-preference) {
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    .grid-item.animate {
-      animation: fadeIn 0.3s ease both;
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .grid-item.animate { animation: fadeIn 0.3s ease both; }
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .grid-item:hover img {
-      transform: scale(1.012);
-      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
+    .grid-item:hover img { transform: scale(1.012); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
   }
 
-  /* ── BOTTOM BAR ── */
-  #bottomBar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 20px 24px 20px;
-  }
+  #bottomBar { display: flex; align-items: center; justify-content: center; padding: 32px 20px 24px 20px; }
 
-  /* ── BACK TO TOP BUTTON ── */
   #backTopBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 20px;
-    border-radius: 22px;
-    border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 20px; border-radius: 22px; border: none;
     background: var(--color-btn-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    color: var(--color-btn-text);
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: var(--text-footnote);
-    font-weight: 400;
-    letter-spacing: -0.08px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
+    -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+    color: var(--color-btn-text); font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-size: var(--text-footnote); font-weight: 400; letter-spacing: -0.08px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
   }
+  #backTopBtn svg { margin-right: 8px; }
+  #backTopBtn:active { background: var(--color-btn-bg-active); transform: scale(0.97); transition: transform 0.1s ease, background 0.1s ease; }
+  #backTopBtn:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
 
-  #backTopBtn:active {
-    background: var(--color-btn-bg-active);
-    transform: scale(0.97);
-    transition: transform 0.1s ease, background 0.1s ease;
-  }
+  footer { padding: 16px 20px; padding-bottom: calc(var(--safe-bottom) + 24px); display: flex; align-items: center; justify-content: center; border-top: 0.5px solid var(--color-footer-border); }
+  footer span { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; font-size: var(--text-caption); font-weight: 400; letter-spacing: 0.06em; color: var(--color-footer-text); text-transform: uppercase; }
 
-  #backTopBtn:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    padding: 16px 20px;
-    padding-bottom: calc(var(--safe-bottom) + 24px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 0.5px solid var(--color-footer-border);
-  }
-
-  footer span {
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: var(--text-caption);
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: var(--color-footer-text);
-    text-transform: uppercase;
-  }
-
-  /* ── LIGHTBOX ── */
-  .lb {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    background: var(--color-lb-bg);
-    opacity: 0;
-    pointer-events: none;
-    touch-action: none;
-    user-select: none;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .lb { transition: opacity 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-    .lb-slot { transition: opacity 0.2s ease; }
-  }
-
-  .lb.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .lb-slot {
-    position: absolute;
-    top:    calc(var(--safe-top)    + 64px);
-    bottom: calc(var(--safe-bottom) + 56px);
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
+  .lb { position: fixed; inset: 0; z-index: 999; background: var(--color-lb-bg); opacity: 0; pointer-events: none; touch-action: none; user-select: none; }
+  @media (prefers-reduced-motion: no-preference) { .lb { transition: opacity 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); } .lb-slot { transition: opacity 0.2s ease; } }
+  .lb.open { opacity: 1; pointer-events: all; }
+  .lb-slot { position: absolute; top: calc(var(--safe-top) + 64px); bottom: calc(var(--safe-bottom) + 56px); left: 0; right: 0; display: flex; align-items: center; justify-content: center; }
   .lb-slot.hidden  { opacity: 0; pointer-events: none; }
   .lb-slot.visible { opacity: 1; }
+  .lb-slot img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; -webkit-user-drag: none; -webkit-touch-callout: none; }
 
-  .lb-slot img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    display: block;
-    -webkit-user-drag: none;
-    -webkit-touch-callout: none;
-  }
-
-  /* ── LIGHTBOX CLOSE ── */
-  .lb-close {
-    position: absolute;
-    top:   calc(var(--safe-top)   + 16px);
-    right: calc(var(--safe-right) + 16px);
-    z-index: 10;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    color: var(--color-lb-close-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Expands the invisible touch area to 44x44px to meet Apple HIG */
-  .lb-close::before {
-    content: '';
-    position: absolute;
-    inset: -4px; 
-  }
-
-  /* Prevent SVG from blocking taps */
+  .lb-close { position: absolute; top: calc(var(--safe-top) + 16px); right: calc(var(--safe-right) + 16px); z-index: 10; width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--color-lb-close-bg); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); color: var(--color-lb-close-text); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .lb-close::before { content: ''; position: absolute; inset: -4px; }
   .lb-close svg { pointer-events: none; }
+  .lb-close:active { background: var(--color-lb-close-bg); transform: scale(0.92); transition: transform 0.1s ease, background 0.1s ease; }
+  .lb-close:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
 
-  .lb-close:active {
-    background: var(--color-lb-close-bg);
-    transform: scale(0.92);
-    transition: transform 0.1s ease, background 0.1s ease;
-  }
+  .lb-prev, .lb-next { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 8; border: none; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; pointer-events: none; }
+  .lb.open .lb-prev, .lb.open .lb-next { pointer-events: all; }
+  .lb-prev { left: 0; } .lb-next { right: 0; }
 
-  .lb-close:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
-  }
-
-  .lb-prev, .lb-next {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 30%;
-    z-index: 8;
-    border: none;
-    background: none;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    pointer-events: none;
-  }
-
-  .lb.open .lb-prev,
-  .lb.open .lb-next { pointer-events: all; }
-
-  .lb-prev { left: 0; }
-  .lb-next { right: 0; }
-
-  /* ── PAGE CONTROL DOTS ── */
-  .lb-dots {
-    position: absolute;
-    bottom: calc(var(--safe-bottom) + 20px);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    z-index: 10;
-    pointer-events: none;
-  }
-
-  .lb-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-lb-dot);
-    flex-shrink: 0;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .lb-dot {
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-  }
-
-  .lb-dot.active {
-    background: var(--color-lb-dot-active);
-    width: 18px;
-    border-radius: 3px;
-  }
+  .lb-dots { position: absolute; bottom: calc(var(--safe-bottom) + 20px); left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; z-index: 10; pointer-events: none; }
+  .lb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-lb-dot); flex-shrink: 0; }
+  @media (prefers-reduced-motion: no-preference) { .lb-dot { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); } }
+  .lb-dot.active { background: var(--color-lb-dot-active); width: 18px; border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -315,7 +108,12 @@
 <main id="grid" role="main"></main>
 
 <div id="bottomBar">
-  <button id="backTopBtn" aria-label="Scroll back to top">Back to top</button>
+  <button id="backTopBtn" aria-label="Scroll back to top">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 13V3M3 8l5-5 5 5"/>
+    </svg>
+    Back to top
+  </button>
 </div>
 
 <footer role="contentinfo">
@@ -362,18 +160,15 @@ const backTopBtn = document.getElementById('backTopBtn');
 let colL, colR, colHeights;
 let touchStartX, touchStartY, touchStartTime;
 
-/* ── LOAD ── */
 async function load() {
   if (appLoaded) return;
   appLoaded = true;
-
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
     const [filesRes, orderRes] = await Promise.all([
       fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
       fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
     ]);
-
     const files = await filesRes.json();
     if (!Array.isArray(files)) { console.error('GitHub API error', files); return; }
 
@@ -390,7 +185,6 @@ async function load() {
 
     let ordered = [];
     const seen = new Set();
-
     if (orderRes && orderRes.ok) {
       const text = await orderRes.text();
       text.split('\n')
@@ -416,7 +210,6 @@ async function load() {
     });
 
     photos = ordered;
-
     colL = document.createElement('div');
     colR = document.createElement('div');
     colL.className = 'col';
@@ -427,20 +220,14 @@ async function load() {
 
     await appendPhotos(0, photos.length);
     buildLbDots();
-
-  } catch (e) {
-    console.error('Load error:', e);
-  }
+  } catch (e) { console.error('Load error:', e); }
 }
 
-/* ── APPEND ── */
 async function appendPhotos(from, count) {
   const to    = Math.min(from + count, photos.length);
   const slice = photos.slice(from, to);
   if (!slice.length) return;
-
   const ratios = await Promise.all(slice.map(p => probeRatio(p.thumb)));
-
   slice.forEach((p, idx) => {
     const globalIdx = from + idx;
     const col = colHeights[0] <= colHeights[1] ? 0 : 1;
@@ -462,43 +249,27 @@ function probeRatio(src) {
 function makeItem(p, globalIdx, localIdx) {
   const div = document.createElement('div');
   div.className = 'grid-item';
-
   if (!reduceMotion && localIdx < 12) {
     div.classList.add('animate');
     div.style.animationDelay = `${localIdx * 0.03}s`;
   }
-
   div.setAttribute('role', 'button');
   div.setAttribute('tabindex', '0');
   div.setAttribute('aria-label', `Open photo ${globalIdx + 1} of ${photos.length}`);
-
   const img = document.createElement('img');
   img.src      = p.thumb;
   img.loading  = globalIdx < 6 ? 'eager' : 'lazy';
   img.decoding = 'async';
   img.alt = `Photo ${globalIdx + 1}`;
-
   div.appendChild(img);
   div.addEventListener('click', () => openLb(globalIdx));
-
-  div.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openLb(globalIdx);
-    }
-  });
-
+  div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(globalIdx); } });
   return div;
 }
 
-/* ── BACK TO TOP ── */
-backTopBtn.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
-});
+backTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' }); });
 
-/* ── LIGHTBOX DOTS ── */
 const MAX_DOTS = 7;
-
 function buildLbDots() {
   dotsEl.innerHTML = '';
   const n = Math.min(photos.length, MAX_DOTS);
@@ -513,14 +284,11 @@ function buildLbDots() {
 function updateLbDots() {
   const dots = [...dotsEl.querySelectorAll('.lb-dot')];
   if (!dots.length) return;
-
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
-
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
 }
 
-/* ── LIGHTBOX ── */
 function openLb(i) {
   current = i;
   const img = activeSlot === 'A' ? imgA : imgB;
@@ -533,24 +301,18 @@ function openLb(i) {
   preloadAdjacent();
 }
 
-function closeLb() {
-  lb.classList.remove('open');
-  document.body.style.overflow = '';
-}
+function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; }
 
 function goTo(i) {
   const target = Math.max(0, Math.min(i, photos.length - 1));
   if (target === current) return;
-
   const fromSlot = activeSlot === 'A' ? slotA : slotB;
   const toSlot   = activeSlot === 'A' ? slotB : slotA;
   const toImg    = activeSlot === 'A' ? imgB  : imgA;
-
   current = target;
   toImg.src = '';
   toImg.src = photos[current].full;
   toImg.alt = `Photo ${current + 1} of ${photos.length}`;
-
   toImg.onload = () => {
     toSlot.classList.replace('hidden', 'visible');
     fromSlot.classList.replace('visible', 'hidden');
@@ -570,32 +332,27 @@ function preloadAdjacent() {
     .forEach(idx => { const p = new Image(); p.src = photos[idx].full; });
 }
 
-/* ── CONTROLS ── */
 document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbPrev').addEventListener('click', goPrev);
 document.getElementById('lbNext').addEventListener('click', goNext);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
-
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape')     { closeLb(); return; }
   if (e.key === 'ArrowRight') goNext();
   if (e.key === 'ArrowLeft')  goPrev();
 });
-
 lb.addEventListener('touchstart', e => {
   touchStartX    = e.changedTouches[0].clientX;
   touchStartY    = e.changedTouches[0].clientY;
   touchStartTime = Date.now();
 }, { passive: true });
-
 lb.addEventListener('touchend', e => {
   const dx  = e.changedTouches[0].clientX - touchStartX;
   const dy  = e.changedTouches[0].clientY - touchStartY;
   const dt  = Date.now() - touchStartTime;
   const vel = Math.abs(dx) / dt;
   const isH = Math.abs(dx) > Math.abs(dy);
-
   if (!isH && dy > 72)                          { closeLb(); return; }
   if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? goNext() : goPrev(); }
 }, { passive: true });
