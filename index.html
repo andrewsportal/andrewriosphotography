@@ -30,7 +30,7 @@
     --color-lb-close-text: rgba(255,255,255,0.92);
     --color-lb-dot:        rgba(255,255,255,0.35);
     --color-lb-dot-active: #ffffff;
-
+    
     /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
     --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
     --text-footnote: clamp(0.75rem,   3.0vw, 0.8125rem);
@@ -51,17 +51,13 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ── SAFE AREA SPACER ── */
-  #topSpacer {
-    height: calc(var(--safe-top) + 4px);
-    background: var(--color-bg);
-  }
-
   /* ── MASONRY GRID ── */
   #grid {
     display: flex;
     gap: var(--gap);
-    padding: var(--gap);
+    /* Safely pad the top so photos scroll behind the status bar natively */
+    padding-top: calc(var(--safe-top) + var(--gap)); 
+    padding-bottom: var(--gap);
     padding-left:  calc(var(--safe-left)  + var(--gap));
     padding-right: calc(var(--safe-right) + var(--gap));
     align-items: flex-start;
@@ -136,7 +132,6 @@
     backdrop-filter: saturate(180%) blur(20px);
     color: var(--color-btn-text);
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    /* Dynamic type — was fixed 13px */
     font-size: var(--text-footnote);
     font-weight: 400;
     letter-spacing: -0.08px;
@@ -168,7 +163,6 @@
 
   footer span {
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    /* Dynamic type — was fixed 11px */
     font-size: var(--text-caption);
     font-weight: 400;
     letter-spacing: 0.06em;
@@ -237,16 +231,15 @@
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
     color: var(--color-lb-close-text);
-    /* Dynamic type — was fixed 15px */
-    font-size: var(--text-body);
-    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, sans-serif;
   }
+
+  /* Prevent SVG from blocking taps */
+  .lb-close svg { pointer-events: none; }
 
   .lb-close:active {
     background: var(--color-lb-close-bg);
@@ -313,8 +306,6 @@
 </head>
 <body>
 
-<div id="topSpacer" role="presentation"></div>
-
 <main id="grid" role="main"></main>
 
 <div id="bottomBar">
@@ -326,7 +317,11 @@
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
-  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">&#x2715;</button>
+  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 1l12 12M13 1L1 13"/>
+    </svg>
+  </button>
   <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
   <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
   <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
@@ -369,6 +364,7 @@ async function load() {
 
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
+
     const [filesRes, orderRes] = await Promise.all([
       fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
       fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
@@ -382,8 +378,6 @@ async function load() {
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
       .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
 
-    // stemMap: order.txt can use bare names or any extension.
-    // "beach", "beach.jpg", "beach.PNG" all resolve to the same file.
     const stemMap = {};
     Object.keys(fileMap).forEach(key => {
       const stem = key.replace(/\.[^.]+$/, '');
@@ -399,7 +393,6 @@ async function load() {
         .map(l => l.trim())
         .filter(l => l && !l.startsWith('#'))
         .forEach(name => {
-          // Strip extension from order.txt entry if present, match by stem
           const stem = name.toLowerCase().replace(/\.[^.]+$/, '');
           const key  = stemMap[stem];
           if (key && !seen.has(key)) {
@@ -483,12 +476,14 @@ function makeItem(p, globalIdx, localIdx) {
 
   div.appendChild(img);
   div.addEventListener('click', () => openLb(globalIdx));
+
   div.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       openLb(globalIdx);
     }
   });
+
   return div;
 }
 
@@ -516,6 +511,7 @@ function updateLbDots() {
   if (!dots.length) return;
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
+
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
 }
 
