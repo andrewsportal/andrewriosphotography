@@ -55,7 +55,6 @@
   #grid {
     display: flex;
     gap: var(--gap);
-    /* Safely pad the top so photos scroll behind the status bar natively */
     padding-top: calc(var(--safe-top) + var(--gap));
     padding-bottom: var(--gap);
     padding-left:  calc(var(--safe-left)  + var(--gap));
@@ -167,7 +166,6 @@
     font-weight: 400;
     letter-spacing: 0.06em;
     color: var(--color-footer-text);
-    text-transform: uppercase;
   }
 
   /* ── LIGHTBOX ── */
@@ -238,14 +236,12 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Expands the invisible touch area to 44x44px to meet Apple HIG */
   .lb-close::before {
     content: '';
     position: absolute;
     inset: -4px; 
   }
 
-  /* Prevent SVG from blocking taps */
   .lb-close svg { pointer-events: none; }
 
   .lb-close:active {
