@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Andrew Rios Photography</title>
+
+<link rel="preconnect" href="https://wsrv.nl" crossorigin>
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -376,6 +379,7 @@ async function load() {
   appLoaded = true;
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
+    // Auto-fetch photos and order from GitHub (Zero manual code updates needed!)
     const [filesRes, orderRes] = await Promise.all([
       fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
       fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
@@ -571,7 +575,6 @@ function goTo(i) {
   // 3. Silently upgrade to the full 1600px version in the background
   const highResImg = new Image();
   highResImg.onload = () => {
-    // Only apply if the user hasn't already swiped away to another photo!
     if (current === target) {
       toImg.src = photos[current].full;
     }
