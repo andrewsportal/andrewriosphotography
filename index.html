@@ -523,13 +523,23 @@ function updateLbDots() {
 function openLb(i) {
   current = i;
   const img = activeSlot === 'A' ? imgA : imgB;
-  img.src = photos[i].full;
+  
+  // 1. Immediately show the cached thumbnail for zero delay
+  img.src = photos[i].thumb;
   img.alt = `Photo ${i + 1} of ${photos.length}`;
+  
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
   lb.setAttribute('tabindex', '-1');
   updateLbDots();
   preloadAdjacent();
+
+  // 2. Silently upgrade to high-res
+  const highResImg = new Image();
+  highResImg.onload = () => {
+    if (current === i) img.src = photos[i].full;
+  };
+  highResImg.src = photos[i].full;
 }
 
 function closeLb() {
@@ -546,17 +556,27 @@ function goTo(i) {
   const toImg    = activeSlot === 'A' ? imgB  : imgA;
 
   current = target;
-  toImg.src = '';
-  toImg.src = photos[current].full;
+  
+  // 1. Load the thumbnail (already in browser cache) for instant feedback
+  toImg.src = photos[current].thumb;
   toImg.alt = `Photo ${current + 1} of ${photos.length}`;
-  toImg.onload = () => {
-    toSlot.classList.replace('hidden', 'visible');
-    fromSlot.classList.replace('visible', 'hidden');
-    activeSlot = activeSlot === 'A' ? 'B' : 'A';
-    updateLbDots();
-    preloadAdjacent();
+
+  // 2. Instantly swap the UI to eliminate the stall
+  toSlot.classList.replace('hidden', 'visible');
+  fromSlot.classList.replace('visible', 'hidden');
+  activeSlot = activeSlot === 'A' ? 'B' : 'A';
+  updateLbDots();
+  preloadAdjacent();
+
+  // 3. Silently upgrade to the full 1600px version in the background
+  const highResImg = new Image();
+  highResImg.onload = () => {
+    // Only apply if the user hasn't already swiped away to another photo!
+    if (current === target) {
+      toImg.src = photos[current].full;
+    }
   };
-  toImg.onerror = () => { toImg.src = photos[current].thumb; };
+  highResImg.src = photos[current].full;
 }
 
 function goNext() { goTo(current + 1); }
