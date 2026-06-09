@@ -110,7 +110,7 @@
 
   /* ── BOTTOM BAR ── */
   #bottomBar {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 32px 20px 24px 20px;
@@ -154,7 +154,7 @@
   footer {
     padding: 16px 20px;
     padding-bottom: calc(var(--safe-bottom) + 24px);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     border-top: 0.5px solid var(--color-footer-border);
@@ -239,7 +239,7 @@
   .lb-close::before {
     content: '';
     position: absolute;
-    inset: -4px; 
+    inset: -4px;
   }
 
   .lb-close svg { pointer-events: none; }
@@ -351,7 +351,6 @@ let photos    = [];
 let current   = 0;
 let activeSlot = 'A';
 let appLoaded = false;
-
 const gridEl     = document.getElementById('grid');
 const lb         = document.getElementById('lb');
 const slotA      = document.getElementById('slotA');
@@ -368,14 +367,12 @@ let touchStartX, touchStartY, touchStartTime;
 async function load() {
   if (appLoaded) return;
   appLoaded = true;
-
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
     const [filesRes, orderRes] = await Promise.all([
       fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
       fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
     ]);
-
     const files = await filesRes.json();
     if (!Array.isArray(files)) { console.error('GitHub API error', files); return; }
 
@@ -383,13 +380,11 @@ async function load() {
     files
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
       .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
-
     const stemMap = {};
     Object.keys(fileMap).forEach(key => {
       const stem = key.replace(/\.[^.]+$/, '');
       if (!stemMap[stem]) stemMap[stem] = key;
     });
-
     let ordered = [];
     const seen = new Set();
 
@@ -416,7 +411,6 @@ async function load() {
         ordered.push({ thumb: `${RAW}/${fileMap[key].name}`, full: fileMap[key].url });
       }
     });
-
     photos = ordered;
 
     colL = document.createElement('div');
@@ -429,6 +423,9 @@ async function load() {
 
     await appendPhotos(0, photos.length);
     buildLbDots();
+
+    document.getElementById('bottomBar').style.display = 'flex';
+    document.querySelector('footer').style.display = 'flex';
 
   } catch (e) {
     console.error('Load error:', e);
@@ -463,7 +460,6 @@ function probeRatio(src) {
 function makeItem(p, globalIdx, localIdx) {
   const div = document.createElement('div');
   div.className = 'grid-item';
-
   if (!reduceMotion && localIdx < 12) {
     div.classList.add('animate');
     div.style.animationDelay = `${localIdx * 0.03}s`;
@@ -487,7 +483,6 @@ function makeItem(p, globalIdx, localIdx) {
       openLb(globalIdx);
     }
   });
-
   return div;
 }
 
@@ -513,10 +508,8 @@ function buildLbDots() {
 function updateLbDots() {
   const dots = [...dotsEl.querySelectorAll('.lb-dot')];
   if (!dots.length) return;
-
   const half  = Math.floor(MAX_DOTS / 2);
   const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
-
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
 }
 
@@ -550,7 +543,6 @@ function goTo(i) {
   toImg.src = '';
   toImg.src = photos[current].full;
   toImg.alt = `Photo ${current + 1} of ${photos.length}`;
-
   toImg.onload = () => {
     toSlot.classList.replace('hidden', 'visible');
     fromSlot.classList.replace('visible', 'hidden');
@@ -575,20 +567,17 @@ document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbPrev').addEventListener('click', goPrev);
 document.getElementById('lbNext').addEventListener('click', goNext);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
-
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape')     { closeLb(); return; }
   if (e.key === 'ArrowRight') goNext();
   if (e.key === 'ArrowLeft')  goPrev();
 });
-
 lb.addEventListener('touchstart', e => {
   touchStartX    = e.changedTouches[0].clientX;
   touchStartY    = e.changedTouches[0].clientY;
   touchStartTime = Date.now();
 }, { passive: true });
-
 lb.addEventListener('touchend', e => {
   const dx  = e.changedTouches[0].clientX - touchStartX;
   const dy  = e.changedTouches[0].clientY - touchStartY;
