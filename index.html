@@ -23,16 +23,20 @@
     /* ── LOCKED DARK — always black regardless of system setting ── */
     --color-bg:            #000000;
     --color-grid-item-bg:  #1c1c1e;
-    --color-footer-border: rgba(84,84,88,0.65);
-    --color-footer-text:   rgba(235,235,245,0.30);
+    --color-footer-border: rgba(84,84,88,0.55);
+    --color-footer-text:   rgba(235,235,245,0.28);
     --color-btn-bg:        rgba(118,118,128,0.24);
-    --color-btn-text:      rgba(235,235,245,0.6);
-    --color-btn-bg-active: rgba(118,118,128,0.36);
+    --color-btn-text:      rgba(235,235,245,0.65);
+    --color-btn-bg-hover:  rgba(118,118,128,0.30);
+    --color-btn-bg-active: rgba(118,118,128,0.38);
     --color-lb-bg:         #000000;
-    --color-lb-close-bg:   rgba(60,60,67,0.6);
+    --color-lb-close-bg:   rgba(60,60,67,0.62);
     --color-lb-close-text: rgba(255,255,255,0.92);
-    --color-lb-dot:        rgba(255,255,255,0.35);
+    --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
+
+    /* ── GRID ITEM CORNER RADIUS ── */
+    --radius-item: 3px;
 
     /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
     --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
@@ -43,12 +47,19 @@
   html {
     background: var(--color-bg);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Hide scrollbar on WebKit/Blink */
+    scrollbar-width: none;
   }
+
+  html::-webkit-scrollbar { display: none; }
 
   body {
     background: var(--color-bg);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
@@ -82,32 +93,41 @@
     touch-action: manipulation;
     overflow: hidden;
     background: var(--color-grid-item-bg);
+    border-radius: var(--radius-item);
   }
 
   .grid-item img {
     width: 100%;
     height: auto;
     display: block;
+    /* Base transition so hover scale returns smoothly */
+    transition: transform 0.42s cubic-bezier(0.2, 0, 0.2, 1),
+                opacity   0.18s ease;
   }
 
   .grid-item:active img {
-    opacity: 0.75;
+    opacity: 0.72;
   }
 
   @media (prefers-reduced-motion: no-preference) {
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+      from {
+        opacity: 0;
+        transform: translateY(7px) scale(0.984);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
     .grid-item.animate {
-      animation: fadeIn 0.3s ease both;
+      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .grid-item:hover img {
-      transform: scale(1.012);
-      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: scale(1.016);
     }
   }
 
@@ -116,7 +136,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 32px 20px 24px 20px;
+    padding: 28px 20px calc(var(--safe-bottom) + 20px);
   }
 
   /* ── BACK TO TOP BUTTON ── */
@@ -132,20 +152,33 @@
     background: var(--color-btn-bg);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
+    /* Hairline ring + soft ambient lift */
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
+                0 1px 6px rgba(0,0,0,0.22);
     color: var(--color-btn-text);
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: var(--text-footnote);
-    font-weight: 400;
-    letter-spacing: -0.08px;
+    font-weight: 500;
+    letter-spacing: -0.12px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #backTopBtn:hover {
+      background: var(--color-btn-bg-hover);
+    }
   }
 
   #backTopBtn:active {
     background: var(--color-btn-bg-active);
     transform: scale(0.97);
-    transition: transform 0.1s ease, background 0.1s ease;
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
+                0 1px 2px rgba(0,0,0,0.16);
   }
 
   #backTopBtn:focus-visible {
@@ -167,7 +200,7 @@
     font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: var(--text-caption);
     font-weight: 400;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.03em;
     color: var(--color-footer-text);
   }
 
@@ -184,8 +217,8 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .lb { transition: opacity 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-    .lb-slot { transition: opacity 0.2s ease; }
+    .lb { transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1); }
+    .lb-slot { transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1); }
   }
 
   .lb.open {
@@ -224,33 +257,39 @@
     top:   calc(var(--safe-top)   + 16px);
     right: calc(var(--safe-right) + 16px);
     z-index: 10;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    /* Hairline ring + layered drop shadow for genuine elevation */
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
+                0 2px 12px rgba(0,0,0,0.48),
+                0 1px 3px  rgba(0,0,0,0.30);
     color: var(--color-lb-close-text);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+                background 0.15s ease;
   }
 
+  /* Expand tap target without enlarging the visual */
   .lb-close::before {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -6px;
   }
 
   .lb-close svg { pointer-events: none; }
 
   .lb-close:active {
-    background: var(--color-lb-close-bg);
-    transform: scale(0.92);
-    transition: transform 0.1s ease, background 0.1s ease;
+    transform: scale(0.90);
+    background: rgba(80,80,88,0.68);
   }
 
   .lb-close:focus-visible {
@@ -283,7 +322,7 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 6px;
+    gap: 7px;
     align-items: center;
     z-index: 10;
     pointer-events: none;
@@ -299,7 +338,7 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .lb-dot {
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
   }
 
@@ -329,7 +368,7 @@
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
   </button>
@@ -391,13 +430,13 @@ async function load() {
     files
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
       .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
-      
+
     const stemMap = {};
     Object.keys(fileMap).forEach(key => {
       const stem = key.replace(/\.[^.]+$/, '');
       if (!stemMap[stem]) stemMap[stem] = key;
     });
-    
+
     let ordered = [];
     const seen = new Set();
 
@@ -412,7 +451,7 @@ async function load() {
           if (key && !seen.has(key)) {
             seen.add(key);
             const rawImgUrl = `${RAW}/${fileMap[key].name}`;
-            ordered.push({ 
+            ordered.push({
               thumb: getProxyUrl(rawImgUrl, 600), // 600px wide for the grid
               full: getProxyUrl(rawImgUrl, 1600)  // 1600px wide for the lightbox
             });
@@ -426,7 +465,7 @@ async function load() {
       if (!seen.has(key)) {
         seen.add(key);
         const rawImgUrl = `${RAW}/${fileMap[key].name}`;
-        ordered.push({ 
+        ordered.push({
           thumb: getProxyUrl(rawImgUrl, 600),
           full: getProxyUrl(rawImgUrl, 1600)
         });
@@ -461,7 +500,7 @@ function appendPhotos(from, count) {
   slice.forEach((p, idx) => {
     const globalIdx = from + idx;
     // Deal the photos out like a deck of cards: Left, Right, Left, Right
-    const col = globalIdx % 2 === 0 ? 0 : 1; 
+    const col = globalIdx % 2 === 0 ? 0 : 1;
     const item = makeItem(p, globalIdx, idx);
     (col === 0 ? colL : colR).appendChild(item);
   });
@@ -527,11 +566,11 @@ function updateLbDots() {
 function openLb(i) {
   current = i;
   const img = activeSlot === 'A' ? imgA : imgB;
-  
+
   // 1. Immediately show the cached thumbnail for zero delay
   img.src = photos[i].thumb;
   img.alt = `Photo ${i + 1} of ${photos.length}`;
-  
+
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
   lb.setAttribute('tabindex', '-1');
@@ -560,7 +599,7 @@ function goTo(i) {
   const toImg    = activeSlot === 'A' ? imgB  : imgA;
 
   current = target;
-  
+
   // 1. Load the thumbnail (already in browser cache) for instant feedback
   toImg.src = photos[current].thumb;
   toImg.alt = `Photo ${current + 1} of ${photos.length}`;
