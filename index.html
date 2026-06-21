@@ -35,9 +35,6 @@
     --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
 
-    /* ── GRID ITEM CORNER RADIUS ── */
-    --radius-item: 3px;
-
     /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
     --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
     --text-footnote: clamp(0.75rem,   3.0vw, 0.8125rem);
@@ -50,7 +47,6 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Hide scrollbar on WebKit/Blink */
     scrollbar-width: none;
   }
 
@@ -93,14 +89,12 @@
     touch-action: manipulation;
     overflow: hidden;
     background: var(--color-grid-item-bg);
-    border-radius: var(--radius-item);
   }
 
   .grid-item img {
     width: 100%;
     height: auto;
     display: block;
-    /* Base transition so hover scale returns smoothly */
     transition: transform 0.42s cubic-bezier(0.2, 0, 0.2, 1),
                 opacity   0.18s ease;
   }
@@ -152,7 +146,6 @@
     background: var(--color-btn-bg);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
-    /* Hairline ring + soft ambient lift */
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
                 0 1px 6px rgba(0,0,0,0.22);
     color: var(--color-btn-text);
@@ -264,7 +257,6 @@
     background: var(--color-lb-close-bg);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     backdrop-filter: saturate(180%) blur(24px);
-    /* Hairline ring + layered drop shadow for genuine elevation */
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
                 0 2px 12px rgba(0,0,0,0.48),
                 0 1px 3px  rgba(0,0,0,0.30);
@@ -278,7 +270,6 @@
                 background 0.15s ease;
   }
 
-  /* Expand tap target without enlarging the visual */
   .lb-close::before {
     content: '';
     position: absolute;
@@ -418,7 +409,6 @@ async function load() {
   appLoaded = true;
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
-    // Auto-fetch photos and order from GitHub (Zero manual code updates needed!)
     const [filesRes, orderRes] = await Promise.all([
       fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
       fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
@@ -452,8 +442,8 @@ async function load() {
             seen.add(key);
             const rawImgUrl = `${RAW}/${fileMap[key].name}`;
             ordered.push({
-              thumb: getProxyUrl(rawImgUrl, 600), // 600px wide for the grid
-              full: getProxyUrl(rawImgUrl, 1600)  // 1600px wide for the lightbox
+              thumb: getProxyUrl(rawImgUrl, 600),
+              full: getProxyUrl(rawImgUrl, 1600)
             });
             delete fileMap[key];
             delete stemMap[stem];
@@ -499,7 +489,6 @@ function appendPhotos(from, count) {
 
   slice.forEach((p, idx) => {
     const globalIdx = from + idx;
-    // Deal the photos out like a deck of cards: Left, Right, Left, Right
     const col = globalIdx % 2 === 0 ? 0 : 1;
     const item = makeItem(p, globalIdx, idx);
     (col === 0 ? colL : colR).appendChild(item);
@@ -567,7 +556,6 @@ function openLb(i) {
   current = i;
   const img = activeSlot === 'A' ? imgA : imgB;
 
-  // 1. Immediately show the cached thumbnail for zero delay
   img.src = photos[i].thumb;
   img.alt = `Photo ${i + 1} of ${photos.length}`;
 
@@ -577,7 +565,6 @@ function openLb(i) {
   updateLbDots();
   preloadAdjacent();
 
-  // 2. Silently upgrade to high-res
   const highResImg = new Image();
   highResImg.onload = () => {
     if (current === i) img.src = photos[i].full;
@@ -600,18 +587,15 @@ function goTo(i) {
 
   current = target;
 
-  // 1. Load the thumbnail (already in browser cache) for instant feedback
   toImg.src = photos[current].thumb;
   toImg.alt = `Photo ${current + 1} of ${photos.length}`;
 
-  // 2. Instantly swap the UI to eliminate the stall
   toSlot.classList.replace('hidden', 'visible');
   fromSlot.classList.replace('visible', 'hidden');
   activeSlot = activeSlot === 'A' ? 'B' : 'A';
   updateLbDots();
   preloadAdjacent();
 
-  // 3. Silently upgrade to the full 1600px version in the background
   const highResImg = new Image();
   highResImg.onload = () => {
     if (current === target) {
