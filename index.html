@@ -8,10 +8,24 @@
 <meta name="theme-color" content="#000000">
 <title>Andrew Rios Photography</title>
 
-<link rel="preconnect" href="https://wsrv.nl" crossorigin>
+<meta name="description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
+<link rel="canonical" href="https://andrewriosphotography.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://andrewriosphotography.com/">
+<meta property="og:title" content="Andrew Rios Photography">
+<meta property="og:description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
+<meta property="og:image" content="https://wsrv.nl/?url=raw.githubusercontent.com/andrewsportal/andrewriosphotography/main/001.png&amp;w=1200&amp;output=jpg&amp;q=82">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Ctext x='32' y='41' font-family='-apple-system, sans-serif' font-size='24' font-weight='600' text-anchor='middle' fill='%23d4af37'%3EAR%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://wsrv.nl">
+<link rel="preconnect" href="https://api.github.com" crossorigin>
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  button { font: inherit; }
 
   :root {
     --gap: 1px;
@@ -20,25 +34,33 @@
     --safe-left:   env(safe-area-inset-left);
     --safe-right:  env(safe-area-inset-right);
 
-    /* ── LOCKED DARK — always black regardless of system setting ── */
+    /* ── SPACING — 8px grid ── */
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --space-48: 48px;
+    --space-64: 64px;
+
+    /* ── LOCKED DARK — always black regardless of system setting.
+       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
     --color-bg:            #000000;
-    --color-grid-item-bg:  #1c1c1e;
-    --color-footer-border: rgba(84,84,88,0.55);
-    --color-footer-text:   rgba(235,235,245,0.28);
-    --color-btn-bg:        rgba(118,118,128,0.24);
-    --color-btn-text:      rgba(235,235,245,0.65);
-    --color-btn-bg-hover:  rgba(118,118,128,0.30);
-    --color-btn-bg-active: rgba(118,118,128,0.38);
+    --color-accent:        #d4af37;
+    --color-grid-item-bg:  #131a16;
+    --color-footer-border: rgba(103,150,143,0.38);
+    --color-footer-text:   rgba(235,235,245,0.52);
+    --color-btn-bg:        rgba(118,128,120,0.26);
+    --color-btn-text:      rgba(240,244,240,0.85);
+    --color-btn-bg-hover:  rgba(118,128,120,0.33);
+    --color-btn-bg-active: rgba(118,128,120,0.42);
     --color-lb-bg:         #000000;
-    --color-lb-close-bg:   rgba(60,60,67,0.62);
+    --color-lb-close-bg:   rgba(58,66,61,0.62);
     --color-lb-close-text: rgba(255,255,255,0.92);
     --color-lb-dot:        rgba(255,255,255,0.32);
-    --color-lb-dot-active: #ffffff;
+    --color-lb-dot-active: var(--color-accent);
 
     /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
-    --text-caption:  clamp(0.625rem,  2.5vw, 0.6875rem);
-    --text-footnote: clamp(0.75rem,   3.0vw, 0.8125rem);
-    --text-body:     clamp(0.8125rem, 3.3vw, 0.9375rem);
+    --text-caption: clamp(0.6875rem, 2.5vw, 0.75rem);
+    --text-body:    clamp(0.9375rem, 2.6vw, 1.0625rem);
   }
 
   html {
@@ -54,17 +76,18 @@
 
   body {
     background: var(--color-bg);
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* ── MASONRY GRID ── */
   #grid {
     display: flex;
     gap: var(--gap);
+    max-width: 1200px;
+    margin: 0 auto;
     padding-top: calc(var(--safe-top) + var(--gap));
     padding-bottom: var(--gap);
     padding-left:  calc(var(--safe-left)  + var(--gap));
@@ -95,34 +118,11 @@
     width: 100%;
     height: auto;
     display: block;
-    transition: transform 0.42s cubic-bezier(0.2, 0, 0.2, 1),
-                opacity   0.18s ease;
+    transition: opacity 0.18s ease;
   }
 
   .grid-item:active img {
     opacity: 0.72;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(7px) scale(0.984);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-    .grid-item.animate {
-      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .grid-item:hover img {
-      transform: scale(1.016);
-    }
   }
 
   /* ── BOTTOM BAR ── */
@@ -130,7 +130,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 28px 20px calc(var(--safe-bottom) + 20px);
+    padding: var(--space-32) var(--space-24) calc(var(--safe-bottom) + var(--space-24));
   }
 
   /* ── BACK TO TOP BUTTON ── */
@@ -149,21 +149,23 @@
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
                 0 1px 6px rgba(0,0,0,0.22);
     color: var(--color-btn-text);
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: var(--text-footnote);
+    font-size: var(--text-body);
     font-weight: 500;
     letter-spacing: -0.12px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
-                background 0.18s ease,
-                box-shadow 0.18s ease;
+    transition: background 0.18s ease, box-shadow 0.18s ease;
   }
 
+  /* ── HOVER — pointer devices only ── */
   @media (hover: hover) and (pointer: fine) {
+    .grid-item:hover img {
+      transform: scale(1.016);
+    }
     #backTopBtn:hover {
       background: var(--color-btn-bg-hover);
+      transform: translateY(-1px);
     }
   }
 
@@ -174,15 +176,10 @@
                 0 1px 2px rgba(0,0,0,0.16);
   }
 
-  #backTopBtn:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
-  }
-
   /* ── FOOTER ── */
   footer {
-    padding: 16px 20px;
-    padding-bottom: calc(var(--safe-bottom) + 24px);
+    padding: var(--space-16) var(--space-24);
+    padding-bottom: calc(var(--safe-bottom) + var(--space-24));
     display: none;
     align-items: center;
     justify-content: center;
@@ -190,7 +187,6 @@
   }
 
   footer span {
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     font-size: var(--text-caption);
     font-weight: 400;
     letter-spacing: 0.03em;
@@ -206,13 +202,11 @@
     opacity: 0;
     pointer-events: none;
     touch-action: none;
+    -webkit-user-select: none;
     user-select: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .lb { transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1); }
-    .lb-slot { transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1); }
-  }
+  .lb:focus { outline: none; }
 
   .lb.open {
     opacity: 1;
@@ -221,7 +215,7 @@
 
   .lb-slot {
     position: absolute;
-    top:    calc(var(--safe-top)    + 64px);
+    top:    calc(var(--safe-top)    + var(--space-64));
     bottom: calc(var(--safe-bottom) + 56px);
     left: 0;
     right: 0;
@@ -247,8 +241,8 @@
   /* ── LIGHTBOX CLOSE ── */
   .lb-close {
     position: absolute;
-    top:   calc(var(--safe-top)   + 16px);
-    right: calc(var(--safe-right) + 16px);
+    top:   calc(var(--safe-top)   + var(--space-16));
+    right: calc(var(--safe-right) + var(--space-16));
     z-index: 10;
     width: 32px;
     height: 32px;
@@ -266,8 +260,7 @@
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
-                background 0.15s ease;
+    transition: background 0.15s ease;
   }
 
   .lb-close::before {
@@ -280,12 +273,7 @@
 
   .lb-close:active {
     transform: scale(0.90);
-    background: rgba(80,80,88,0.68);
-  }
-
-  .lb-close:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
+    background: rgba(76,86,80,0.68);
   }
 
   .lb-prev, .lb-next {
@@ -309,11 +297,11 @@
   /* ── PAGE CONTROL DOTS ── */
   .lb-dots {
     position: absolute;
-    bottom: calc(var(--safe-bottom) + 20px);
+    bottom: calc(var(--safe-bottom) + var(--space-24));
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 7px;
+    gap: 8px;
     align-items: center;
     z-index: 10;
     pointer-events: none;
@@ -327,16 +315,88 @@
     flex-shrink: 0;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .lb-dot {
-      transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-  }
-
   .lb-dot.active {
     background: var(--color-lb-dot-active);
     width: 18px;
     border-radius: 3px;
+  }
+
+  /* ── FOCUS — visible keyboard focus, brand gold ── */
+  #backTopBtn:focus-visible,
+  .lb-close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .grid-item:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  .lb-prev:focus-visible,
+  .lb-next:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -6px;
+  }
+
+  /* ── MOTION — transforms animate only when the user allows it ── */
+  @media (prefers-reduced-motion: no-preference) {
+    .grid-item img {
+      transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+                  opacity   0.18s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(7px) scale(0.984);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .grid-item.animate {
+      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
+    }
+
+    #backTopBtn {
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.18s ease,
+                  box-shadow 0.18s ease;
+    }
+
+    .lb      { transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1); }
+    .lb-slot { transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1); }
+
+    .lb-close {
+      transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.15s ease;
+    }
+
+    .lb-dot {
+      transition: width 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background 0.26s ease;
+    }
+  }
+
+  /* ── DESKTOP — layered over the mobile-first base ── */
+  @media (min-width: 768px) {
+    :root { --gap: 2px; }
+
+    #bottomBar {
+      padding: var(--space-48) var(--space-24) calc(var(--safe-bottom) + var(--space-32));
+    }
+
+    footer {
+      padding-bottom: calc(var(--safe-bottom) + var(--space-32));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    #bottomBar { padding-top: var(--space-64); }
   }
 </style>
 </head>
@@ -357,7 +417,7 @@
   <span>© 2026 Andrew Rios Photography</span>
 </footer>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M1 1l14 14M15 1L1 15"/>
@@ -393,8 +453,27 @@ const imgB       = document.getElementById('imgB');
 const dotsEl     = document.getElementById('lbDots');
 const backTopBtn = document.getElementById('backTopBtn');
 
-let colL, colR;
+let cols = [];
+const itemEls = [];
+let lastFocused = null;
 let touchStartX, touchStartY, touchStartTime;
+
+/* ── RESPONSIVE COLUMNS — 2 on phones, 3 from 768px up; same order, same count ── */
+const mqDesktop = window.matchMedia('(min-width: 768px)');
+
+function layoutGrid() {
+  const n = mqDesktop.matches ? 3 : 2;
+  if (cols.length === n) return;
+  cols = [];
+  gridEl.textContent = '';
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'col';
+    cols.push(c);
+    gridEl.appendChild(c);
+  }
+  itemEls.forEach((el, i) => cols[i % n].appendChild(el));
+}
 
 /* ── HELPER: PROXY URL GENERATOR ── */
 // Automatically compresses and sizes images on the fly via wsrv.nl
@@ -419,7 +498,7 @@ async function load() {
     const fileMap = {};
     files
       .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
-      .forEach(f => { fileMap[f.name.toLowerCase()] = { name: f.name, url: f.download_url }; });
+      .forEach(f => { fileMap[f.name.toLowerCase()] = f.name; });
 
     const stemMap = {};
     Object.keys(fileMap).forEach(key => {
@@ -440,7 +519,7 @@ async function load() {
           const key  = stemMap[stem];
           if (key && !seen.has(key)) {
             seen.add(key);
-            const rawImgUrl = `${RAW}/${fileMap[key].name}`;
+            const rawImgUrl = `${RAW}/${fileMap[key]}`;
             ordered.push({
               thumb: getProxyUrl(rawImgUrl, 600),
               full: getProxyUrl(rawImgUrl, 1600)
@@ -454,7 +533,7 @@ async function load() {
     Object.keys(fileMap).sort().forEach(key => {
       if (!seen.has(key)) {
         seen.add(key);
-        const rawImgUrl = `${RAW}/${fileMap[key].name}`;
+        const rawImgUrl = `${RAW}/${fileMap[key]}`;
         ordered.push({
           thumb: getProxyUrl(rawImgUrl, 600),
           full: getProxyUrl(rawImgUrl, 1600)
@@ -463,13 +542,7 @@ async function load() {
     });
     photos = ordered;
 
-    colL = document.createElement('div');
-    colR = document.createElement('div');
-    colL.className = 'col';
-    colR.className = 'col';
-    gridEl.appendChild(colL);
-    gridEl.appendChild(colR);
-
+    layoutGrid();
     appendPhotos(0, photos.length);
     buildLbDots();
 
@@ -489,9 +562,9 @@ function appendPhotos(from, count) {
 
   slice.forEach((p, idx) => {
     const globalIdx = from + idx;
-    const col = globalIdx % 2 === 0 ? 0 : 1;
     const item = makeItem(p, globalIdx, idx);
-    (col === 0 ? colL : colR).appendChild(item);
+    itemEls.push(item);
+    cols[globalIdx % cols.length].appendChild(item);
   });
 }
 
@@ -559,9 +632,10 @@ function openLb(i) {
   img.src = photos[i].thumb;
   img.alt = `Photo ${i + 1} of ${photos.length}`;
 
+  lastFocused = document.activeElement;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
-  lb.setAttribute('tabindex', '-1');
+  lb.focus();
   updateLbDots();
   preloadAdjacent();
 
@@ -575,6 +649,7 @@ function openLb(i) {
 function closeLb() {
   lb.classList.remove('open');
   document.body.style.overflow = '';
+  if (lastFocused && lastFocused.focus) lastFocused.focus();
 }
 
 function goTo(i) {
@@ -640,6 +715,9 @@ lb.addEventListener('touchend', e => {
   if (!isH && dy > 72)                          { closeLb(); return; }
   if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? goNext() : goPrev(); }
 }, { passive: true });
+
+if (mqDesktop.addEventListener) mqDesktop.addEventListener('change', layoutGrid);
+else mqDesktop.addListener(layoutGrid);
 
 load();
 </script>
