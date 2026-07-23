@@ -454,6 +454,7 @@ const dotsEl     = document.getElementById('lbDots');
 const backTopBtn = document.getElementById('backTopBtn');
 
 let cols = [];
+let colHeights = [];
 const itemEls = [];
 let lastFocused = null;
 let touchStartX, touchStartY, touchStartTime;
@@ -465,14 +466,41 @@ function layoutGrid() {
   const n = mqDesktop.matches ? 3 : 2;
   if (cols.length === n) return;
   cols = [];
+  colHeights = [];
   gridEl.textContent = '';
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
     c.className = 'col';
     cols.push(c);
+    colHeights.push(0);
     gridEl.appendChild(c);
   }
-  itemEls.forEach((el, i) => cols[i % n].appendChild(el));
+  itemEls.forEach(el => placeItem(el));
+}
+
+/* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
+function shortestCol() {
+  let k = 0;
+  for (let i = 1; i < colHeights.length; i++) {
+    if (colHeights[i] < colHeights[k]) k = i;
+  }
+  return k;
+}
+
+function placeItem(el) {
+  const k = shortestCol();
+  cols[k].appendChild(el);
+  colHeights[k] += parseFloat(el.dataset.ratio) || 1;
+}
+
+/* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
+function loadRatio(url) {
+  return new Promise(resolve => {
+    const im = new Image();
+    im.onload  = () => resolve(im.naturalWidth ? im.naturalHeight / im.naturalWidth : 1);
+    im.onerror = () => resolve(1);
+    im.src = url;
+  });
 }
 
 /* ── HELPER: PROXY URL GENERATOR ── */
@@ -521,6 +549,7 @@ async function load() {
             seen.add(key);
             const rawImgUrl = `${RAW}/${fileMap[key]}`;
             ordered.push({
+              probe: getProxyUrl(rawImgUrl, 100),
               thumb: getProxyUrl(rawImgUrl, 600),
               full: getProxyUrl(rawImgUrl, 1600)
             });
@@ -535,6 +564,7 @@ async function load() {
         seen.add(key);
         const rawImgUrl = `${RAW}/${fileMap[key]}`;
         ordered.push({
+          probe: getProxyUrl(rawImgUrl, 100),
           thumb: getProxyUrl(rawImgUrl, 600),
           full: getProxyUrl(rawImgUrl, 1600)
         });
@@ -543,7 +573,7 @@ async function load() {
     photos = ordered;
 
     layoutGrid();
-    appendPhotos(0, photos.length);
+    await appendPhotos(0, photos.length);
     buildLbDots();
 
     document.getElementById('bottomBar').style.display = 'flex';
@@ -554,18 +584,23 @@ async function load() {
   }
 }
 
-/* ── APPEND ── */
-function appendPhotos(from, count) {
+/* ── APPEND — probes load in parallel, photos placed in order into the shortest column ── */
+async function appendPhotos(from, count) {
   const to    = Math.min(from + count, photos.length);
   const slice = photos.slice(from, to);
   if (!slice.length) return;
 
-  slice.forEach((p, idx) => {
+  const ratios = slice.map(p => loadRatio(p.probe));
+  const guard  = ms => new Promise(r => setTimeout(() => r(null), ms));
+
+  for (let idx = 0; idx < slice.length; idx++) {
     const globalIdx = from + idx;
-    const item = makeItem(p, globalIdx, idx);
+    const ratio = (await Promise.race([ratios[idx], guard(5000)])) ?? 1;
+    const item  = makeItem(slice[idx], globalIdx, idx);
+    item.dataset.ratio = ratio;
     itemEls.push(item);
-    cols[globalIdx % cols.length].appendChild(item);
-  });
+    placeItem(item);
+  }
 }
 
 function makeItem(p, globalIdx, localIdx) {
