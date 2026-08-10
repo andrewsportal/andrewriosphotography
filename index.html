@@ -16,7 +16,6 @@
 <meta property="og:description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
 <meta property="og:image" content="https://wsrv.nl/?url=raw.githubusercontent.com/andrewsportal/andrewriosphotography/main/001.png&amp;w=1200&amp;output=jpg&amp;q=82">
 <meta name="twitter:card" content="summary_large_image">
-
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Ctext x='32' y='41' font-family='-apple-system, sans-serif' font-size='24' font-weight='600' text-anchor='middle' fill='%23d4af37'%3EAR%3C/text%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://wsrv.nl">
@@ -24,55 +23,44 @@
 <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 
 <style>
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  button {
-    font: inherit;
-  }
+  button { font: inherit; }
 
   :root {
     --gap: 1px;
-
-    --safe-top: env(safe-area-inset-top);
+    --safe-top:    env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
-    --safe-left: env(safe-area-inset-left);
-    --safe-right: env(safe-area-inset-right);
+    --safe-left:   env(safe-area-inset-left);
+    --safe-right:  env(safe-area-inset-right);
 
-    /* Apple-like 8pt rhythm with 4pt micro steps */
-    --space-4: 4px;
-    --space-8: 8px;
-    --space-12: 12px;
+    /* ── SPACING — 8px grid ── */
     --space-16: 16px;
-    --space-20: 20px;
     --space-24: 24px;
     --space-32: 32px;
     --space-48: 48px;
     --space-64: 64px;
 
-    /* Control geometry */
-    --control-height: 44px;
-    --radius-control: 999px;
+    /* ── LOCKED DARK — always black regardless of system setting.
+       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
+    --color-bg:            #000000;
+    --color-accent:        #d4af37;
+    --color-grid-item-bg:  #131a16;
+    --color-footer-border: rgba(103,150,143,0.38);
+    --color-footer-text:   rgba(235,235,245,0.52);
+    --color-btn-bg:        rgba(118,128,120,0.26);
+    --color-btn-text:      rgba(240,244,240,0.85);
+    --color-btn-bg-hover:  rgba(118,128,120,0.33);
+    --color-btn-bg-active: rgba(118,128,120,0.42);
+    --color-lb-bg:         #000000;
+    --color-lb-close-bg:   rgba(58,66,61,0.62);
+    --color-lb-close-text: rgba(255,255,255,0.92);
+    --color-lb-dot:        rgba(255,255,255,0.32);
+    --color-lb-dot-active: #ffffff;
 
-    /* Typography */
-    --text-body: 17px;
-    --text-caption: 13px;
-
-    /* Brand */
-    --color-bg: #000000;
-    --color-accent: #d4af37;
-    --color-grid-item-bg: #131a16;
-
-    /* Glass material */
-    --material-fill: rgba(72, 78, 74, 0.42);
-    --material-fill-hover: rgba(82, 89, 84, 0.48);
-    --material-fill-active: rgba(92, 100, 94, 0.54);
-    --material-border: rgba(255, 255, 255, 0.12);
-    --material-highlight: rgba(255, 255, 255, 0.16);
-    --material-shadow: rgba(0, 0, 0, 0.38);
+    /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
+    --text-caption: clamp(0.6875rem, 2.5vw, 0.75rem);
+    --text-body:    clamp(0.9375rem, 2.6vw, 1.0625rem);
   }
 
   html {
@@ -84,83 +72,52 @@
     scrollbar-width: none;
   }
 
-  html::-webkit-scrollbar {
-    display: none;
-  }
+  html::-webkit-scrollbar { display: none; }
 
   body {
-    min-height: 100vh;
     background: var(--color-bg);
-    color: rgba(255,255,255,0.92);
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "SF Pro Text",
-      "Segoe UI",
-      Roboto,
-      "Helvetica Neue",
-      sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
   }
 
-  /* =========================
-     MASONRY GRID
-     ========================= */
-
+  /* ── MASONRY GRID ── */
   #grid {
     display: flex;
-    align-items: flex-start;
-    width: 100%;
+    gap: var(--gap);
     max-width: 1200px;
     margin: 0 auto;
-    gap: var(--gap);
-
     padding-top: calc(var(--safe-top) + var(--gap));
-    padding-right: calc(var(--safe-right) + var(--gap));
     padding-bottom: var(--gap);
-    padding-left: calc(var(--safe-left) + var(--gap));
+    padding-left:  calc(var(--safe-left)  + var(--gap));
+    padding-right: calc(var(--safe-right) + var(--gap));
+    align-items: flex-start;
+    width: 100%;
   }
 
   .col {
     flex: 1 1 0;
     min-width: 0;
-
     display: flex;
     flex-direction: column;
-
     gap: var(--gap);
   }
 
   .grid-item {
-    appearance: none;
-    -webkit-appearance: none;
-
-    display: block;
-
     width: 100%;
-    padding: 0;
-
-    border: 0;
-    background: var(--color-grid-item-bg);
-
-    text-align: initial;
-    overflow: hidden;
-
     cursor: pointer;
-    touch-action: manipulation;
-
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    touch-action: manipulation;
+    overflow: hidden;
+    background: var(--color-grid-item-bg);
   }
 
   .grid-item img {
-    display: block;
-
     width: 100%;
     height: auto;
-
+    display: block;
     transition: opacity 0.18s ease;
   }
 
@@ -168,418 +125,209 @@
     opacity: 0.72;
   }
 
-  /* =========================
-     BOTTOM AREA
-     ========================= */
-
+  /* ── BOTTOM BAR ── */
   #bottomBar {
     display: none;
     align-items: center;
     justify-content: center;
-
-    padding:
-      var(--space-32)
-      var(--space-20)
-      calc(var(--safe-bottom) + var(--space-24));
+    padding: var(--space-32) var(--space-24) calc(var(--safe-bottom) + var(--space-24));
   }
 
-  /* =========================
-     BACK TO TOP
-     ========================= */
-
+  /* ── BACK TO TOP BUTTON ── */
   #backTopBtn {
-    position: relative;
-    isolation: isolate;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    min-height: var(--control-height);
-
-    gap: var(--space-8);
-    padding: 0 var(--space-20);
-
-    border: 0.5px solid var(--material-border);
-    border-radius: var(--radius-control);
-
-    background: var(--material-fill);
-
-    -webkit-backdrop-filter:
-      saturate(180%)
-      blur(24px);
-
-    backdrop-filter:
-      saturate(180%)
-      blur(24px);
-
-    box-shadow:
-      inset 0 1px 0 var(--material-highlight),
-      0 8px 28px var(--material-shadow),
-      0 1px 2px rgba(0,0,0,0.24);
-
-    color: rgba(255,255,255,0.90);
-
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 22px;
+    border: none;
+    background: var(--color-btn-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
+                0 1px 6px rgba(0,0,0,0.22);
+    color: var(--color-btn-text);
     font-size: var(--text-body);
     font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-
+    letter-spacing: -0.12px;
     cursor: pointer;
-
-    overflow: hidden;
-
-    touch-action: manipulation;
-
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-
-    transition:
-      background 0.18s ease,
-      box-shadow 0.18s ease;
+    transition: background 0.18s ease, box-shadow 0.18s ease;
   }
 
-  #backTopBtn::after {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    border-radius: inherit;
-
-    background:
-      linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.10),
-        transparent 42%
-      );
-
-    opacity: 0.7;
-
-    pointer-events: none;
-  }
-
-  #backTopBtn svg {
-    width: 13px;
-    height: 13px;
-    stroke-width: 2.25;
-    pointer-events: none;
-  }
-
+  /* ── HOVER — pointer devices only ── */
   @media (hover: hover) and (pointer: fine) {
     .grid-item:hover img {
       transform: scale(1.016);
     }
 
     #backTopBtn:hover {
-      background: var(--material-fill-hover);
-
+      background: var(--color-btn-bg-hover);
       transform: translateY(-1px);
-
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.20),
-        0 10px 30px rgba(0,0,0,0.42),
-        0 1px 2px rgba(0,0,0,0.22);
     }
   }
 
   #backTopBtn:active {
-    background: var(--material-fill-active);
-
+    background: var(--color-btn-bg-active);
     transform: scale(0.97);
-
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      0 3px 10px rgba(0,0,0,0.30);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
+                0 1px 2px rgba(0,0,0,0.16);
   }
 
-  /* =========================
-     FOOTER
-     ========================= */
-
+  /* ── FOOTER ── */
   footer {
+    padding: var(--space-16) var(--space-24);
+    padding-bottom: calc(var(--safe-bottom) + var(--space-24));
     display: none;
     align-items: center;
     justify-content: center;
-
-    padding:
-      var(--space-16)
-      var(--space-20)
-      calc(var(--safe-bottom) + var(--space-24));
-
-    border-top: 0.5px solid rgba(255,255,255,0.08);
+    border-top: 0.5px solid var(--color-footer-border);
   }
 
   footer span {
-    color: rgba(235,235,245,0.62);
-
     font-size: var(--text-caption);
     font-weight: 400;
-    line-height: 1.35;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.03em;
+    color: var(--color-footer-text);
   }
 
-  /* =========================
-     LIGHTBOX
-     ========================= */
-
+  /* ── LIGHTBOX ── */
   .lb {
     position: fixed;
     inset: 0;
-
     z-index: 999;
-
-    background: #000000;
-
+    background: var(--color-lb-bg);
     opacity: 0;
-
     pointer-events: none;
-
     touch-action: none;
-
     -webkit-user-select: none;
     user-select: none;
   }
+
+  .lb:focus { outline: none; }
 
   .lb.open {
     opacity: 1;
     pointer-events: all;
   }
 
-  .lb:focus {
-    outline: none;
-  }
-
   .lb-slot {
     position: absolute;
-
-    top: calc(var(--safe-top) + 60px);
-    right: 0;
-    bottom: calc(var(--safe-bottom) + 64px);
+    top:    calc(var(--safe-top)    + var(--space-64));
+    bottom: calc(var(--safe-bottom) + 56px);
     left: 0;
-
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .lb-slot.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .lb-slot.visible {
-    opacity: 1;
-  }
+  .lb-slot.hidden  { opacity: 0; pointer-events: none; }
+  .lb-slot.visible { opacity: 1; }
 
   .lb-slot img {
-    display: block;
-
     max-width: 100%;
     max-height: 100%;
-
     width: auto;
     height: auto;
-
     object-fit: contain;
-
+    display: block;
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
   }
 
-  /* =========================
-     LIGHTBOX CLOSE
-     44 × 44 touch target
-     ========================= */
-
+  /* ── LIGHTBOX CLOSE ── */
   .lb-close {
     position: absolute;
-
-    top: calc(var(--safe-top) + var(--space-8));
-    right: calc(var(--safe-right) + var(--space-8));
-
+    top:   calc(var(--safe-top)   + var(--space-16));
+    right: calc(var(--safe-right) + var(--space-16));
     z-index: 10;
-
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-lb-close-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
+                0 2px 12px rgba(0,0,0,0.48),
+                0 1px 3px  rgba(0,0,0,0.30);
+    color: var(--color-lb-close-text);
     display: flex;
     align-items: center;
     justify-content: center;
-
-    width: 44px;
-    height: 44px;
-
-    padding: 0;
-
-    border: 0.5px solid var(--material-border);
-    border-radius: 50%;
-
-    background: var(--material-fill);
-
-    -webkit-backdrop-filter:
-      saturate(180%)
-      blur(24px);
-
-    backdrop-filter:
-      saturate(180%)
-      blur(24px);
-
-    box-shadow:
-      inset 0 1px 0 var(--material-highlight),
-      0 8px 24px rgba(0,0,0,0.46),
-      0 1px 2px rgba(0,0,0,0.28);
-
-    color: rgba(255,255,255,0.92);
-
     cursor: pointer;
-
-    overflow: hidden;
-
-    touch-action: manipulation;
-
     -webkit-tap-highlight-color: transparent;
-
     transition: background 0.15s ease;
   }
 
-  .lb-close::after {
-    content: "";
-
+  .lb-close::before {
+    content: '';
     position: absolute;
-    inset: 0;
-
-    border-radius: inherit;
-
-    background:
-      linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.10),
-        transparent 46%
-      );
-
-    pointer-events: none;
+    inset: -6px;
   }
 
-  .lb-close svg {
-    pointer-events: none;
-  }
+  .lb-close svg { pointer-events: none; }
 
   .lb-close:active {
-    background: var(--material-fill-active);
-    transform: scale(0.94);
+    transform: scale(0.90);
+    background: rgba(76,86,80,0.68);
   }
 
-  /* =========================
-     LIGHTBOX NAVIGATION AREAS
-     ========================= */
-
-  .lb-prev,
-  .lb-next {
+  .lb-prev, .lb-next {
     position: absolute;
-
     top: 0;
     bottom: 0;
-
     width: 30%;
-
     z-index: 8;
-
-    padding: 0;
-
     border: none;
     background: none;
-
     cursor: pointer;
-
-    pointer-events: none;
-
-    touch-action: manipulation;
-
     -webkit-tap-highlight-color: transparent;
+    pointer-events: none;
   }
 
   .lb.open .lb-prev,
-  .lb.open .lb-next {
-    pointer-events: all;
-  }
+  .lb.open .lb-next { pointer-events: all; }
 
-  .lb-prev {
-    left: 0;
-  }
+  .lb-prev { left: 0; }
+  .lb-next { right: 0; }
 
-  .lb-next {
-    right: 0;
-  }
-
-  /* =========================
-     PAGE CONTROL
-     ========================= */
-
+  /* ── PAGE CONTROL DOTS ── */
   .lb-dots {
     position: absolute;
-
+    bottom: calc(var(--safe-bottom) + var(--space-24));
     left: 50%;
-    bottom: calc(var(--safe-bottom) + var(--space-16));
-
     transform: translateX(-50%);
-
-    z-index: 10;
-
     display: flex;
+    gap: 8px;
     align-items: center;
-    justify-content: center;
-
-    min-height: 28px;
-
-    gap: var(--space-8);
-
-    padding: 0 var(--space-12);
-
-    border: 0.5px solid rgba(255,255,255,0.10);
-    border-radius: var(--radius-control);
-
-    background: rgba(48,52,49,0.34);
-
-    -webkit-backdrop-filter:
-      saturate(180%)
-      blur(20px);
-
-    backdrop-filter:
-      saturate(180%)
-      blur(20px);
-
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      0 6px 18px rgba(0,0,0,0.34);
-
+    z-index: 10;
     pointer-events: none;
   }
 
   .lb-dot {
-    flex-shrink: 0;
-
-    width: 5px;
-    height: 5px;
-
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-
-    background: rgba(255,255,255,0.34);
+    background: var(--color-lb-dot);
+    flex-shrink: 0;
   }
 
   .lb-dot.active {
-    width: 16px;
-
-    border-radius: var(--radius-control);
-
-    background: rgba(255,255,255,0.96);
+    background: var(--color-lb-dot-active);
+    width: 18px;
+    border-radius: 3px;
   }
 
-  /* =========================
-     KEYBOARD FOCUS
-     ========================= */
-
+  /* ── FOCUS — visible keyboard focus, brand gold ── */
   #backTopBtn:focus-visible,
   .lb-close:focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
 
   .grid-item:focus-visible {
@@ -587,59 +335,17 @@
     outline-offset: -2px;
   }
 
-  /* =========================
-     REDUCED TRANSPARENCY
-     ========================= */
-
-  @media (prefers-reduced-transparency: reduce) {
-    #backTopBtn,
-    .lb-close,
-    .lb-dots {
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-
-      background: rgba(54,58,55,0.96);
-    }
+  .lb-prev:focus-visible,
+  .lb-next:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -6px;
   }
 
-  /* Fallback for browsers without backdrop-filter */
-  @supports not (
-    (backdrop-filter: blur(1px)) or
-    (-webkit-backdrop-filter: blur(1px))
-  ) {
-    #backTopBtn,
-    .lb-close,
-    .lb-dots {
-      background: rgba(54,58,55,0.94);
-    }
-  }
-
-  /* =========================
-     INCREASED CONTRAST
-     ========================= */
-
-  @media (prefers-contrast: more) {
-    #backTopBtn,
-    .lb-close,
-    .lb-dots {
-      border-color: rgba(255,255,255,0.28);
-      background: rgba(54,58,55,0.78);
-    }
-
-    footer span {
-      color: rgba(255,255,255,0.68);
-    }
-  }
-
-  /* =========================
-     MOTION
-     ========================= */
-
+  /* ── MOTION — transforms animate only when the user allows it ── */
   @media (prefers-reduced-motion: no-preference) {
     .grid-item img {
-      transition:
-        transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
-        opacity 0.18s ease;
+      transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+                  opacity   0.18s ease;
     }
 
     @keyframes fadeIn {
@@ -655,81 +361,50 @@
     }
 
     .grid-item.animate {
-      animation:
-        fadeIn
-        0.48s
-        cubic-bezier(0.2, 0, 0, 1)
-        both;
+      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
     }
 
     #backTopBtn {
-      transition:
-        transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
-        background 0.18s ease,
-        box-shadow 0.18s ease;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.18s ease,
+                  box-shadow 0.18s ease;
     }
 
     .lb {
-      transition:
-        opacity
-        0.28s
-        cubic-bezier(0.2, 0, 0, 1);
+      transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .lb-slot {
-      transition:
-        opacity
-        0.22s
-        cubic-bezier(0.2, 0, 0.2, 1);
+      transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1);
     }
 
     .lb-close {
-      transition:
-        transform
-        0.18s
-        cubic-bezier(0.2, 0, 0.2, 1),
-        background 0.15s ease;
+      transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.15s ease;
     }
 
     .lb-dot {
-      transition:
-        width
-        0.26s
-        cubic-bezier(0.34, 1.56, 0.64, 1),
-        border-radius
-        0.26s
-        cubic-bezier(0.34, 1.56, 0.64, 1),
-        background
-        0.26s ease;
+      transition: width 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background 0.26s ease;
     }
   }
 
-  /* =========================
-     DESKTOP
-     ========================= */
-
+  /* ── DESKTOP — layered over the mobile-first base ── */
   @media (min-width: 768px) {
-    :root {
-      --gap: 2px;
-    }
+    :root { --gap: 2px; }
 
     #bottomBar {
-      padding:
-        var(--space-48)
-        var(--space-24)
-        calc(var(--safe-bottom) + var(--space-32));
+      padding: var(--space-48) var(--space-24) calc(var(--safe-bottom) + var(--space-32));
     }
 
     footer {
-      padding-bottom:
-        calc(var(--safe-bottom) + var(--space-32));
+      padding-bottom: calc(var(--safe-bottom) + var(--space-32));
     }
   }
 
   @media (min-width: 1024px) {
-    #bottomBar {
-      padding-top: var(--space-64);
-    }
+    #bottomBar { padding-top: var(--space-64); }
   }
 </style>
 </head>
@@ -739,23 +414,9 @@
 <main id="grid" role="main"></main>
 
 <div id="bottomBar">
-  <button
-    id="backTopBtn"
-    type="button"
-    aria-label="Scroll back to top"
-  >
+  <button id="backTopBtn" aria-label="Scroll back to top">
     Back to top
-
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
@@ -765,390 +426,202 @@
   <span>© 2026 Andrew Rios Photography</span>
 </footer>
 
-<div
-  class="lb"
-  id="lb"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Photo viewer"
-  tabindex="-1"
->
-  <button
-    class="lb-close"
-    id="lbClose"
-    type="button"
-    aria-label="Close photo viewer"
-  >
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.75"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M1 1l14 14M15 1L1 15"></path>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
+  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
   </button>
 
   <div class="lb-slot visible" id="slotA">
-    <img id="imgA" src="" alt="">
+    <img id="imgA" src="" alt="" />
   </div>
 
   <div class="lb-slot hidden" id="slotB">
-    <img id="imgB" src="" alt="">
+    <img id="imgB" src="" alt="" />
   </div>
 
-  <button
-    class="lb-prev"
-    id="lbPrev"
-    type="button"
-    aria-label="Previous photo"
-    tabindex="-1"
-  ></button>
+  <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
+  <button class="lb-next" id="lbNext" aria-label="Next photo"></button>
 
-  <button
-    class="lb-next"
-    id="lbNext"
-    type="button"
-    aria-label="Next photo"
-    tabindex="-1"
-  ></button>
-
-  <div
-    class="lb-dots"
-    id="lbDots"
-    aria-hidden="true"
-  ></div>
+  <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
 </div>
 
 <script>
-const GITHUB_USER = "andrewsportal";
-const GITHUB_REPO = "andrewriosphotography";
-const GITHUB_FOLDER = "";
+const GITHUB_USER   = 'andrewsportal';
+const GITHUB_REPO   = 'andrewriosphotography';
+const GITHUB_FOLDER = '';
 
-const EXTS = [
-  "jpg",
-  "jpeg",
-  "png",
-  "webp",
-  "heic"
-];
+const EXTS = ['jpg','jpeg','png','webp','heic'];
+const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
-const RAW =
-  `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const API =
-  `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+let photos     = [];
+let current    = 0;
+let activeSlot = 'A';
+let appLoaded  = false;
 
-const reduceMotion =
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-let photos = [];
-let current = 0;
-let activeSlot = "A";
-let appLoaded = false;
-
-const gridEl =
-  document.getElementById("grid");
-
-const bottomBar =
-  document.getElementById("bottomBar");
-
-const footerEl =
-  document.querySelector("footer");
-
-const lb =
-  document.getElementById("lb");
-
-const lbClose =
-  document.getElementById("lbClose");
-
-const slotA =
-  document.getElementById("slotA");
-
-const slotB =
-  document.getElementById("slotB");
-
-const imgA =
-  document.getElementById("imgA");
-
-const imgB =
-  document.getElementById("imgB");
-
-const dotsEl =
-  document.getElementById("lbDots");
-
-const backTopBtn =
-  document.getElementById("backTopBtn");
+const gridEl     = document.getElementById('grid');
+const lb         = document.getElementById('lb');
+const slotA      = document.getElementById('slotA');
+const slotB      = document.getElementById('slotB');
+const imgA       = document.getElementById('imgA');
+const imgB       = document.getElementById('imgB');
+const dotsEl     = document.getElementById('lbDots');
+const backTopBtn = document.getElementById('backTopBtn');
 
 let cols = [];
 let colHeights = [];
-
 const itemEls = [];
 
 let lastFocused = null;
+let touchStartX, touchStartY, touchStartTime;
 
-let touchStartX;
-let touchStartY;
-let touchStartTime;
-
-/* =========================
-   RESPONSIVE COLUMNS
-   ========================= */
-
-const mqDesktop =
-  window.matchMedia("(min-width: 768px)");
+/* ── RESPONSIVE COLUMNS — 2 on phones, 3 from 768px up; same order, same count ── */
+const mqDesktop = window.matchMedia('(min-width: 768px)');
 
 function layoutGrid() {
-  const n =
-    mqDesktop.matches ? 3 : 2;
+  const n = mqDesktop.matches ? 3 : 2;
 
-  if (cols.length === n) {
-    return;
-  }
+  if (cols.length === n) return;
 
   cols = [];
   colHeights = [];
-
-  gridEl.textContent = "";
+  gridEl.textContent = '';
 
   for (let i = 0; i < n; i++) {
-    const column =
-      document.createElement("div");
+    const c = document.createElement('div');
+    c.className = 'col';
 
-    column.className = "col";
-
-    cols.push(column);
+    cols.push(c);
     colHeights.push(0);
-
-    gridEl.appendChild(column);
+    gridEl.appendChild(c);
   }
 
-  itemEls.forEach(placeItem);
+  itemEls.forEach(el => placeItem(el));
 }
 
-/* =========================
-   SHORTEST COLUMN
-   ========================= */
-
+/* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
 function shortestCol() {
-  let shortest = 0;
+  let k = 0;
 
-  for (
-    let i = 1;
-    i < colHeights.length;
-    i++
-  ) {
-    if (
-      colHeights[i] <
-      colHeights[shortest]
-    ) {
-      shortest = i;
-    }
+  for (let i = 1; i < colHeights.length; i++) {
+    if (colHeights[i] < colHeights[k]) k = i;
   }
 
-  return shortest;
+  return k;
 }
 
-function placeItem(element) {
-  const column =
-    shortestCol();
+function placeItem(el) {
+  const k = shortestCol();
 
-  cols[column].appendChild(element);
-
-  colHeights[column] +=
-    parseFloat(element.dataset.ratio) || 1;
+  cols[k].appendChild(el);
+  colHeights[k] += parseFloat(el.dataset.ratio) || 1;
 }
 
-/* =========================
-   IMAGE RATIO PROBE
-   ========================= */
-
+/* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
 function loadRatio(url) {
   return new Promise(resolve => {
-    const image =
-      new Image();
+    const im = new Image();
 
-    image.onload = () => {
-      resolve(
-        image.naturalWidth
-          ? image.naturalHeight /
-            image.naturalWidth
-          : 1
-      );
-    };
+    im.onload = () => resolve(
+      im.naturalWidth
+        ? im.naturalHeight / im.naturalWidth
+        : 1
+    );
 
-    image.onerror = () => {
-      resolve(1);
-    };
-
-    image.src = url;
+    im.onerror = () => resolve(1);
+    im.src = url;
   });
 }
 
-/* =========================
-   IMAGE PROXY
-   ========================= */
-
+/* ── HELPER: PROXY URL GENERATOR ── */
 function getProxyUrl(rawUrl, width) {
-  const cleanUrl =
-    rawUrl.replace(/^https?:\/\//, "");
+  const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
 
-  return (
-    `https://wsrv.nl/?url=` +
-    `${encodeURIComponent(cleanUrl)}` +
-    `&w=${width}` +
-    `&output=webp`
-  );
+  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&output=webp`;
 }
 
-/* =========================
-   LOAD PORTFOLIO
-   ========================= */
-
+/* ── LOAD ── */
 async function load() {
-  if (appLoaded) {
-    return;
-  }
+  if (appLoaded) return;
 
   appLoaded = true;
 
   try {
-    const folder =
-      GITHUB_FOLDER
-        ? `/${GITHUB_FOLDER}`
-        : "";
+    const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
 
-    const [
-      filesRes,
-      orderRes
-    ] = await Promise.all([
-      fetch(
-        `${API}${folder}`,
-        {
-          headers: {
-            Accept:
-              "application/vnd.github.v3+json"
-          }
+    const [filesRes, orderRes] = await Promise.all([
+      fetch(`${API}${folder}`, {
+        headers: {
+          Accept: 'application/vnd.github.v3+json'
         }
-      ),
+      }),
 
       fetch(
-        `${RAW}${
-          GITHUB_FOLDER
-            ? "/" + GITHUB_FOLDER
-            : ""
-        }/order.txt`
+        `${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`
       ).catch(() => null)
     ]);
 
-    const files =
-      await filesRes.json();
+    const files = await filesRes.json();
 
     if (!Array.isArray(files)) {
-      console.error(
-        "GitHub API error",
-        files
-      );
-
+      console.error('GitHub API error', files);
       return;
     }
 
     const fileMap = {};
 
     files
-      .filter(file =>
-        file.type === "file" &&
-        EXTS.some(extension =>
-          file.name
-            .toLowerCase()
-            .endsWith(
-              "." + extension
-            )
-        )
+      .filter(
+        f =>
+          f.type === 'file' &&
+          EXTS.some(
+            e => f.name.toLowerCase().endsWith('.' + e)
+          )
       )
-      .forEach(file => {
-        fileMap[
-          file.name.toLowerCase()
-        ] = file.name;
+      .forEach(f => {
+        fileMap[f.name.toLowerCase()] = f.name;
       });
 
     const stemMap = {};
 
-    Object.keys(fileMap)
-      .forEach(key => {
-        const stem =
-          key.replace(
-            /\.[^.]+$/,
-            ""
-          );
+    Object.keys(fileMap).forEach(key => {
+      const stem = key.replace(/\.[^.]+$/, '');
 
-        if (!stemMap[stem]) {
-          stemMap[stem] = key;
-        }
-      });
+      if (!stemMap[stem]) {
+        stemMap[stem] = key;
+      }
+    });
 
-    const ordered = [];
+    let ordered = [];
     const seen = new Set();
 
-    if (
-      orderRes &&
-      orderRes.ok
-    ) {
-      const text =
-        await orderRes.text();
+    if (orderRes && orderRes.ok) {
+      const text = await orderRes.text();
 
       text
-        .split("\n")
-        .map(line => line.trim())
-        .filter(
-          line =>
-            line &&
-            !line.startsWith("#")
-        )
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith('#'))
         .forEach(name => {
-          const stem =
-            name
-              .toLowerCase()
-              .replace(
-                /\.[^.]+$/,
-                ""
-              );
+          const stem = name
+            .toLowerCase()
+            .replace(/\.[^.]+$/, '');
 
-          const key =
-            stemMap[stem];
+          const key = stemMap[stem];
 
-          if (
-            key &&
-            !seen.has(key)
-          ) {
+          if (key && !seen.has(key)) {
             seen.add(key);
 
-            const rawImgUrl =
-              `${RAW}/${fileMap[key]}`;
+            const rawImgUrl = `${RAW}/${fileMap[key]}`;
 
             ordered.push({
-              probe:
-                getProxyUrl(
-                  rawImgUrl,
-                  100
-                ),
-
-              thumb:
-                getProxyUrl(
-                  rawImgUrl,
-                  600
-                ),
-
-              full:
-                getProxyUrl(
-                  rawImgUrl,
-                  1600
-                )
+              probe: getProxyUrl(rawImgUrl, 100),
+              thumb: getProxyUrl(rawImgUrl, 600),
+              full:  getProxyUrl(rawImgUrl, 1600)
             });
 
             delete fileMap[key];
@@ -1157,458 +630,236 @@ async function load() {
         });
     }
 
-    Object
-      .keys(fileMap)
-      .sort()
-      .forEach(key => {
-        if (!seen.has(key)) {
-          seen.add(key);
+    Object.keys(fileMap).sort().forEach(key => {
+      if (!seen.has(key)) {
+        seen.add(key);
 
-          const rawImgUrl =
-            `${RAW}/${fileMap[key]}`;
+        const rawImgUrl = `${RAW}/${fileMap[key]}`;
 
-          ordered.push({
-            probe:
-              getProxyUrl(
-                rawImgUrl,
-                100
-              ),
-
-            thumb:
-              getProxyUrl(
-                rawImgUrl,
-                600
-              ),
-
-            full:
-              getProxyUrl(
-                rawImgUrl,
-                1600
-              )
-          });
-        }
-      });
+        ordered.push({
+          probe: getProxyUrl(rawImgUrl, 100),
+          thumb: getProxyUrl(rawImgUrl, 600),
+          full:  getProxyUrl(rawImgUrl, 1600)
+        });
+      }
+    });
 
     photos = ordered;
 
     layoutGrid();
-
-    await appendPhotos(
-      0,
-      photos.length
-    );
-
+    await appendPhotos(0, photos.length);
     buildLbDots();
 
-    bottomBar.style.display =
-      "flex";
+    document.getElementById('bottomBar').style.display = 'flex';
+    document.querySelector('footer').style.display = 'flex';
 
-    footerEl.style.display =
-      "flex";
-  }
-
-  catch (error) {
-    console.error(
-      "Load error:",
-      error
-    );
+  } catch (e) {
+    console.error('Load error:', e);
   }
 }
 
-/* =========================
-   ADD PHOTOS
-   ========================= */
+/* ── APPEND — probes load in parallel, photos placed in order into the shortest column ── */
+async function appendPhotos(from, count) {
+  const to = Math.min(from + count, photos.length);
+  const slice = photos.slice(from, to);
 
-async function appendPhotos(
-  from,
-  count
-) {
-  const to =
-    Math.min(
-      from + count,
-      photos.length
+  if (!slice.length) return;
+
+  const ratios = slice.map(p => loadRatio(p.probe));
+
+  const guard = ms =>
+    new Promise(r =>
+      setTimeout(() => r(null), ms)
     );
 
-  const slice =
-    photos.slice(from, to);
+  for (let idx = 0; idx < slice.length; idx++) {
+    const globalIdx = from + idx;
 
-  if (!slice.length) {
-    return;
-  }
+    const ratio = (
+      await Promise.race([
+        ratios[idx],
+        guard(5000)
+      ])
+    ) ?? 1;
 
-  const ratios =
-    slice.map(photo =>
-      loadRatio(photo.probe)
+    const item = makeItem(
+      slice[idx],
+      globalIdx,
+      idx
     );
 
-  const guard =
-    milliseconds =>
-      new Promise(resolve =>
-        setTimeout(
-          () => resolve(null),
-          milliseconds
-        )
-      );
-
-  for (
-    let index = 0;
-    index < slice.length;
-    index++
-  ) {
-    const globalIndex =
-      from + index;
-
-    const ratio =
-      (
-        await Promise.race([
-          ratios[index],
-          guard(5000)
-        ])
-      ) ?? 1;
-
-    const item =
-      makeItem(
-        slice[index],
-        globalIndex,
-        index
-      );
-
-    item.dataset.ratio =
-      ratio;
+    item.dataset.ratio = ratio;
 
     itemEls.push(item);
-
     placeItem(item);
   }
 }
 
-/* =========================
-   PHOTO BUTTON
-   ========================= */
+function makeItem(p, globalIdx, localIdx) {
+  const div = document.createElement('div');
 
-function makeItem(
-  photo,
-  globalIndex,
-  localIndex
-) {
-  const button =
-    document.createElement(
-      "button"
-    );
+  div.className = 'grid-item';
 
-  button.type = "button";
-  button.className =
-    "grid-item";
-
-  if (
-    !reduceMotion &&
-    localIndex < 12
-  ) {
-    button.classList.add(
-      "animate"
-    );
-
-    button.style.animationDelay =
-      `${localIndex * 0.03}s`;
+  if (!reduceMotion && localIdx < 12) {
+    div.classList.add('animate');
+    div.style.animationDelay = `${localIdx * 0.03}s`;
   }
 
-  button.setAttribute(
-    "aria-label",
-    `Open photo ${
-      globalIndex + 1
-    } of ${photos.length}`
+  div.setAttribute('role', 'button');
+  div.setAttribute('tabindex', '0');
+  div.setAttribute(
+    'aria-label',
+    `Open photo ${globalIdx + 1} of ${photos.length}`
   );
 
-  const image =
-    document.createElement(
-      "img"
-    );
+  const img = document.createElement('img');
 
-  image.src =
-    photo.thumb;
+  img.src = p.thumb;
+  img.loading = globalIdx < 6 ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  img.alt = `Photo ${globalIdx + 1}`;
 
-  image.loading =
-    globalIndex < 6
-      ? "eager"
-      : "lazy";
+  div.appendChild(img);
 
-  image.decoding =
-    "async";
-
-  /*
-    Ideally replace these generic
-    alt values with descriptions of
-    the actual photographs.
-  */
-  image.alt =
-    `Portfolio photograph ${
-      globalIndex + 1
-    }`;
-
-  button.appendChild(image);
-
-  button.addEventListener(
-    "click",
-    () => openLb(globalIndex)
+  div.addEventListener(
+    'click',
+    () => openLb(globalIdx)
   );
 
-  return button;
+  div.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openLb(globalIdx);
+    }
+  });
+
+  return div;
 }
 
-/* =========================
-   BACK TO TOP
-   ========================= */
+/* ── BACK TO TOP ── */
+backTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: reduceMotion ? 'instant' : 'smooth'
+  });
+});
 
-backTopBtn.addEventListener(
-  "click",
-  () => {
-    window.scrollTo({
-      top: 0,
-      behavior:
-        reduceMotion
-          ? "instant"
-          : "smooth"
-    });
-  }
-);
-
-/* =========================
-   PAGE CONTROL
-   ========================= */
-
+/* ── LIGHTBOX DOTS ── */
 const MAX_DOTS = 7;
 
 function buildLbDots() {
-  dotsEl.innerHTML = "";
+  dotsEl.innerHTML = '';
 
-  const count =
-    Math.min(
-      photos.length,
-      MAX_DOTS
-    );
+  const n = Math.min(photos.length, MAX_DOTS);
 
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
-    const dot =
-      document.createElement(
-        "div"
-      );
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div');
 
-    dot.className =
-      "lb-dot";
-
-    dotsEl.appendChild(dot);
+    d.className = 'lb-dot';
+    dotsEl.appendChild(d);
   }
 
   updateLbDots();
 }
 
 function updateLbDots() {
-  const dots =
-    [
-      ...dotsEl.querySelectorAll(
-        ".lb-dot"
-      )
-    ];
+  const dots = [
+    ...dotsEl.querySelectorAll('.lb-dot')
+  ];
 
-  if (!dots.length) {
-    return;
-  }
+  if (!dots.length) return;
 
-  const half =
-    Math.floor(
-      MAX_DOTS / 2
-    );
+  const half = Math.floor(MAX_DOTS / 2);
 
-  const start =
-    Math.max(
-      0,
-      Math.min(
-        current - half,
-        photos.length -
-          MAX_DOTS
-      )
-    );
+  const start = Math.max(
+    0,
+    Math.min(
+      current - half,
+      photos.length - MAX_DOTS
+    )
+  );
 
-  dots.forEach(
-    (dot, index) => {
-      dot.classList.toggle(
-        "active",
-        start + index ===
-          current
-      );
-    }
+  dots.forEach((d, i) =>
+    d.classList.toggle(
+      'active',
+      start + i === current
+    )
   );
 }
 
-/* =========================
-   OPEN LIGHTBOX
-   ========================= */
+/* ── LIGHTBOX ── */
+function openLb(i) {
+  current = i;
 
-function openLb(index) {
-  current = index;
+  const img = activeSlot === 'A' ? imgA : imgB;
 
-  const image =
-    activeSlot === "A"
-      ? imgA
-      : imgB;
+  img.src = photos[i].thumb;
+  img.alt = `Photo ${i + 1} of ${photos.length}`;
 
-  image.src =
-    photos[index].thumb;
+  lastFocused = document.activeElement;
 
-  image.alt =
-    `Portfolio photograph ${
-      index + 1
-    } of ${photos.length}`;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
 
-  lastFocused =
-    document.activeElement;
-
-  gridEl.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  bottomBar.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  footerEl.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  lb.classList.add("open");
-
-  document.body.style.overflow =
-    "hidden";
-
-  lbClose.focus();
+  lb.focus();
 
   updateLbDots();
   preloadAdjacent();
 
-  const highResImage =
-    new Image();
+  const highResImg = new Image();
 
-  highResImage.onload = () => {
-    if (current === index) {
-      image.src =
-        photos[index].full;
+  highResImg.onload = () => {
+    if (current === i) {
+      img.src = photos[i].full;
     }
   };
 
-  highResImage.src =
-    photos[index].full;
+  highResImg.src = photos[i].full;
 }
 
-/* =========================
-   CLOSE LIGHTBOX
-   ========================= */
-
 function closeLb() {
-  lb.classList.remove("open");
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
 
-  gridEl.removeAttribute(
-    "aria-hidden"
-  );
-
-  bottomBar.removeAttribute(
-    "aria-hidden"
-  );
-
-  footerEl.removeAttribute(
-    "aria-hidden"
-  );
-
-  document.body.style.overflow =
-    "";
-
-  if (
-    lastFocused &&
-    lastFocused.focus
-  ) {
+  if (lastFocused && lastFocused.focus) {
     lastFocused.focus();
   }
 }
 
-/* =========================
-   CHANGE PHOTO
-   ========================= */
+function goTo(i) {
+  const target = Math.max(
+    0,
+    Math.min(i, photos.length - 1)
+  );
 
-function goTo(index) {
-  const target =
-    Math.max(
-      0,
-      Math.min(
-        index,
-        photos.length - 1
-      )
-    );
+  if (target === current) return;
 
-  if (target === current) {
-    return;
-  }
-
-  const fromSlot =
-    activeSlot === "A"
-      ? slotA
-      : slotB;
-
-  const toSlot =
-    activeSlot === "A"
-      ? slotB
-      : slotA;
-
-  const toImage =
-    activeSlot === "A"
-      ? imgB
-      : imgA;
+  const fromSlot = activeSlot === 'A' ? slotA : slotB;
+  const toSlot   = activeSlot === 'A' ? slotB : slotA;
+  const toImg    = activeSlot === 'A' ? imgB : imgA;
 
   current = target;
 
-  toImage.src =
-    photos[current].thumb;
+  toImg.src = photos[current].thumb;
+  toImg.alt = `Photo ${current + 1} of ${photos.length}`;
 
-  toImage.alt =
-    `Portfolio photograph ${
-      current + 1
-    } of ${photos.length}`;
+  toSlot.classList.replace('hidden', 'visible');
+  fromSlot.classList.replace('visible', 'hidden');
 
-  toSlot.classList.replace(
-    "hidden",
-    "visible"
-  );
-
-  fromSlot.classList.replace(
-    "visible",
-    "hidden"
-  );
-
-  activeSlot =
-    activeSlot === "A"
-      ? "B"
-      : "A";
+  activeSlot = activeSlot === 'A' ? 'B' : 'A';
 
   updateLbDots();
   preloadAdjacent();
 
-  const highResImage =
-    new Image();
+  const highResImg = new Image();
 
-  highResImage.onload = () => {
+  highResImg.onload = () => {
     if (current === target) {
-      toImage.src =
-        photos[current].full;
+      toImg.src = photos[current].full;
     }
   };
 
-  highResImage.src =
-    photos[current].full;
+  highResImg.src = photos[current].full;
 }
 
 function goNext() {
@@ -1619,219 +870,117 @@ function goPrev() {
   goTo(current - 1);
 }
 
-/* =========================
-   PRELOAD ADJACENT PHOTOS
-   ========================= */
-
 function preloadAdjacent() {
-  [
-    current + 1,
-    current - 1
-  ]
+  [current + 1, current - 1]
     .filter(
-      index =>
-        index >= 0 &&
-        index < photos.length
+      idx =>
+        idx >= 0 &&
+        idx < photos.length
     )
-    .forEach(index => {
-      const image =
-        new Image();
-
-      image.src =
-        photos[index].full;
+    .forEach(idx => {
+      const p = new Image();
+      p.src = photos[idx].full;
     });
 }
 
-/* =========================
-   CONTROLS
-   ========================= */
-
-lbClose.addEventListener(
-  "click",
-  closeLb
-);
+/* ── CONTROLS ── */
+document
+  .getElementById('lbClose')
+  .addEventListener('click', closeLb);
 
 document
-  .getElementById("lbPrev")
-  .addEventListener(
-    "click",
-    goPrev
-  );
+  .getElementById('lbPrev')
+  .addEventListener('click', goPrev);
 
 document
-  .getElementById("lbNext")
-  .addEventListener(
-    "click",
-    goNext
-  );
+  .getElementById('lbNext')
+  .addEventListener('click', goNext);
+
+lb.addEventListener('click', e => {
+  if (e.target === lb) {
+    closeLb();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+
+  if (e.key === 'Escape') {
+    closeLb();
+    return;
+  }
+
+  if (e.key === 'ArrowRight') {
+    goNext();
+  }
+
+  if (e.key === 'ArrowLeft') {
+    goPrev();
+  }
+});
 
 lb.addEventListener(
-  "click",
-  event => {
-    if (event.target === lb) {
-      closeLb();
-    }
-  }
-);
-
-/* =========================
-   KEYBOARD
-   ========================= */
-
-document.addEventListener(
-  "keydown",
-  event => {
-    if (
-      !lb.classList.contains(
-        "open"
-      )
-    ) {
-      return;
-    }
-
-    if (event.key === "Escape") {
-      closeLb();
-      return;
-    }
-
-    if (
-      event.key ===
-      "ArrowRight"
-    ) {
-      event.preventDefault();
-      goNext();
-      return;
-    }
-
-    if (
-      event.key ===
-      "ArrowLeft"
-    ) {
-      event.preventDefault();
-      goPrev();
-      return;
-    }
-
-    if (event.key === "Tab") {
-      /*
-        Keep keyboard focus
-        inside the modal viewer.
-      */
-      event.preventDefault();
-
-      lbClose.focus();
-    }
-  }
-);
-
-/* =========================
-   TOUCH / SWIPE
-   ========================= */
-
-lb.addEventListener(
-  "touchstart",
-  event => {
-    const touch =
-      event.changedTouches[0];
-
-    touchStartX =
-      touch.clientX;
-
-    touchStartY =
-      touch.clientY;
-
-    touchStartTime =
-      Date.now();
+  'touchstart',
+  e => {
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+    touchStartTime = Date.now();
   },
-  {
-    passive: true
-  }
+  { passive: true }
 );
 
 lb.addEventListener(
-  "touchend",
-  event => {
-    const touch =
-      event.changedTouches[0];
-
+  'touchend',
+  e => {
     const dx =
-      touch.clientX -
+      e.changedTouches[0].clientX -
       touchStartX;
 
     const dy =
-      touch.clientY -
+      e.changedTouches[0].clientY -
       touchStartY;
 
     const dt =
-      Math.max(
-        1,
-        Date.now() -
-          touchStartTime
-      );
+      Date.now() -
+      touchStartTime;
 
-    const velocity =
+    const vel =
       Math.abs(dx) / dt;
 
-    const horizontal =
+    const isH =
       Math.abs(dx) >
       Math.abs(dy);
 
-    /*
-      Swipe down to close.
-    */
-    if (
-      !horizontal &&
-      dy > 72
-    ) {
+    if (!isH && dy > 72) {
       closeLb();
       return;
     }
 
-    /*
-      Horizontal swipe
-      to navigate.
-    */
     if (
-      horizontal &&
+      isH &&
       (
         Math.abs(dx) > 50 ||
-        velocity > 0.3
+        vel > 0.3
       )
     ) {
-      if (dx < 0) {
-        goNext();
-      } else {
-        goPrev();
-      }
+      dx < 0
+        ? goNext()
+        : goPrev();
     }
   },
-  {
-    passive: true
-  }
+  { passive: true }
 );
 
-/* =========================
-   RESPONSIVE LAYOUT CHANGE
-   ========================= */
-
-if (
-  mqDesktop.addEventListener
-) {
+if (mqDesktop.addEventListener) {
   mqDesktop.addEventListener(
-    "change",
+    'change',
     layoutGrid
   );
-}
-
-else {
+} else {
   mqDesktop.addListener(
     layoutGrid
   );
 }
-
-/* =========================
-   START
-   ========================= */
 
 load();
 </script>
