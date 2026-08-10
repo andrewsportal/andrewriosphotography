@@ -34,15 +34,15 @@
     --safe-left:   env(safe-area-inset-left);
     --safe-right:  env(safe-area-inset-right);
 
-    /* ── SPACING — 8px grid ── */
+    /* ââ SPACING â 8px grid ââ */
     --space-16: 16px;
     --space-24: 24px;
     --space-32: 32px;
     --space-48: 48px;
     --space-64: 64px;
 
-    /* ── LOCKED DARK — always black regardless of system setting.
-       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
+    /* ââ LOCKED DARK â always black regardless of system setting.
+       Brand accents: forest-tinted fills, gold accent, teal detail border. ââ */
     --color-bg:            #000000;
     --color-accent:        #d4af37;
     --color-grid-item-bg:  #131a16;
@@ -58,7 +58,7 @@
     --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
 
-    /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
+    /* ââ DYNAMIC TYPE â clamp(min, fluid, max) ââ */
     --text-caption: clamp(0.6875rem, 2.5vw, 0.75rem);
     --text-body:    clamp(0.9375rem, 2.6vw, 1.0625rem);
   }
@@ -82,7 +82,7 @@
     overflow-y: scroll;
   }
 
-  /* ── MASONRY GRID ── */
+  /* ââ MASONRY GRID ââ */
   #grid {
     display: flex;
     gap: var(--gap);
@@ -125,7 +125,7 @@
     opacity: 0.72;
   }
 
-  /* ── BOTTOM BAR ── */
+  /* ââ BOTTOM BAR ââ */
   #bottomBar {
     display: none;
     align-items: center;
@@ -133,7 +133,7 @@
     padding: var(--space-32) var(--space-24) calc(var(--safe-bottom) + var(--space-24));
   }
 
-  /* ── BACK TO TOP BUTTON ── */
+  /* ââ BACK TO TOP BUTTON ââ */
   #backTopBtn {
     display: inline-flex;
     align-items: center;
@@ -158,7 +158,7 @@
     transition: background 0.18s ease, box-shadow 0.18s ease;
   }
 
-  /* ── HOVER — pointer devices only ── */
+  /* ââ HOVER â pointer devices only ââ */
   @media (hover: hover) and (pointer: fine) {
     .grid-item:hover img {
       transform: scale(1.016);
@@ -176,7 +176,7 @@
                 0 1px 2px rgba(0,0,0,0.16);
   }
 
-  /* ── FOOTER ── */
+  /* ââ FOOTER ââ */
   footer {
     padding: var(--space-16) var(--space-24);
     padding-bottom: calc(var(--safe-bottom) + var(--space-24));
@@ -193,7 +193,7 @@
     color: var(--color-footer-text);
   }
 
-  /* ── LIGHTBOX ── */
+  /* ââ LIGHTBOX ââ */
   .lb {
     position: fixed;
     inset: 0;
@@ -238,7 +238,7 @@
     -webkit-touch-callout: none;
   }
 
-  /* ── LIGHTBOX CLOSE ── */
+  /* ââ LIGHTBOX CLOSE ââ */
   .lb-close {
     position: absolute;
     top:   calc(var(--safe-top)   + var(--space-16));
@@ -294,7 +294,7 @@
   .lb-prev { left: 0; }
   .lb-next { right: 0; }
 
-  /* ── PAGE CONTROL DOTS ── */
+  /* ââ PAGE CONTROL DOTS ââ */
   .lb-dots {
     position: absolute;
     bottom: calc(var(--safe-bottom) + var(--space-24));
@@ -321,7 +321,7 @@
     border-radius: 3px;
   }
 
-  /* ── FOCUS — visible keyboard focus, brand gold ── */
+  /* ââ FOCUS â visible keyboard focus, brand gold ââ */
   #backTopBtn:focus-visible,
   .lb-close:focus-visible {
     outline: 2px solid var(--color-accent);
@@ -339,7 +339,7 @@
     outline-offset: -6px;
   }
 
-  /* ── MOTION — transforms animate only when the user allows it ── */
+  /* ââ MOTION â transforms animate only when the user allows it ââ */
   @media (prefers-reduced-motion: no-preference) {
     .grid-item img {
       transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
@@ -382,7 +382,7 @@
     }
   }
 
-  /* ── DESKTOP — layered over the mobile-first base ── */
+  /* ââ DESKTOP â layered over the mobile-first base ââ */
   @media (min-width: 768px) {
     :root { --gap: 2px; }
 
@@ -414,7 +414,7 @@
 </div>
 
 <footer role="contentinfo">
-  <span>© 2026 Andrew Rios Photography</span>
+  <span>Â© 2026 Andrew Rios Photography</span>
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
@@ -459,7 +459,7 @@ const itemEls = [];
 let lastFocused = null;
 let touchStartX, touchStartY, touchStartTime;
 
-/* ── RESPONSIVE COLUMNS — 2 on phones, 3 from 768px up; same order, same count ── */
+/* ââ RESPONSIVE COLUMNS â 2 on phones, 3 from 768px up; same order, same count ââ */
 const mqDesktop = window.matchMedia('(min-width: 768px)');
 
 function layoutGrid() {
@@ -478,7 +478,7 @@ function layoutGrid() {
   itemEls.forEach(el => placeItem(el));
 }
 
-/* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
+/* ââ SHORTEST-COLUMN PLACEMENT â balance height, not count ââ */
 function shortestCol() {
   let k = 0;
   for (let i = 1; i < colHeights.length; i++) {
@@ -493,7 +493,7 @@ function placeItem(el) {
   colHeights[k] += parseFloat(el.dataset.ratio) || 1;
 }
 
-/* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
+/* ââ RATIO PROBE â tiny 100px proxy image, just to learn each photo's shape ââ */
 function loadRatio(url) {
   return new Promise(resolve => {
     const im = new Image();
@@ -503,14 +503,14 @@ function loadRatio(url) {
   });
 }
 
-/* ── HELPER: PROXY URL GENERATOR ── */
+/* ââ HELPER: PROXY URL GENERATOR ââ */
 // Automatically compresses and sizes images on the fly via wsrv.nl
 function getProxyUrl(rawUrl, width) {
   const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
   return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&output=webp`;
 }
 
-/* ── LOAD ── */
+/* ââ LOAD ââ */
 async function load() {
   if (appLoaded) return;
   appLoaded = true;
@@ -584,7 +584,7 @@ async function load() {
   }
 }
 
-/* ── APPEND — probes load in parallel, photos placed in order into the shortest column ── */
+/* ââ APPEND â probes load in parallel, photos placed in order into the shortest column ââ */
 async function appendPhotos(from, count) {
   const to    = Math.min(from + count, photos.length);
   const slice = photos.slice(from, to);
@@ -632,12 +632,12 @@ function makeItem(p, globalIdx, localIdx) {
   return div;
 }
 
-/* ── BACK TO TOP ── */
+/* ââ BACK TO TOP ââ */
 backTopBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
 });
 
-/* ── LIGHTBOX DOTS ── */
+/* ââ LIGHTBOX DOTS ââ */
 const MAX_DOTS = 7;
 
 function buildLbDots() {
@@ -659,7 +659,7 @@ function updateLbDots() {
   dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
 }
 
-/* ── LIGHTBOX ── */
+/* ââ LIGHTBOX ââ */
 function openLb(i) {
   current = i;
   const img = activeSlot === 'A' ? imgA : imgB;
@@ -724,7 +724,7 @@ function preloadAdjacent() {
     .forEach(idx => { const p = new Image(); p.src = photos[idx].full; });
 }
 
-/* ── CONTROLS ── */
+/* ââ CONTROLS ââ */
 document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbPrev').addEventListener('click', goPrev);
 document.getElementById('lbNext').addEventListener('click', goNext);
