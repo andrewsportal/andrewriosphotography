@@ -16,6 +16,7 @@
 <meta property="og:description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
 <meta property="og:image" content="https://wsrv.nl/?url=raw.githubusercontent.com/andrewsportal/andrewriosphotography/main/001.png&amp;w=1200&amp;output=jpg&amp;q=82">
 <meta name="twitter:card" content="summary_large_image">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Ctext x='32' y='41' font-family='-apple-system, sans-serif' font-size='24' font-weight='600' text-anchor='middle' fill='%23d4af37'%3EAR%3C/text%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://wsrv.nl">
@@ -23,44 +24,55 @@
 <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  button { font: inherit; }
+  button {
+    font: inherit;
+  }
 
   :root {
     --gap: 1px;
-    --safe-top:    env(safe-area-inset-top);
-    --safe-bottom: env(safe-area-inset-bottom);
-    --safe-left:   env(safe-area-inset-left);
-    --safe-right:  env(safe-area-inset-right);
 
-    /* ââ SPACING â 8px grid ââ */
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-left: env(safe-area-inset-left);
+    --safe-right: env(safe-area-inset-right);
+
+    /* Apple-like 8pt rhythm with 4pt micro steps */
+    --space-4: 4px;
+    --space-8: 8px;
+    --space-12: 12px;
     --space-16: 16px;
+    --space-20: 20px;
     --space-24: 24px;
     --space-32: 32px;
     --space-48: 48px;
     --space-64: 64px;
 
-    /* ââ LOCKED DARK â always black regardless of system setting.
-       Brand accents: forest-tinted fills, gold accent, teal detail border. ââ */
-    --color-bg:            #000000;
-    --color-accent:        #d4af37;
-    --color-grid-item-bg:  #131a16;
-    --color-footer-border: rgba(103,150,143,0.38);
-    --color-footer-text:   rgba(235,235,245,0.52);
-    --color-btn-bg:        rgba(118,128,120,0.26);
-    --color-btn-text:      rgba(240,244,240,0.85);
-    --color-btn-bg-hover:  rgba(118,128,120,0.33);
-    --color-btn-bg-active: rgba(118,128,120,0.42);
-    --color-lb-bg:         #000000;
-    --color-lb-close-bg:   rgba(58,66,61,0.62);
-    --color-lb-close-text: rgba(255,255,255,0.92);
-    --color-lb-dot:        rgba(255,255,255,0.32);
-    --color-lb-dot-active: #ffffff;
+    /* Control geometry */
+    --control-height: 44px;
+    --radius-control: 999px;
 
-    /* ââ DYNAMIC TYPE â clamp(min, fluid, max) ââ */
-    --text-caption: clamp(0.6875rem, 2.5vw, 0.75rem);
-    --text-body:    clamp(0.9375rem, 2.6vw, 1.0625rem);
+    /* Typography */
+    --text-body: 17px;
+    --text-caption: 13px;
+
+    /* Brand */
+    --color-bg: #000000;
+    --color-accent: #d4af37;
+    --color-grid-item-bg: #131a16;
+
+    /* Glass material */
+    --material-fill: rgba(72, 78, 74, 0.42);
+    --material-fill-hover: rgba(82, 89, 84, 0.48);
+    --material-fill-active: rgba(92, 100, 94, 0.54);
+    --material-border: rgba(255, 255, 255, 0.12);
+    --material-highlight: rgba(255, 255, 255, 0.16);
+    --material-shadow: rgba(0, 0, 0, 0.38);
   }
 
   html {
@@ -72,52 +84,83 @@
     scrollbar-width: none;
   }
 
-  html::-webkit-scrollbar { display: none; }
+  html::-webkit-scrollbar {
+    display: none;
+  }
 
   body {
+    min-height: 100vh;
     background: var(--color-bg);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    color: rgba(255,255,255,0.92);
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      "SF Pro Text",
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      sans-serif;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
   }
 
-  /* ââ MASONRY GRID ââ */
+  /* =========================
+     MASONRY GRID
+     ========================= */
+
   #grid {
     display: flex;
-    gap: var(--gap);
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: calc(var(--safe-top) + var(--gap));
-    padding-bottom: var(--gap);
-    padding-left:  calc(var(--safe-left)  + var(--gap));
-    padding-right: calc(var(--safe-right) + var(--gap));
     align-items: flex-start;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: var(--gap);
+
+    padding-top: calc(var(--safe-top) + var(--gap));
+    padding-right: calc(var(--safe-right) + var(--gap));
+    padding-bottom: var(--gap);
+    padding-left: calc(var(--safe-left) + var(--gap));
   }
 
   .col {
     flex: 1 1 0;
     min-width: 0;
+
     display: flex;
     flex-direction: column;
+
     gap: var(--gap);
   }
 
   .grid-item {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: block;
+
     width: 100%;
+    padding: 0;
+
+    border: 0;
+    background: var(--color-grid-item-bg);
+
+    text-align: initial;
+    overflow: hidden;
+
     cursor: pointer;
+    touch-action: manipulation;
+
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    touch-action: manipulation;
-    overflow: hidden;
-    background: var(--color-grid-item-bg);
   }
 
   .grid-item img {
+    display: block;
+
     width: 100%;
     height: auto;
-    display: block;
+
     transition: opacity 0.18s ease;
   }
 
@@ -125,207 +168,418 @@
     opacity: 0.72;
   }
 
-  /* ââ BOTTOM BAR ââ */
+  /* =========================
+     BOTTOM AREA
+     ========================= */
+
   #bottomBar {
     display: none;
     align-items: center;
     justify-content: center;
-    padding: var(--space-32) var(--space-24) calc(var(--safe-bottom) + var(--space-24));
+
+    padding:
+      var(--space-32)
+      var(--space-20)
+      calc(var(--safe-bottom) + var(--space-24));
   }
 
-  /* ââ BACK TO TOP BUTTON ââ */
+  /* =========================
+     BACK TO TOP
+     ========================= */
+
   #backTopBtn {
+    position: relative;
+    isolation: isolate;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 20px;
-    border-radius: 22px;
-    border: none;
-    background: var(--color-btn-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
-                0 1px 6px rgba(0,0,0,0.22);
-    color: var(--color-btn-text);
+
+    min-height: var(--control-height);
+
+    gap: var(--space-8);
+    padding: 0 var(--space-20);
+
+    border: 0.5px solid var(--material-border);
+    border-radius: var(--radius-control);
+
+    background: var(--material-fill);
+
+    -webkit-backdrop-filter:
+      saturate(180%)
+      blur(24px);
+
+    backdrop-filter:
+      saturate(180%)
+      blur(24px);
+
+    box-shadow:
+      inset 0 1px 0 var(--material-highlight),
+      0 8px 28px var(--material-shadow),
+      0 1px 2px rgba(0,0,0,0.24);
+
+    color: rgba(255,255,255,0.90);
+
     font-size: var(--text-body);
     font-weight: 500;
-    letter-spacing: -0.12px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+
     cursor: pointer;
+
+    overflow: hidden;
+
+    touch-action: manipulation;
+
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    transition: background 0.18s ease, box-shadow 0.18s ease;
+
+    transition:
+      background 0.18s ease,
+      box-shadow 0.18s ease;
   }
 
-  /* ââ HOVER â pointer devices only ââ */
+  #backTopBtn::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.10),
+        transparent 42%
+      );
+
+    opacity: 0.7;
+
+    pointer-events: none;
+  }
+
+  #backTopBtn svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.25;
+    pointer-events: none;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .grid-item:hover img {
       transform: scale(1.016);
     }
+
     #backTopBtn:hover {
-      background: var(--color-btn-bg-hover);
+      background: var(--material-fill-hover);
+
       transform: translateY(-1px);
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        0 10px 30px rgba(0,0,0,0.42),
+        0 1px 2px rgba(0,0,0,0.22);
     }
   }
 
   #backTopBtn:active {
-    background: var(--color-btn-bg-active);
+    background: var(--material-fill-active);
+
     transform: scale(0.97);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
-                0 1px 2px rgba(0,0,0,0.16);
+
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      0 3px 10px rgba(0,0,0,0.30);
   }
 
-  /* ââ FOOTER ââ */
+  /* =========================
+     FOOTER
+     ========================= */
+
   footer {
-    padding: var(--space-16) var(--space-24);
-    padding-bottom: calc(var(--safe-bottom) + var(--space-24));
     display: none;
     align-items: center;
     justify-content: center;
-    border-top: 0.5px solid var(--color-footer-border);
+
+    padding:
+      var(--space-16)
+      var(--space-20)
+      calc(var(--safe-bottom) + var(--space-24));
+
+    border-top: 0.5px solid rgba(255,255,255,0.08);
   }
 
   footer span {
+    color: rgba(235,235,245,0.62);
+
     font-size: var(--text-caption);
     font-weight: 400;
-    letter-spacing: 0.03em;
-    color: var(--color-footer-text);
+    line-height: 1.35;
+    letter-spacing: 0.01em;
   }
 
-  /* ââ LIGHTBOX ââ */
+  /* =========================
+     LIGHTBOX
+     ========================= */
+
   .lb {
     position: fixed;
     inset: 0;
+
     z-index: 999;
-    background: var(--color-lb-bg);
+
+    background: #000000;
+
     opacity: 0;
+
     pointer-events: none;
+
     touch-action: none;
+
     -webkit-user-select: none;
     user-select: none;
   }
-
-  .lb:focus { outline: none; }
 
   .lb.open {
     opacity: 1;
     pointer-events: all;
   }
 
+  .lb:focus {
+    outline: none;
+  }
+
   .lb-slot {
     position: absolute;
-    top:    calc(var(--safe-top)    + var(--space-64));
-    bottom: calc(var(--safe-bottom) + 56px);
-    left: 0;
+
+    top: calc(var(--safe-top) + 60px);
     right: 0;
+    bottom: calc(var(--safe-bottom) + 64px);
+    left: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .lb-slot.hidden  { opacity: 0; pointer-events: none; }
-  .lb-slot.visible { opacity: 1; }
+  .lb-slot.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .lb-slot.visible {
+    opacity: 1;
+  }
 
   .lb-slot img {
+    display: block;
+
     max-width: 100%;
     max-height: 100%;
+
     width: auto;
     height: auto;
+
     object-fit: contain;
-    display: block;
+
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
   }
 
-  /* ââ LIGHTBOX CLOSE ââ */
+  /* =========================
+     LIGHTBOX CLOSE
+     44 × 44 touch target
+     ========================= */
+
   .lb-close {
     position: absolute;
-    top:   calc(var(--safe-top)   + var(--space-16));
-    right: calc(var(--safe-right) + var(--space-16));
+
+    top: calc(var(--safe-top) + var(--space-8));
+    right: calc(var(--safe-right) + var(--space-8));
+
     z-index: 10;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
-                0 2px 12px rgba(0,0,0,0.48),
-                0 1px 3px  rgba(0,0,0,0.30);
-    color: var(--color-lb-close-text);
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    padding: 0;
+
+    border: 0.5px solid var(--material-border);
+    border-radius: 50%;
+
+    background: var(--material-fill);
+
+    -webkit-backdrop-filter:
+      saturate(180%)
+      blur(24px);
+
+    backdrop-filter:
+      saturate(180%)
+      blur(24px);
+
+    box-shadow:
+      inset 0 1px 0 var(--material-highlight),
+      0 8px 24px rgba(0,0,0,0.46),
+      0 1px 2px rgba(0,0,0,0.28);
+
+    color: rgba(255,255,255,0.92);
+
     cursor: pointer;
+
+    overflow: hidden;
+
+    touch-action: manipulation;
+
     -webkit-tap-highlight-color: transparent;
+
     transition: background 0.15s ease;
   }
 
-  .lb-close::before {
-    content: '';
+  .lb-close::after {
+    content: "";
+
     position: absolute;
-    inset: -6px;
-  }
+    inset: 0;
 
-  .lb-close svg { pointer-events: none; }
+    border-radius: inherit;
 
-  .lb-close:active {
-    transform: scale(0.90);
-    background: rgba(76,86,80,0.68);
-  }
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.10),
+        transparent 46%
+      );
 
-  .lb-prev, .lb-next {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 30%;
-    z-index: 8;
-    border: none;
-    background: none;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
     pointer-events: none;
   }
 
+  .lb-close svg {
+    pointer-events: none;
+  }
+
+  .lb-close:active {
+    background: var(--material-fill-active);
+    transform: scale(0.94);
+  }
+
+  /* =========================
+     LIGHTBOX NAVIGATION AREAS
+     ========================= */
+
+  .lb-prev,
+  .lb-next {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    width: 30%;
+
+    z-index: 8;
+
+    padding: 0;
+
+    border: none;
+    background: none;
+
+    cursor: pointer;
+
+    pointer-events: none;
+
+    touch-action: manipulation;
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .lb.open .lb-prev,
-  .lb.open .lb-next { pointer-events: all; }
+  .lb.open .lb-next {
+    pointer-events: all;
+  }
 
-  .lb-prev { left: 0; }
-  .lb-next { right: 0; }
+  .lb-prev {
+    left: 0;
+  }
 
-  /* ââ PAGE CONTROL DOTS ââ */
+  .lb-next {
+    right: 0;
+  }
+
+  /* =========================
+     PAGE CONTROL
+     ========================= */
+
   .lb-dots {
     position: absolute;
-    bottom: calc(var(--safe-bottom) + var(--space-24));
+
     left: 50%;
+    bottom: calc(var(--safe-bottom) + var(--space-16));
+
     transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    align-items: center;
+
     z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 28px;
+
+    gap: var(--space-8);
+
+    padding: 0 var(--space-12);
+
+    border: 0.5px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius-control);
+
+    background: rgba(48,52,49,0.34);
+
+    -webkit-backdrop-filter:
+      saturate(180%)
+      blur(20px);
+
+    backdrop-filter:
+      saturate(180%)
+      blur(20px);
+
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      0 6px 18px rgba(0,0,0,0.34);
+
     pointer-events: none;
   }
 
   .lb-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-lb-dot);
     flex-shrink: 0;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.34);
   }
 
   .lb-dot.active {
-    background: var(--color-lb-dot-active);
-    width: 18px;
-    border-radius: 3px;
+    width: 16px;
+
+    border-radius: var(--radius-control);
+
+    background: rgba(255,255,255,0.96);
   }
 
-  /* ââ FOCUS â visible keyboard focus, brand gold ââ */
+  /* =========================
+     KEYBOARD FOCUS
+     ========================= */
+
   #backTopBtn:focus-visible,
   .lb-close:focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
   .grid-item:focus-visible {
@@ -333,17 +587,59 @@
     outline-offset: -2px;
   }
 
-  .lb-prev:focus-visible,
-  .lb-next:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -6px;
+  /* =========================
+     REDUCED TRANSPARENCY
+     ========================= */
+
+  @media (prefers-reduced-transparency: reduce) {
+    #backTopBtn,
+    .lb-close,
+    .lb-dots {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+
+      background: rgba(54,58,55,0.96);
+    }
   }
 
-  /* ââ MOTION â transforms animate only when the user allows it ââ */
+  /* Fallback for browsers without backdrop-filter */
+  @supports not (
+    (backdrop-filter: blur(1px)) or
+    (-webkit-backdrop-filter: blur(1px))
+  ) {
+    #backTopBtn,
+    .lb-close,
+    .lb-dots {
+      background: rgba(54,58,55,0.94);
+    }
+  }
+
+  /* =========================
+     INCREASED CONTRAST
+     ========================= */
+
+  @media (prefers-contrast: more) {
+    #backTopBtn,
+    .lb-close,
+    .lb-dots {
+      border-color: rgba(255,255,255,0.28);
+      background: rgba(54,58,55,0.78);
+    }
+
+    footer span {
+      color: rgba(255,255,255,0.68);
+    }
+  }
+
+  /* =========================
+     MOTION
+     ========================= */
+
   @media (prefers-reduced-motion: no-preference) {
     .grid-item img {
-      transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
-                  opacity   0.18s ease;
+      transition:
+        transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+        opacity 0.18s ease;
     }
 
     @keyframes fadeIn {
@@ -351,6 +647,7 @@
         opacity: 0;
         transform: translateY(7px) scale(0.984);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -358,403 +655,1186 @@
     }
 
     .grid-item.animate {
-      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
+      animation:
+        fadeIn
+        0.48s
+        cubic-bezier(0.2, 0, 0, 1)
+        both;
     }
 
     #backTopBtn {
-      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
-                  background 0.18s ease,
-                  box-shadow 0.18s ease;
+      transition:
+        transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
+        background 0.18s ease,
+        box-shadow 0.18s ease;
     }
 
-    .lb      { transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1); }
-    .lb-slot { transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1); }
+    .lb {
+      transition:
+        opacity
+        0.28s
+        cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .lb-slot {
+      transition:
+        opacity
+        0.22s
+        cubic-bezier(0.2, 0, 0.2, 1);
+    }
 
     .lb-close {
-      transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
-                  background 0.15s ease;
+      transition:
+        transform
+        0.18s
+        cubic-bezier(0.2, 0, 0.2, 1),
+        background 0.15s ease;
     }
 
     .lb-dot {
-      transition: width 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
-                  border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
-                  background 0.26s ease;
+      transition:
+        width
+        0.26s
+        cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-radius
+        0.26s
+        cubic-bezier(0.34, 1.56, 0.64, 1),
+        background
+        0.26s ease;
     }
   }
 
-  /* ââ DESKTOP â layered over the mobile-first base ââ */
+  /* =========================
+     DESKTOP
+     ========================= */
+
   @media (min-width: 768px) {
-    :root { --gap: 2px; }
+    :root {
+      --gap: 2px;
+    }
 
     #bottomBar {
-      padding: var(--space-48) var(--space-24) calc(var(--safe-bottom) + var(--space-32));
+      padding:
+        var(--space-48)
+        var(--space-24)
+        calc(var(--safe-bottom) + var(--space-32));
     }
 
     footer {
-      padding-bottom: calc(var(--safe-bottom) + var(--space-32));
+      padding-bottom:
+        calc(var(--safe-bottom) + var(--space-32));
     }
   }
 
   @media (min-width: 1024px) {
-    #bottomBar { padding-top: var(--space-64); }
+    #bottomBar {
+      padding-top: var(--space-64);
+    }
   }
 </style>
 </head>
+
 <body>
 
 <main id="grid" role="main"></main>
 
 <div id="bottomBar">
-  <button id="backTopBtn" aria-label="Scroll back to top">
+  <button
+    id="backTopBtn"
+    type="button"
+    aria-label="Scroll back to top"
+  >
     Back to top
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
 </div>
 
 <footer role="contentinfo">
-  <span>Â© 2026 Andrew Rios Photography</span>
+  <span>© 2026 Andrew Rios Photography</span>
 </footer>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
-  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M1 1l14 14M15 1L1 15"/>
+<div
+  class="lb"
+  id="lb"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Photo viewer"
+  tabindex="-1"
+>
+  <button
+    class="lb-close"
+    id="lbClose"
+    type="button"
+    aria-label="Close photo viewer"
+  >
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 1l14 14M15 1L1 15"></path>
     </svg>
   </button>
-  <div class="lb-slot visible" id="slotA"><img id="imgA" src="" alt="" /></div>
-  <div class="lb-slot hidden"  id="slotB"><img id="imgB" src="" alt="" /></div>
-  <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
-  <button class="lb-next" id="lbNext" aria-label="Next photo"></button>
-  <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+
+  <div class="lb-slot visible" id="slotA">
+    <img id="imgA" src="" alt="">
+  </div>
+
+  <div class="lb-slot hidden" id="slotB">
+    <img id="imgB" src="" alt="">
+  </div>
+
+  <button
+    class="lb-prev"
+    id="lbPrev"
+    type="button"
+    aria-label="Previous photo"
+    tabindex="-1"
+  ></button>
+
+  <button
+    class="lb-next"
+    id="lbNext"
+    type="button"
+    aria-label="Next photo"
+    tabindex="-1"
+  ></button>
+
+  <div
+    class="lb-dots"
+    id="lbDots"
+    aria-hidden="true"
+  ></div>
 </div>
 
 <script>
-const GITHUB_USER   = 'andrewsportal';
-const GITHUB_REPO   = 'andrewriosphotography';
-const GITHUB_FOLDER = '';
+const GITHUB_USER = "andrewsportal";
+const GITHUB_REPO = "andrewriosphotography";
+const GITHUB_FOLDER = "";
 
-const EXTS = ['jpg','jpeg','png','webp','heic'];
-const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
-const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+const EXTS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "heic"
+];
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let photos     = [];
-let current    = 0;
-let activeSlot = 'A';
-let appLoaded  = false;
-const gridEl     = document.getElementById('grid');
-const lb         = document.getElementById('lb');
-const slotA      = document.getElementById('slotA');
-const slotB      = document.getElementById('slotB');
-const imgA       = document.getElementById('imgA');
-const imgB       = document.getElementById('imgB');
-const dotsEl     = document.getElementById('lbDots');
-const backTopBtn = document.getElementById('backTopBtn');
+const RAW =
+  `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+
+const API =
+  `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+
+const reduceMotion =
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let photos = [];
+let current = 0;
+let activeSlot = "A";
+let appLoaded = false;
+
+const gridEl =
+  document.getElementById("grid");
+
+const bottomBar =
+  document.getElementById("bottomBar");
+
+const footerEl =
+  document.querySelector("footer");
+
+const lb =
+  document.getElementById("lb");
+
+const lbClose =
+  document.getElementById("lbClose");
+
+const slotA =
+  document.getElementById("slotA");
+
+const slotB =
+  document.getElementById("slotB");
+
+const imgA =
+  document.getElementById("imgA");
+
+const imgB =
+  document.getElementById("imgB");
+
+const dotsEl =
+  document.getElementById("lbDots");
+
+const backTopBtn =
+  document.getElementById("backTopBtn");
 
 let cols = [];
 let colHeights = [];
-const itemEls = [];
-let lastFocused = null;
-let touchStartX, touchStartY, touchStartTime;
 
-/* ââ RESPONSIVE COLUMNS â 2 on phones, 3 from 768px up; same order, same count ââ */
-const mqDesktop = window.matchMedia('(min-width: 768px)');
+const itemEls = [];
+
+let lastFocused = null;
+
+let touchStartX;
+let touchStartY;
+let touchStartTime;
+
+/* =========================
+   RESPONSIVE COLUMNS
+   ========================= */
+
+const mqDesktop =
+  window.matchMedia("(min-width: 768px)");
 
 function layoutGrid() {
-  const n = mqDesktop.matches ? 3 : 2;
-  if (cols.length === n) return;
+  const n =
+    mqDesktop.matches ? 3 : 2;
+
+  if (cols.length === n) {
+    return;
+  }
+
   cols = [];
   colHeights = [];
-  gridEl.textContent = '';
+
+  gridEl.textContent = "";
+
   for (let i = 0; i < n; i++) {
-    const c = document.createElement('div');
-    c.className = 'col';
-    cols.push(c);
+    const column =
+      document.createElement("div");
+
+    column.className = "col";
+
+    cols.push(column);
     colHeights.push(0);
-    gridEl.appendChild(c);
+
+    gridEl.appendChild(column);
   }
-  itemEls.forEach(el => placeItem(el));
+
+  itemEls.forEach(placeItem);
 }
 
-/* ââ SHORTEST-COLUMN PLACEMENT â balance height, not count ââ */
+/* =========================
+   SHORTEST COLUMN
+   ========================= */
+
 function shortestCol() {
-  let k = 0;
-  for (let i = 1; i < colHeights.length; i++) {
-    if (colHeights[i] < colHeights[k]) k = i;
+  let shortest = 0;
+
+  for (
+    let i = 1;
+    i < colHeights.length;
+    i++
+  ) {
+    if (
+      colHeights[i] <
+      colHeights[shortest]
+    ) {
+      shortest = i;
+    }
   }
-  return k;
+
+  return shortest;
 }
 
-function placeItem(el) {
-  const k = shortestCol();
-  cols[k].appendChild(el);
-  colHeights[k] += parseFloat(el.dataset.ratio) || 1;
+function placeItem(element) {
+  const column =
+    shortestCol();
+
+  cols[column].appendChild(element);
+
+  colHeights[column] +=
+    parseFloat(element.dataset.ratio) || 1;
 }
 
-/* ââ RATIO PROBE â tiny 100px proxy image, just to learn each photo's shape ââ */
+/* =========================
+   IMAGE RATIO PROBE
+   ========================= */
+
 function loadRatio(url) {
   return new Promise(resolve => {
-    const im = new Image();
-    im.onload  = () => resolve(im.naturalWidth ? im.naturalHeight / im.naturalWidth : 1);
-    im.onerror = () => resolve(1);
-    im.src = url;
+    const image =
+      new Image();
+
+    image.onload = () => {
+      resolve(
+        image.naturalWidth
+          ? image.naturalHeight /
+            image.naturalWidth
+          : 1
+      );
+    };
+
+    image.onerror = () => {
+      resolve(1);
+    };
+
+    image.src = url;
   });
 }
 
-/* ââ HELPER: PROXY URL GENERATOR ââ */
-// Automatically compresses and sizes images on the fly via wsrv.nl
+/* =========================
+   IMAGE PROXY
+   ========================= */
+
 function getProxyUrl(rawUrl, width) {
-  const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
-  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&output=webp`;
+  const cleanUrl =
+    rawUrl.replace(/^https?:\/\//, "");
+
+  return (
+    `https://wsrv.nl/?url=` +
+    `${encodeURIComponent(cleanUrl)}` +
+    `&w=${width}` +
+    `&output=webp`
+  );
 }
 
-/* ââ LOAD ââ */
+/* =========================
+   LOAD PORTFOLIO
+   ========================= */
+
 async function load() {
-  if (appLoaded) return;
+  if (appLoaded) {
+    return;
+  }
+
   appLoaded = true;
+
   try {
-    const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
-    const [filesRes, orderRes] = await Promise.all([
-      fetch(`${API}${folder}`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
-      fetch(`${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`).catch(() => null)
+    const folder =
+      GITHUB_FOLDER
+        ? `/${GITHUB_FOLDER}`
+        : "";
+
+    const [
+      filesRes,
+      orderRes
+    ] = await Promise.all([
+      fetch(
+        `${API}${folder}`,
+        {
+          headers: {
+            Accept:
+              "application/vnd.github.v3+json"
+          }
+        }
+      ),
+
+      fetch(
+        `${RAW}${
+          GITHUB_FOLDER
+            ? "/" + GITHUB_FOLDER
+            : ""
+        }/order.txt`
+      ).catch(() => null)
     ]);
-    const files = await filesRes.json();
-    if (!Array.isArray(files)) { console.error('GitHub API error', files); return; }
+
+    const files =
+      await filesRes.json();
+
+    if (!Array.isArray(files)) {
+      console.error(
+        "GitHub API error",
+        files
+      );
+
+      return;
+    }
 
     const fileMap = {};
+
     files
-      .filter(f => f.type === 'file' && EXTS.some(e => f.name.toLowerCase().endsWith('.' + e)))
-      .forEach(f => { fileMap[f.name.toLowerCase()] = f.name; });
+      .filter(file =>
+        file.type === "file" &&
+        EXTS.some(extension =>
+          file.name
+            .toLowerCase()
+            .endsWith(
+              "." + extension
+            )
+        )
+      )
+      .forEach(file => {
+        fileMap[
+          file.name.toLowerCase()
+        ] = file.name;
+      });
 
     const stemMap = {};
-    Object.keys(fileMap).forEach(key => {
-      const stem = key.replace(/\.[^.]+$/, '');
-      if (!stemMap[stem]) stemMap[stem] = key;
-    });
 
-    let ordered = [];
+    Object.keys(fileMap)
+      .forEach(key => {
+        const stem =
+          key.replace(
+            /\.[^.]+$/,
+            ""
+          );
+
+        if (!stemMap[stem]) {
+          stemMap[stem] = key;
+        }
+      });
+
+    const ordered = [];
     const seen = new Set();
 
-    if (orderRes && orderRes.ok) {
-      const text = await orderRes.text();
-      text.split('\n')
-        .map(l => l.trim())
-        .filter(l => l && !l.startsWith('#'))
+    if (
+      orderRes &&
+      orderRes.ok
+    ) {
+      const text =
+        await orderRes.text();
+
+      text
+        .split("\n")
+        .map(line => line.trim())
+        .filter(
+          line =>
+            line &&
+            !line.startsWith("#")
+        )
         .forEach(name => {
-          const stem = name.toLowerCase().replace(/\.[^.]+$/, '');
-          const key  = stemMap[stem];
-          if (key && !seen.has(key)) {
+          const stem =
+            name
+              .toLowerCase()
+              .replace(
+                /\.[^.]+$/,
+                ""
+              );
+
+          const key =
+            stemMap[stem];
+
+          if (
+            key &&
+            !seen.has(key)
+          ) {
             seen.add(key);
-            const rawImgUrl = `${RAW}/${fileMap[key]}`;
+
+            const rawImgUrl =
+              `${RAW}/${fileMap[key]}`;
+
             ordered.push({
-              probe: getProxyUrl(rawImgUrl, 100),
-              thumb: getProxyUrl(rawImgUrl, 600),
-              full: getProxyUrl(rawImgUrl, 1600)
+              probe:
+                getProxyUrl(
+                  rawImgUrl,
+                  100
+                ),
+
+              thumb:
+                getProxyUrl(
+                  rawImgUrl,
+                  600
+                ),
+
+              full:
+                getProxyUrl(
+                  rawImgUrl,
+                  1600
+                )
             });
+
             delete fileMap[key];
             delete stemMap[stem];
           }
         });
     }
 
-    Object.keys(fileMap).sort().forEach(key => {
-      if (!seen.has(key)) {
-        seen.add(key);
-        const rawImgUrl = `${RAW}/${fileMap[key]}`;
-        ordered.push({
-          probe: getProxyUrl(rawImgUrl, 100),
-          thumb: getProxyUrl(rawImgUrl, 600),
-          full: getProxyUrl(rawImgUrl, 1600)
-        });
-      }
-    });
+    Object
+      .keys(fileMap)
+      .sort()
+      .forEach(key => {
+        if (!seen.has(key)) {
+          seen.add(key);
+
+          const rawImgUrl =
+            `${RAW}/${fileMap[key]}`;
+
+          ordered.push({
+            probe:
+              getProxyUrl(
+                rawImgUrl,
+                100
+              ),
+
+            thumb:
+              getProxyUrl(
+                rawImgUrl,
+                600
+              ),
+
+            full:
+              getProxyUrl(
+                rawImgUrl,
+                1600
+              )
+          });
+        }
+      });
+
     photos = ordered;
 
     layoutGrid();
-    await appendPhotos(0, photos.length);
+
+    await appendPhotos(
+      0,
+      photos.length
+    );
+
     buildLbDots();
 
-    document.getElementById('bottomBar').style.display = 'flex';
-    document.querySelector('footer').style.display = 'flex';
+    bottomBar.style.display =
+      "flex";
 
-  } catch (e) {
-    console.error('Load error:', e);
+    footerEl.style.display =
+      "flex";
+  }
+
+  catch (error) {
+    console.error(
+      "Load error:",
+      error
+    );
   }
 }
 
-/* ââ APPEND â probes load in parallel, photos placed in order into the shortest column ââ */
-async function appendPhotos(from, count) {
-  const to    = Math.min(from + count, photos.length);
-  const slice = photos.slice(from, to);
-  if (!slice.length) return;
+/* =========================
+   ADD PHOTOS
+   ========================= */
 
-  const ratios = slice.map(p => loadRatio(p.probe));
-  const guard  = ms => new Promise(r => setTimeout(() => r(null), ms));
+async function appendPhotos(
+  from,
+  count
+) {
+  const to =
+    Math.min(
+      from + count,
+      photos.length
+    );
 
-  for (let idx = 0; idx < slice.length; idx++) {
-    const globalIdx = from + idx;
-    const ratio = (await Promise.race([ratios[idx], guard(5000)])) ?? 1;
-    const item  = makeItem(slice[idx], globalIdx, idx);
-    item.dataset.ratio = ratio;
+  const slice =
+    photos.slice(from, to);
+
+  if (!slice.length) {
+    return;
+  }
+
+  const ratios =
+    slice.map(photo =>
+      loadRatio(photo.probe)
+    );
+
+  const guard =
+    milliseconds =>
+      new Promise(resolve =>
+        setTimeout(
+          () => resolve(null),
+          milliseconds
+        )
+      );
+
+  for (
+    let index = 0;
+    index < slice.length;
+    index++
+  ) {
+    const globalIndex =
+      from + index;
+
+    const ratio =
+      (
+        await Promise.race([
+          ratios[index],
+          guard(5000)
+        ])
+      ) ?? 1;
+
+    const item =
+      makeItem(
+        slice[index],
+        globalIndex,
+        index
+      );
+
+    item.dataset.ratio =
+      ratio;
+
     itemEls.push(item);
+
     placeItem(item);
   }
 }
 
-function makeItem(p, globalIdx, localIdx) {
-  const div = document.createElement('div');
-  div.className = 'grid-item';
-  if (!reduceMotion && localIdx < 12) {
-    div.classList.add('animate');
-    div.style.animationDelay = `${localIdx * 0.03}s`;
+/* =========================
+   PHOTO BUTTON
+   ========================= */
+
+function makeItem(
+  photo,
+  globalIndex,
+  localIndex
+) {
+  const button =
+    document.createElement(
+      "button"
+    );
+
+  button.type = "button";
+  button.className =
+    "grid-item";
+
+  if (
+    !reduceMotion &&
+    localIndex < 12
+  ) {
+    button.classList.add(
+      "animate"
+    );
+
+    button.style.animationDelay =
+      `${localIndex * 0.03}s`;
   }
 
-  div.setAttribute('role', 'button');
-  div.setAttribute('tabindex', '0');
-  div.setAttribute('aria-label', `Open photo ${globalIdx + 1} of ${photos.length}`);
+  button.setAttribute(
+    "aria-label",
+    `Open photo ${
+      globalIndex + 1
+    } of ${photos.length}`
+  );
 
-  const img = document.createElement('img');
-  img.src      = p.thumb;
-  img.loading  = globalIdx < 6 ? 'eager' : 'lazy';
-  img.decoding = 'async';
-  img.alt = `Photo ${globalIdx + 1}`;
+  const image =
+    document.createElement(
+      "img"
+    );
 
-  div.appendChild(img);
-  div.addEventListener('click', () => openLb(globalIdx));
-  div.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openLb(globalIdx);
-    }
-  });
-  return div;
+  image.src =
+    photo.thumb;
+
+  image.loading =
+    globalIndex < 6
+      ? "eager"
+      : "lazy";
+
+  image.decoding =
+    "async";
+
+  /*
+    Ideally replace these generic
+    alt values with descriptions of
+    the actual photographs.
+  */
+  image.alt =
+    `Portfolio photograph ${
+      globalIndex + 1
+    }`;
+
+  button.appendChild(image);
+
+  button.addEventListener(
+    "click",
+    () => openLb(globalIndex)
+  );
+
+  return button;
 }
 
-/* ââ BACK TO TOP ââ */
-backTopBtn.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
-});
+/* =========================
+   BACK TO TOP
+   ========================= */
 
-/* ââ LIGHTBOX DOTS ââ */
+backTopBtn.addEventListener(
+  "click",
+  () => {
+    window.scrollTo({
+      top: 0,
+      behavior:
+        reduceMotion
+          ? "instant"
+          : "smooth"
+    });
+  }
+);
+
+/* =========================
+   PAGE CONTROL
+   ========================= */
+
 const MAX_DOTS = 7;
 
 function buildLbDots() {
-  dotsEl.innerHTML = '';
-  const n = Math.min(photos.length, MAX_DOTS);
-  for (let i = 0; i < n; i++) {
-    const d = document.createElement('div');
-    d.className = 'lb-dot';
-    dotsEl.appendChild(d);
+  dotsEl.innerHTML = "";
+
+  const count =
+    Math.min(
+      photos.length,
+      MAX_DOTS
+    );
+
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+    const dot =
+      document.createElement(
+        "div"
+      );
+
+    dot.className =
+      "lb-dot";
+
+    dotsEl.appendChild(dot);
   }
+
   updateLbDots();
 }
 
 function updateLbDots() {
-  const dots = [...dotsEl.querySelectorAll('.lb-dot')];
-  if (!dots.length) return;
-  const half  = Math.floor(MAX_DOTS / 2);
-  const start = Math.max(0, Math.min(current - half, photos.length - MAX_DOTS));
-  dots.forEach((d, i) => d.classList.toggle('active', start + i === current));
+  const dots =
+    [
+      ...dotsEl.querySelectorAll(
+        ".lb-dot"
+      )
+    ];
+
+  if (!dots.length) {
+    return;
+  }
+
+  const half =
+    Math.floor(
+      MAX_DOTS / 2
+    );
+
+  const start =
+    Math.max(
+      0,
+      Math.min(
+        current - half,
+        photos.length -
+          MAX_DOTS
+      )
+    );
+
+  dots.forEach(
+    (dot, index) => {
+      dot.classList.toggle(
+        "active",
+        start + index ===
+          current
+      );
+    }
+  );
 }
 
-/* ââ LIGHTBOX ââ */
-function openLb(i) {
-  current = i;
-  const img = activeSlot === 'A' ? imgA : imgB;
+/* =========================
+   OPEN LIGHTBOX
+   ========================= */
 
-  img.src = photos[i].thumb;
-  img.alt = `Photo ${i + 1} of ${photos.length}`;
+function openLb(index) {
+  current = index;
 
-  lastFocused = document.activeElement;
-  lb.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  lb.focus();
+  const image =
+    activeSlot === "A"
+      ? imgA
+      : imgB;
+
+  image.src =
+    photos[index].thumb;
+
+  image.alt =
+    `Portfolio photograph ${
+      index + 1
+    } of ${photos.length}`;
+
+  lastFocused =
+    document.activeElement;
+
+  gridEl.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  bottomBar.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  footerEl.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  lb.classList.add("open");
+
+  document.body.style.overflow =
+    "hidden";
+
+  lbClose.focus();
+
   updateLbDots();
   preloadAdjacent();
 
-  const highResImg = new Image();
-  highResImg.onload = () => {
-    if (current === i) img.src = photos[i].full;
+  const highResImage =
+    new Image();
+
+  highResImage.onload = () => {
+    if (current === index) {
+      image.src =
+        photos[index].full;
+    }
   };
-  highResImg.src = photos[i].full;
+
+  highResImage.src =
+    photos[index].full;
 }
+
+/* =========================
+   CLOSE LIGHTBOX
+   ========================= */
 
 function closeLb() {
-  lb.classList.remove('open');
-  document.body.style.overflow = '';
-  if (lastFocused && lastFocused.focus) lastFocused.focus();
+  lb.classList.remove("open");
+
+  gridEl.removeAttribute(
+    "aria-hidden"
+  );
+
+  bottomBar.removeAttribute(
+    "aria-hidden"
+  );
+
+  footerEl.removeAttribute(
+    "aria-hidden"
+  );
+
+  document.body.style.overflow =
+    "";
+
+  if (
+    lastFocused &&
+    lastFocused.focus
+  ) {
+    lastFocused.focus();
+  }
 }
 
-function goTo(i) {
-  const target = Math.max(0, Math.min(i, photos.length - 1));
-  if (target === current) return;
+/* =========================
+   CHANGE PHOTO
+   ========================= */
 
-  const fromSlot = activeSlot === 'A' ? slotA : slotB;
-  const toSlot   = activeSlot === 'A' ? slotB : slotA;
-  const toImg    = activeSlot === 'A' ? imgB  : imgA;
+function goTo(index) {
+  const target =
+    Math.max(
+      0,
+      Math.min(
+        index,
+        photos.length - 1
+      )
+    );
+
+  if (target === current) {
+    return;
+  }
+
+  const fromSlot =
+    activeSlot === "A"
+      ? slotA
+      : slotB;
+
+  const toSlot =
+    activeSlot === "A"
+      ? slotB
+      : slotA;
+
+  const toImage =
+    activeSlot === "A"
+      ? imgB
+      : imgA;
 
   current = target;
 
-  toImg.src = photos[current].thumb;
-  toImg.alt = `Photo ${current + 1} of ${photos.length}`;
+  toImage.src =
+    photos[current].thumb;
 
-  toSlot.classList.replace('hidden', 'visible');
-  fromSlot.classList.replace('visible', 'hidden');
-  activeSlot = activeSlot === 'A' ? 'B' : 'A';
+  toImage.alt =
+    `Portfolio photograph ${
+      current + 1
+    } of ${photos.length}`;
+
+  toSlot.classList.replace(
+    "hidden",
+    "visible"
+  );
+
+  fromSlot.classList.replace(
+    "visible",
+    "hidden"
+  );
+
+  activeSlot =
+    activeSlot === "A"
+      ? "B"
+      : "A";
+
   updateLbDots();
   preloadAdjacent();
 
-  const highResImg = new Image();
-  highResImg.onload = () => {
+  const highResImage =
+    new Image();
+
+  highResImage.onload = () => {
     if (current === target) {
-      toImg.src = photos[current].full;
+      toImage.src =
+        photos[current].full;
     }
   };
-  highResImg.src = photos[current].full;
+
+  highResImage.src =
+    photos[current].full;
 }
 
-function goNext() { goTo(current + 1); }
-function goPrev() { goTo(current - 1); }
+function goNext() {
+  goTo(current + 1);
+}
+
+function goPrev() {
+  goTo(current - 1);
+}
+
+/* =========================
+   PRELOAD ADJACENT PHOTOS
+   ========================= */
 
 function preloadAdjacent() {
-  [current + 1, current - 1]
-    .filter(idx => idx >= 0 && idx < photos.length)
-    .forEach(idx => { const p = new Image(); p.src = photos[idx].full; });
+  [
+    current + 1,
+    current - 1
+  ]
+    .filter(
+      index =>
+        index >= 0 &&
+        index < photos.length
+    )
+    .forEach(index => {
+      const image =
+        new Image();
+
+      image.src =
+        photos[index].full;
+    });
 }
 
-/* ââ CONTROLS ââ */
-document.getElementById('lbClose').addEventListener('click', closeLb);
-document.getElementById('lbPrev').addEventListener('click', goPrev);
-document.getElementById('lbNext').addEventListener('click', goNext);
-lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
-document.addEventListener('keydown', e => {
-  if (!lb.classList.contains('open')) return;
-  if (e.key === 'Escape')     { closeLb(); return; }
-  if (e.key === 'ArrowRight') goNext();
-  if (e.key === 'ArrowLeft')  goPrev();
-});
-lb.addEventListener('touchstart', e => {
-  touchStartX    = e.changedTouches[0].clientX;
-  touchStartY    = e.changedTouches[0].clientY;
-  touchStartTime = Date.now();
-}, { passive: true });
-lb.addEventListener('touchend', e => {
-  const dx  = e.changedTouches[0].clientX - touchStartX;
-  const dy  = e.changedTouches[0].clientY - touchStartY;
-  const dt  = Date.now() - touchStartTime;
-  const vel = Math.abs(dx) / dt;
-  const isH = Math.abs(dx) > Math.abs(dy);
+/* =========================
+   CONTROLS
+   ========================= */
 
-  if (!isH && dy > 72)                          { closeLb(); return; }
-  if (isH && (Math.abs(dx) > 50 || vel > 0.3)) { dx < 0 ? goNext() : goPrev(); }
-}, { passive: true });
+lbClose.addEventListener(
+  "click",
+  closeLb
+);
 
-if (mqDesktop.addEventListener) mqDesktop.addEventListener('change', layoutGrid);
-else mqDesktop.addListener(layoutGrid);
+document
+  .getElementById("lbPrev")
+  .addEventListener(
+    "click",
+    goPrev
+  );
+
+document
+  .getElementById("lbNext")
+  .addEventListener(
+    "click",
+    goNext
+  );
+
+lb.addEventListener(
+  "click",
+  event => {
+    if (event.target === lb) {
+      closeLb();
+    }
+  }
+);
+
+/* =========================
+   KEYBOARD
+   ========================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+    if (
+      !lb.classList.contains(
+        "open"
+      )
+    ) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeLb();
+      return;
+    }
+
+    if (
+      event.key ===
+      "ArrowRight"
+    ) {
+      event.preventDefault();
+      goNext();
+      return;
+    }
+
+    if (
+      event.key ===
+      "ArrowLeft"
+    ) {
+      event.preventDefault();
+      goPrev();
+      return;
+    }
+
+    if (event.key === "Tab") {
+      /*
+        Keep keyboard focus
+        inside the modal viewer.
+      */
+      event.preventDefault();
+
+      lbClose.focus();
+    }
+  }
+);
+
+/* =========================
+   TOUCH / SWIPE
+   ========================= */
+
+lb.addEventListener(
+  "touchstart",
+  event => {
+    const touch =
+      event.changedTouches[0];
+
+    touchStartX =
+      touch.clientX;
+
+    touchStartY =
+      touch.clientY;
+
+    touchStartTime =
+      Date.now();
+  },
+  {
+    passive: true
+  }
+);
+
+lb.addEventListener(
+  "touchend",
+  event => {
+    const touch =
+      event.changedTouches[0];
+
+    const dx =
+      touch.clientX -
+      touchStartX;
+
+    const dy =
+      touch.clientY -
+      touchStartY;
+
+    const dt =
+      Math.max(
+        1,
+        Date.now() -
+          touchStartTime
+      );
+
+    const velocity =
+      Math.abs(dx) / dt;
+
+    const horizontal =
+      Math.abs(dx) >
+      Math.abs(dy);
+
+    /*
+      Swipe down to close.
+    */
+    if (
+      !horizontal &&
+      dy > 72
+    ) {
+      closeLb();
+      return;
+    }
+
+    /*
+      Horizontal swipe
+      to navigate.
+    */
+    if (
+      horizontal &&
+      (
+        Math.abs(dx) > 50 ||
+        velocity > 0.3
+      )
+    ) {
+      if (dx < 0) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    }
+  },
+  {
+    passive: true
+  }
+);
+
+/* =========================
+   RESPONSIVE LAYOUT CHANGE
+   ========================= */
+
+if (
+  mqDesktop.addEventListener
+) {
+  mqDesktop.addEventListener(
+    "change",
+    layoutGrid
+  );
+}
+
+else {
+  mqDesktop.addListener(
+    layoutGrid
+  );
+}
+
+/* =========================
+   START
+   ========================= */
 
 load();
 </script>
+
 </body>
 </html>
