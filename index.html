@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Andrew Rios">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Andrew Rios Photography</title>
@@ -17,6 +19,8 @@
 <meta property="og:image" content="https://wsrv.nl/?url=raw.githubusercontent.com/andrewsportal/andrewriosphotography/main/001.png&amp;w=1200&amp;output=jpg&amp;q=82">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Ctext x='32' y='41' font-family='-apple-system, sans-serif' font-size='24' font-weight='600' text-anchor='middle' fill='%23d4af37'%3EAR%3C/text%3E%3C/svg%3E">
+
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://wsrv.nl">
 <link rel="preconnect" href="https://api.github.com" crossorigin>
@@ -132,8 +136,8 @@
     padding: calc(var(--space-24) + var(--space-16) - var(--gap)) var(--space-24) var(--space-24);
   }
 
-  /* ── BACK TO TOP BUTTON ── */
-  #backTopBtn {
+  /* ── PILL BUTTON — Back to top, Try Again ── */
+  .pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -163,17 +167,76 @@
       transform: scale(1.016);
     }
 
-    #backTopBtn:hover {
+    .pill:hover {
       background: var(--color-btn-bg-hover);
       transform: translateY(-1px);
     }
   }
 
-  #backTopBtn:active {
+  .pill:active {
     background: var(--color-btn-bg-active);
     transform: scale(0.97);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
                 0 1px 2px rgba(0,0,0,0.16);
+  }
+
+  /* ── STATUS — loading spinner, then an error with Try Again if GitHub doesn't answer ── */
+  .status {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-16);
+    padding: var(--space-24);
+    text-align: center;
+  }
+
+  .status.loading,
+  .status.error { display: flex; }
+
+  .status-text {
+    max-width: 280px;
+    font-size: var(--text-body);
+    line-height: 1.35;
+    color: var(--color-footer-text);
+  }
+
+  .status:not(.error) .status-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .spinner {
+    display: none;
+    position: relative;
+    width: 20px;
+    height: 20px;
+  }
+
+  .status.loading .spinner { display: block; }
+
+  .spinner i {
+    position: absolute;
+    left: 9px;
+    top: 0;
+    width: 2px;
+    height: 6px;
+    border-radius: 1px;
+    background: rgba(235,235,245,0.6);
+    transform-origin: 1px 10px;
+    transform: rotate(calc(var(--i) * 45deg));
+    animation: spinnerFade 0.8s linear infinite;
+    animation-delay: calc(var(--i) * 0.1s - 0.8s);
+  }
+
+  @keyframes spinnerFade {
+    from { opacity: 1; }
+    to   { opacity: 0.15; }
   }
 
   /* ── FOOTER ── */
@@ -197,7 +260,7 @@
     position: fixed;
     inset: 0;
     z-index: 999;
-    background: var(--color-lb-bg);
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
     touch-action: none;
@@ -212,29 +275,46 @@
     pointer-events: all;
   }
 
-  .lb-slot {
+  .lb-backdrop {
     position: absolute;
-    top:    calc(var(--safe-top)    + var(--space-64));
-    bottom: calc(var(--safe-bottom) + 56px);
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    inset: 0;
+    background: var(--color-lb-bg);
   }
 
-  .lb-slot.hidden  { opacity: 0; pointer-events: none; }
-  .lb-slot.visible { opacity: 1; }
+  /* three slides (previous, current, next) that move with the finger */
+  .lb-slide {
+    position: absolute;
+    inset: 0;
+  }
 
-  .lb-slot img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
+  .lb-slide[hidden] { display: none; }
+
+  /* the zoom layer covers the screen, so a zoomed photo can use all of it */
+  .lb-zoom {
+    position: absolute;
+    inset: 0;
+    padding: calc(var(--safe-top) + var(--space-64)) var(--safe-right) calc(var(--safe-bottom) + 56px) var(--safe-left);
+    transform-origin: center;
+  }
+
+  .lb.zoomed .lb-zoom { cursor: grab; }
+
+  .lb-zoom img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     display: block;
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* ── LIGHTBOX CLOSE ── */
@@ -294,6 +374,31 @@
   .lb-prev { left: 0; }
   .lb-next { right: 0; }
 
+  .lb.zoomed .lb-prev,
+  .lb.zoomed .lb-next { display: none; }
+
+  /* touch screens swipe instead; the buttons stay for VoiceOver */
+  @media (hover: none), (pointer: coarse) {
+    .lb-prev,
+    .lb-next {
+      top: 0;
+      bottom: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+
+  /* a tap hides the controls, as in Photos; dragging to close hides them too */
+  .lb.bare .lb-close,
+  .lb.bare .lb-dots,
+  .lb.dragging .lb-close,
+  .lb.dragging .lb-dots {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* ── PAGE CONTROL DOTS ── */
   .lb-dots {
     position: absolute;
@@ -322,7 +427,7 @@
   }
 
   /* ── FOCUS — visible keyboard focus, brand gold ── */
-  #backTopBtn:focus-visible,
+  .pill:focus-visible,
   .lb-close:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
@@ -362,7 +467,7 @@
       animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
     }
 
-    #backTopBtn {
+    .pill {
       transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
                   background 0.18s ease,
                   box-shadow 0.18s ease;
@@ -372,13 +477,14 @@
       transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    .lb-slot {
-      transition: opacity 0.22s cubic-bezier(0.2, 0, 0.2, 1);
-    }
-
     .lb-close {
       transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
-                  background 0.15s ease;
+                  background 0.15s ease,
+                  opacity 0.2s ease;
+    }
+
+    .lb-dots {
+      transition: opacity 0.2s ease;
     }
 
     .lb-dot {
@@ -386,6 +492,13 @@
                   border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
                   background 0.26s ease;
     }
+  }
+
+  /* ── DYNAMIC TYPE — on iPhone and iPad, text follows the reader's text size setting ── */
+  @supports (font: -apple-system-body) and (-webkit-touch-callout: none) {
+    .pill        { font: -apple-system-body; font-weight: 500; }
+    .status-text { font: -apple-system-body; }
+    footer span  { font: -apple-system-caption1; }
   }
 
   /* ── DESKTOP — layered over the mobile-first base ── */
@@ -407,8 +520,17 @@
 
 <main id="grid" role="main"></main>
 
+<div class="status" id="status" role="status" aria-live="polite">
+  <div class="spinner" aria-hidden="true">
+    <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+    <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+  </div>
+  <p class="status-text" id="statusText"></p>
+  <button class="pill" id="retryBtn" hidden>Try Again</button>
+</div>
+
 <div id="bottomBar">
-  <button id="backTopBtn" aria-label="Scroll back to top">
+  <button class="pill" id="backTopBtn" aria-label="Scroll back to top">
     Back to top
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 15 12 9 6 15"></polyline>
@@ -421,24 +543,26 @@
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
+  <div class="lb-backdrop" id="lbBackdrop"></div>
+
+  <div id="lbTrack">
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+  </div>
+
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
   </button>
 
-  <div class="lb-slot visible" id="slotA">
-    <img id="imgA" src="" alt="" />
-  </div>
-
-  <div class="lb-slot hidden" id="slotB">
-    <img id="imgB" src="" alt="" />
-  </div>
-
   <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
   <button class="lb-next" id="lbNext" aria-label="Next photo"></button>
 
   <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+
+  <p class="sr-only" id="lbStatus" aria-live="polite"></p>
 </div>
 
 <script>
@@ -454,15 +578,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
 let photos     = [];
 let current    = 0;
-let activeSlot = 'A';
 let appLoaded  = false;
 
 const gridEl     = document.getElementById('grid');
 const lb         = document.getElementById('lb');
-const slotA      = document.getElementById('slotA');
-const slotB      = document.getElementById('slotB');
-const imgA       = document.getElementById('imgA');
-const imgB       = document.getElementById('imgB');
 const dotsEl     = document.getElementById('lbDots');
 const backTopBtn = document.getElementById('backTopBtn');
 
@@ -471,7 +590,6 @@ let colHeights = [];
 const itemEls = [];
 
 let lastFocused = null;
-let touchStartX, touchStartY, touchStartTime;
 
 /* ── RESPONSIVE COLUMNS — 2 on phones; from 768px up, as many ~400px columns as fit (3 to 6) ── */
 const mqDesktop  = window.matchMedia('(min-width: 768px)');
@@ -679,41 +797,32 @@ async function load() {
   if (appLoaded) return;
 
   appLoaded = true;
+  setStatus('loading');
 
   try {
     const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
 
-    const [filesRes, orderRes] = await Promise.all([
-      fetch(`${API}${folder}`, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json'
-        }
-      }),
+    const [files, orderRes] = await Promise.all([
+      listFiles(`${API}${folder}`),
 
       fetch(
         `${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`
       ).catch(() => null)
     ]);
 
-    const files = await filesRes.json();
-
-    if (!Array.isArray(files)) {
-      console.error('GitHub API error', files);
-      return;
-    }
+    if (!files) throw new Error('No file list from GitHub');
 
     const fileMap = {};
 
     files
       .filter(
-        f =>
-          f.type === 'file' &&
+        name =>
           EXTS.some(
-            e => f.name.toLowerCase().endsWith('.' + e)
+            e => name.toLowerCase().endsWith('.' + e)
           )
       )
-      .forEach(f => {
-        fileMap[f.name.toLowerCase()] = f.name;
+      .forEach(name => {
+        fileMap[name.toLowerCase()] = name;
       });
 
     const stemMap = {};
@@ -782,13 +891,79 @@ async function load() {
     await appendPhotos(0, photos.length);
     buildLbDots();
 
+    setStatus('');
+
     document.getElementById('bottomBar').style.display = 'flex';
     document.querySelector('footer').style.display = 'flex';
 
   } catch (e) {
     console.error('Load error:', e);
+
+    appLoaded = false;
+    setStatus('error');
   }
 }
+
+/* ── FILE LIST — GitHub allows 60 lookups an hour per network, so keep the last good list as a fallback ── */
+const FILES_KEY = 'arp-files';
+
+async function listFiles(url) {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
+
+    const list = await res.json();
+
+    if (res.ok && Array.isArray(list)) {
+      const names = list.filter(f => f.type === 'file').map(f => f.name);
+
+      try { localStorage.setItem(FILES_KEY, JSON.stringify(names)); } catch (e) {}
+
+      return names;
+    }
+
+    console.error('GitHub API error', list);
+  } catch (e) {
+    console.error('GitHub API unreachable', e);
+  }
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(FILES_KEY));
+    return Array.isArray(saved) ? saved : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ── STATUS — spinner only if loading takes a moment, so fast loads don't flash ── */
+const statusEl   = document.getElementById('status');
+const statusText = document.getElementById('statusText');
+const retryBtn   = document.getElementById('retryBtn');
+
+let statusTimer = 0;
+
+function setStatus(state) {
+  clearTimeout(statusTimer);
+
+  statusEl.classList.remove('loading', 'error');
+  retryBtn.hidden = true;
+
+  if (state === 'loading') {
+    statusText.textContent = 'Loading photos';
+    statusTimer = setTimeout(() => statusEl.classList.add('loading'), 400);
+  } else if (state === 'error') {
+    statusText.textContent = 'Photos couldn\u2019t load. Check your connection and try again.';
+    statusEl.classList.add('error');
+    retryBtn.hidden = false;
+  } else {
+    statusText.textContent = '';
+  }
+}
+
+retryBtn.addEventListener('click', load);
 
 /* ── APPEND — probes load in parallel, photos placed in order into the shortest column ── */
 async function appendPhotos(from, count) {
@@ -822,6 +997,8 @@ async function appendPhotos(from, count) {
     );
 
     item.dataset.ratio = ratio;
+    // hold the photo's shape before it loads, so the page doesn't jump and lazy loading works
+    item.querySelector('img').style.aspectRatio = `auto 1 / ${ratio}`;
 
     itemEls.push(item);
 
@@ -939,106 +1116,493 @@ function updateLbDots() {
   );
 }
 
-/* ── LIGHTBOX ── */
+/* ── LIGHTBOX — Photos-style viewer: the photo follows the finger, pinch or double-tap to zoom, drag down to close ── */
+const SLIDE_GAP = 24;   // px between photos while swiping, as in Photos
+const MAX_ZOOM  = 4;
+const TAP_ZOOM  = 2.5;
+const EASE      = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+const lbBackdrop = document.getElementById('lbBackdrop');
+const lbStatus   = document.getElementById('lbStatus');
+const slides     = [...document.getElementById('lbTrack').children];  // [previous, current, next], rotated as you move
+const behind     = [gridEl, document.getElementById('bottomBar'), document.querySelector('footer')];
+
+let zoom = { s: 1, x: 0, y: 0 };
+let busy = false;  // a slide animation is running
+
+const dur = sec => `${reduceMotion ? 0 : sec}s`;
+const after = (ms, fn) => setTimeout(fn, reduceMotion ? 0 : ms);
+
+function fillSlide(slide, i) {
+  const img = slide.querySelector('img');
+
+  slide.dataset.index = i;
+
+  if (i < 0 || i >= photos.length) {
+    slide.hidden = true;
+    img.removeAttribute('src');
+    img.alt = '';
+    return;
+  }
+
+  slide.hidden = false;
+  img.alt = `Photo ${i + 1} of ${photos.length}`;
+  img.src = photos[i].thumb;
+
+  const hi = new Image();
+
+  hi.onload = () => {
+    if (slide.dataset.index === String(i)) img.src = photos[i].full;
+  };
+
+  hi.src = photos[i].full;
+}
+
+function placeSlides(dx = 0, animate = false) {
+  slides.forEach((slide, k) => {
+    slide.style.transition = animate ? `transform ${dur(0.35)} ${EASE}` : 'none';
+    slide.style.transform = `translateX(calc(${(k - 1) * 100}% + ${(k - 1) * SLIDE_GAP + dx}px))`;
+  });
+}
+
+/* ── ZOOM — x and y measured from the screen's centre ── */
+function zoomLayer() {
+  return slides[1].firstElementChild;
+}
+
+function applyZoom(animate) {
+  const layer = zoomLayer();
+
+  layer.style.transition = animate ? `transform ${dur(0.3)} ${EASE}` : 'none';
+  layer.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.s})`;
+
+  lb.classList.toggle('zoomed', zoom.s > 1.01);
+}
+
+// where the photo sits inside its letterbox at 1x: size, and centre offset from the screen's centre
+function photoBox() {
+  const layer = zoomLayer();
+  const img = layer.querySelector('img');
+  const r = img.naturalWidth ? img.naturalHeight / img.naturalWidth : 1;
+
+  let w = img.clientWidth;
+  let h = w * r;
+
+  if (h > img.clientHeight) {
+    h = img.clientHeight;
+    w = h / r;
+  }
+
+  return {
+    w,
+    h,
+    cx: img.offsetLeft + img.clientWidth / 2 - layer.clientWidth / 2,
+    cy: img.offsetTop + img.clientHeight / 2 - layer.clientHeight / 2,
+    W: layer.clientWidth,
+    H: layer.clientHeight
+  };
+}
+
+// keep a zoomed photo covering the screen; a photo smaller than the screen stays centred on that axis
+function clampZoom({ s, x, y }) {
+  const b = photoBox();
+
+  const fit = (t, c, size, view) => {
+    if (size * s <= view) return c * (1 - s);
+
+    const lo = view / 2 - size * s / 2 - c * s;
+    const hi = -view / 2 + size * s / 2 - c * s;
+
+    return Math.min(hi, Math.max(lo, t));
+  };
+
+  return { s, x: fit(x, b.cx, b.w, b.W), y: fit(y, b.cy, b.h, b.H) };
+}
+
+function settleZoom() {
+  let { s, x, y } = zoom;
+
+  if (s <= 1) {
+    zoom = { s: 1, x: 0, y: 0 };
+  } else {
+    if (s > MAX_ZOOM) {
+      x *= MAX_ZOOM / s;
+      y *= MAX_ZOOM / s;
+      s = MAX_ZOOM;
+    }
+
+    zoom = clampZoom({ s, x, y });
+  }
+
+  applyZoom(true);
+}
+
+function resetZoom() {
+  zoom = { s: 1, x: 0, y: 0 };
+
+  slides.forEach(slide => {
+    slide.firstElementChild.style.transition = 'none';
+    slide.firstElementChild.style.transform = '';
+  });
+
+  lb.classList.remove('zoomed');
+}
+
+function local(clientX, clientY) {
+  return { x: clientX - lb.clientWidth / 2, y: clientY - lb.clientHeight / 2 };
+}
+
+function onPhoto(p) {
+  const b = photoBox();
+  const cx = (p.x - zoom.x) / zoom.s;
+  const cy = (p.y - zoom.y) / zoom.s;
+
+  return Math.abs(cx - b.cx) <= b.w / 2 && Math.abs(cy - b.cy) <= b.h / 2;
+}
+
+function toggleZoomAt(clientX, clientY) {
+  if (zoom.s > 1.01) {
+    zoom = { s: 1, x: 0, y: 0 };
+  } else {
+    const p = local(clientX, clientY);
+    zoom = clampZoom({ s: TAP_ZOOM, x: p.x * (1 - TAP_ZOOM), y: p.y * (1 - TAP_ZOOM) });
+  }
+
+  applyZoom(true);
+}
+
+/* ── OPEN / CLOSE ── */
+function announce() {
+  lbStatus.textContent = `Photo ${current + 1} of ${photos.length}`;
+}
+
+function resetViewer() {
+  resetZoom();
+  placeSlides(0, false);
+
+  lb.classList.remove('bare', 'dragging');
+  lbBackdrop.style.transition = 'none';
+  lbBackdrop.style.opacity = '';
+}
+
 function openLb(i) {
   current = i;
 
-  const img = activeSlot === 'A' ? imgA : imgB;
-
-  img.src = photos[i].thumb;
-  img.alt = `Photo ${i + 1} of ${photos.length}`;
+  resetViewer();
+  fillSlide(slides[0], i - 1);
+  fillSlide(slides[1], i);
+  fillSlide(slides[2], i + 1);
 
   lastFocused = document.activeElement;
 
   lb.classList.add('open');
+  behind.forEach(el => { el.inert = true; });
   document.body.style.overflow = 'hidden';
 
   lb.focus();
 
   updateLbDots();
-  preloadAdjacent();
-
-  const highResImg = new Image();
-
-  highResImg.onload = () => {
-    if (current === i) {
-      img.src = photos[i].full;
-    }
-  };
-
-  highResImg.src = photos[i].full;
+  announce();
 }
 
-function closeLb() {
+function closeLb(fromDrag = false) {
+  clearTimeout(tapTimer);
+
+  if (fromDrag) {
+    slides[1].style.transition = `transform ${dur(0.3)} ${EASE}`;
+    slides[1].style.transform = `translate(0, ${lb.clientHeight * 0.4}px) scale(0.6)`;
+  }
+
   lb.classList.remove('open');
+  behind.forEach(el => { el.inert = false; });
   document.body.style.overflow = '';
 
   if (lastFocused && lastFocused.focus) {
-    lastFocused.focus();
+    lastFocused.focus({ preventScroll: true });
   }
+
+  after(320, () => {
+    if (!lb.classList.contains('open')) resetViewer();
+  });
 }
 
-function goTo(i) {
-  const target = Math.max(
-    0,
-    Math.min(i, photos.length - 1)
-  );
+/* ── MOVE — slide the next photo in, then rotate the three slides so nothing reloads ── */
+function slideTo(dir) {
+  if (busy || slides[1 + dir].hidden) {
+    placeSlides(0, true);
+    return;
+  }
 
-  if (target === current) return;
+  busy = true;
+  placeSlides(-dir * (lb.clientWidth + SLIDE_GAP), true);
 
-  const fromSlot = activeSlot === 'A' ? slotA : slotB;
-  const toSlot   = activeSlot === 'A' ? slotB : slotA;
-  const toImg    = activeSlot === 'A' ? imgB : imgA;
+  after(350, () => {
+    resetZoom();
 
-  current = target;
+    if (dir > 0) slides.push(slides.shift());
+    else slides.unshift(slides.pop());
 
-  toImg.src = photos[current].thumb;
-  toImg.alt = `Photo ${current + 1} of ${photos.length}`;
+    current += dir;
 
-  toSlot.classList.replace('hidden', 'visible');
-  fromSlot.classList.replace('visible', 'hidden');
+    fillSlide(slides[1 + dir], current + dir);
+    placeSlides(0, false);
 
-  activeSlot = activeSlot === 'A' ? 'B' : 'A';
+    busy = false;
 
-  updateLbDots();
-  preloadAdjacent();
-
-  const highResImg = new Image();
-
-  highResImg.onload = () => {
-    if (current === target) {
-      toImg.src = photos[current].full;
-    }
-  };
-
-  highResImg.src = photos[current].full;
+    updateLbDots();
+    announce();
+  });
 }
 
 function goNext() {
-  goTo(current + 1);
+  slideTo(1);
 }
 
 function goPrev() {
-  goTo(current - 1);
+  slideTo(-1);
 }
 
-function preloadAdjacent() {
-  [current + 1, current - 1]
-    .filter(
-      idx =>
-        idx >= 0 &&
-        idx < photos.length
-    )
-    .forEach(idx => {
-      const p = new Image();
-      p.src = photos[idx].full;
-    });
+/* ── DRAG TO CLOSE ── */
+function dragDismiss(dy) {
+  const p = Math.min(1, Math.max(0, dy) / lb.clientHeight);
+
+  lb.classList.add('dragging');
+
+  slides[1].style.transition = 'none';
+  slides[1].style.transform = `translate(0, ${dy}px) scale(${1 - p * 0.35})`;
+
+  lbBackdrop.style.transition = 'none';
+  lbBackdrop.style.opacity = Math.max(0, 1 - p * 1.6);
 }
+
+function cancelDismiss() {
+  lb.classList.remove('dragging');
+
+  placeSlides(0, true);
+
+  lbBackdrop.style.transition = `opacity ${dur(0.3)} ease`;
+  lbBackdrop.style.opacity = '';
+}
+
+/* ── GESTURES — pointer events cover touch, pen and mouse ── */
+const pointers = new Map();
+
+let g = null;  // the gesture in progress
+let suppressClick = false;
+let lastTap = null;
+let tapTimer = 0;
+
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+function velocity(gesture) {
+  const s = gesture.samples;
+  const last = s[s.length - 1];
+  const first = s.find(p => last.t - p.t < 100) || last;
+  const dt = Math.max(1, last.t - first.t);
+
+  return { x: (last.x - first.x) / dt, y: (last.y - first.y) / dt };
+}
+
+function rubber(value, min, max) {
+  if (value < min) return min + (value - min) * 0.3;
+  if (value > max) return max + (value - max) * 0.3;
+  return value;
+}
+
+lb.addEventListener('pointerdown', e => {
+  if (!lb.classList.contains('open') || busy) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('.lb-close')) return;
+
+  suppressClick = false;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (pointers.size === 1) {
+    g = {
+      kind: 'pending',
+      x0: e.clientX,
+      y0: e.clientY,
+      t0: e.timeStamp,
+      z0: { ...zoom },
+      onButton: !!e.target.closest('button'),
+      mouse: e.pointerType === 'mouse',
+      samples: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }]
+    };
+  } else if (pointers.size === 2) {
+    if (g && g.kind === 'swipe') placeSlides(0, true);
+    if (g && g.kind === 'dismiss') cancelDismiss();
+
+    const [a, b] = [...pointers.values()];
+    const m = mid(a, b);
+
+    clearTimeout(tapTimer);
+    suppressClick = true;
+
+    g = { kind: 'pinch', d0: dist(a, b), m0: local(m.x, m.y), z0: { ...zoom } };
+  }
+});
+
+window.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (!g) return;
+
+  if (g.kind === 'pinch') {
+    if (pointers.size < 2) return;
+
+    const [a, b] = [...pointers.values()];
+    const m = mid(a, b);
+    const p = local(m.x, m.y);
+
+    let s = g.z0.s * dist(a, b) / g.d0;
+    s = s < 1 ? 1 - (1 - s) * 0.5 : s > MAX_ZOOM ? MAX_ZOOM + (s - MAX_ZOOM) * 0.3 : s;
+
+    // keep the point first under the fingers under them as they move and spread
+    const cx = (g.m0.x - g.z0.x) / g.z0.s;
+    const cy = (g.m0.y - g.z0.y) / g.z0.s;
+
+    zoom = { s, x: p.x - cx * s, y: p.y - cy * s };
+    applyZoom(false);
+    return;
+  }
+
+  const dx = e.clientX - g.x0;
+  const dy = e.clientY - g.y0;
+
+  g.samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+  if (g.samples.length > 8) g.samples.shift();
+
+  if (g.kind === 'pending') {
+    if (Math.hypot(dx, dy) < 8) return;
+
+    if (zoom.s > 1.01) g.kind = 'pan';
+    else g.kind = Math.abs(dx) > Math.abs(dy) ? 'swipe' : 'dismiss';
+
+    clearTimeout(tapTimer);
+    suppressClick = true;
+  }
+
+  if (g.kind === 'pan') {
+    const want = { s: zoom.s, x: g.z0.x + dx, y: g.z0.y + dy };
+    const c = clampZoom(want);
+
+    zoom = { s: zoom.s, x: rubber(want.x, c.x, c.x), y: rubber(want.y, c.y, c.y) };
+    applyZoom(false);
+  } else if (g.kind === 'swipe') {
+    const edge = slides[dx > 0 ? 0 : 2].hidden;
+    placeSlides(edge ? dx * 0.3 : dx);
+  } else if (g.kind === 'dismiss') {
+    dragDismiss(dy > 0 ? dy : dy * 0.2);
+  }
+});
+
+function endPointer(e, cancelled) {
+  if (!pointers.has(e.pointerId)) return;
+
+  pointers.delete(e.pointerId);
+
+  if (!g) return;
+
+  if (g.kind === 'pinch') {
+    if (pointers.size < 2) {
+      settleZoom();
+      g = null;
+    }
+    return;
+  }
+
+  if (pointers.size) return;
+
+  const gesture = g;
+  g = null;
+
+  const dx = e.clientX - gesture.x0;
+  const dy = e.clientY - gesture.y0;
+  const v = velocity(gesture);
+
+  if (gesture.kind === 'pending') {
+    if (!cancelled) handleTap(e, gesture);
+  } else if (gesture.kind === 'pan') {
+    settleZoom();
+  } else if (gesture.kind === 'swipe') {
+    const width = lb.clientWidth;
+    const dir = cancelled ? 0
+      : (dx < -width * 0.2 || v.x < -0.35) ? 1
+      : (dx > width * 0.2 || v.x > 0.35) ? -1
+      : 0;
+
+    if (dir) slideTo(dir);
+    else placeSlides(0, true);
+  } else if (gesture.kind === 'dismiss') {
+    if (!cancelled && (dy > 110 || v.y > 0.5)) closeLb(true);
+    else cancelDismiss();
+  }
+}
+
+window.addEventListener('pointerup', e => endPointer(e, false));
+window.addEventListener('pointercancel', e => endPointer(e, true));
+
+// a drag or pinch that ends over a button isn't a press of that button
+lb.addEventListener('click', e => {
+  if (!suppressClick) return;
+
+  suppressClick = false;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
+
+function handleTap(e, gesture) {
+  if (gesture.onButton || e.timeStamp - gesture.t0 > 400) return;
+
+  const p = local(e.clientX, e.clientY);
+
+  // with a mouse, a click beside the photo closes the viewer
+  if (gesture.mouse && zoom.s <= 1.01 && !onPhoto(p)) {
+    closeLb();
+    return;
+  }
+
+  if (lastTap && e.timeStamp - lastTap.t < 300 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+    clearTimeout(tapTimer);
+    lastTap = null;
+    toggleZoomAt(e.clientX, e.clientY);
+    return;
+  }
+
+  lastTap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
+
+  // a single tap on a touch screen shows or hides the controls; wait to be sure it isn't a double tap
+  tapTimer = setTimeout(() => {
+    lastTap = null;
+    if (!gesture.mouse) lb.classList.toggle('bare');
+  }, 300);
+}
+
+// trackpad pinch on a Mac arrives as a ctrl + wheel event
+lb.addEventListener('wheel', e => {
+  if (!e.ctrlKey) return;
+
+  e.preventDefault();
+
+  const p = local(e.clientX, e.clientY);
+  const s = Math.min(MAX_ZOOM, Math.max(1, zoom.s * Math.exp(-e.deltaY * 0.01)));
+  const cx = (p.x - zoom.x) / zoom.s;
+  const cy = (p.y - zoom.y) / zoom.s;
+
+  zoom = s === 1 ? { s: 1, x: 0, y: 0 } : clampZoom({ s, x: p.x - cx * s, y: p.y - cy * s });
+  applyZoom(false);
+}, { passive: false });
+
+// stop Safari's own page zoom inside the viewer
+lb.addEventListener('gesturestart', e => e.preventDefault());
 
 /* ── CONTROLS ── */
 document
   .getElementById('lbClose')
-  .addEventListener('click', closeLb);
+  .addEventListener('click', () => closeLb());
 
 document
   .getElementById('lbPrev')
@@ -1047,12 +1611,6 @@ document
 document
   .getElementById('lbNext')
   .addEventListener('click', goNext);
-
-lb.addEventListener('click', e => {
-  if (e.target === lb) {
-    closeLb();
-  }
-});
 
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
@@ -1069,59 +1627,26 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') {
     goPrev();
   }
+
+  // keep keyboard focus inside the viewer while it's open
+  if (e.key === 'Tab') {
+    const stops = [...lb.querySelectorAll('button')].filter(b => b.getClientRects().length);
+    const at = stops.indexOf(document.activeElement);
+    const next = e.shiftKey
+      ? (at <= 0 ? stops.length - 1 : at - 1)
+      : (at === -1 || at === stops.length - 1 ? 0 : at + 1);
+
+    e.preventDefault();
+    stops[next].focus();
+  }
 });
 
-lb.addEventListener(
-  'touchstart',
-  e => {
-    touchStartX = e.changedTouches[0].clientX;
-    touchStartY = e.changedTouches[0].clientY;
-    touchStartTime = Date.now();
-  },
-  { passive: true }
-);
+window.addEventListener('resize', () => {
+  if (!lb.classList.contains('open')) return;
 
-lb.addEventListener(
-  'touchend',
-  e => {
-    const dx =
-      e.changedTouches[0].clientX -
-      touchStartX;
-
-    const dy =
-      e.changedTouches[0].clientY -
-      touchStartY;
-
-    const dt =
-      Date.now() -
-      touchStartTime;
-
-    const vel =
-      Math.abs(dx) / dt;
-
-    const isH =
-      Math.abs(dx) >
-      Math.abs(dy);
-
-    if (!isH && dy > 72) {
-      closeLb();
-      return;
-    }
-
-    if (
-      isH &&
-      (
-        Math.abs(dx) > 50 ||
-        vel > 0.3
-      )
-    ) {
-      dx < 0
-        ? goNext()
-        : goPrev();
-    }
-  },
-  { passive: true }
-);
+  resetZoom();
+  placeSlides(0, false);
+}, { passive: true });
 
 window.addEventListener('resize', layoutGrid, { passive: true });
 
