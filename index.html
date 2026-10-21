@@ -85,7 +85,6 @@
   #grid {
     display: flex;
     gap: var(--gap);
-    max-width: 1200px;
     margin: 0 auto;
     padding-top: calc(var(--safe-top) + var(--gap));
     padding-bottom: var(--gap);
@@ -474,13 +473,24 @@ const itemEls = [];
 let lastFocused = null;
 let touchStartX, touchStartY, touchStartTime;
 
-/* ── RESPONSIVE COLUMNS — 2 on phones, 3 from 768px up; same order, same count ── */
-const mqDesktop = window.matchMedia('(min-width: 768px)');
+/* ── RESPONSIVE COLUMNS — 2 on phones; from 768px up, as many ~400px columns as fit (3 to 6) ── */
+const mqDesktop  = window.matchMedia('(min-width: 768px)');
+const COL_TARGET = 400;
+
+function colCount() {
+  if (!mqDesktop.matches) return 2;
+
+  return Math.min(6, Math.max(3, Math.round(window.innerWidth / COL_TARGET)));
+}
+
+function colSizes() {
+  return `${Math.ceil(window.innerWidth / cols.length)}px`;
+}
 
 function layoutGrid() {
-  const n = mqDesktop.matches ? 3 : 2;
+  const n = colCount();
 
-  if (cols.length === n) return;
+  if (cols.length === n) return levelColumns();
 
   cols = [];
   colHeights = [];
@@ -495,11 +505,14 @@ function layoutGrid() {
     gridEl.appendChild(c);
   }
 
-  const split = Math.max(0, itemEls.length - TAIL);
+  const split = Math.max(0, itemEls.length - tailSize());
 
   itemEls.slice(0, split).forEach(el => placeItem(el));
   placeTail(itemEls.slice(split));
   levelColumns();
+
+  const sizes = colSizes();
+  itemEls.forEach(el => { el.querySelector('img').sizes = sizes; });
 }
 
 /* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
@@ -520,35 +533,93 @@ function placeItem(el) {
   colHeights[k] += parseFloat(el.dataset.ratio) || 1;
 }
 
-/* ── LEVEL TAIL — the last photos are placed as a set, trying every column choice ── */
-const TAIL = 8;  // 3^8 = 6561 arrangements on desktop, still instant
+/* ── LEVEL TAIL — the last photos are shared out so the columns end as close to level as possible ── */
+const TAIL_PER_COL = 4;
+const TAIL_TRIES   = 200;  // ~3ms even at 6 columns
+
+function tailSize() {
+  return TAIL_PER_COL * cols.length;
+}
 
 function placeTail(els) {
-  const n = cols.length;
   const r = els.map(el => parseFloat(el.dataset.ratio) || 1);
-  const total = n ** els.length;
 
-  let best = 0;
+  let seed = 7;  // fixed, so the same photos always land the same way
+  const rand = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+
+  let best = [];
   let bestSpread = Infinity;
 
-  for (let code = 0; code < total; code++) {
+  for (let t = 0; t < TAIL_TRIES; t++) {
     const h = colHeights.slice();
+    const at = [];
+    const idx = [...r.keys()];
 
-    for (let i = 0, c = code; i < els.length; i++, c = Math.floor(c / n)) {
-      h[c % n] += r[i];
+    // first try biggest first, then shuffled orders; each photo starts in the shortest column
+    if (t === 0) {
+      idx.sort((a, b) => r[b] - r[a]);
+    } else {
+      for (let i = idx.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [idx[i], idx[j]] = [idx[j], idx[i]];
+      }
     }
+
+    idx.forEach(i => {
+      const k = h.indexOf(Math.min(...h));
+      at[i] = k;
+      h[k] += r[i];
+    });
+
+    settle(h, r, at);
 
     const spread = Math.max(...h) - Math.min(...h);
 
     if (spread < bestSpread) {
-      best = code;
+      best = at;
       bestSpread = spread;
     }
   }
 
-  for (let i = 0, c = best; i < els.length; i++, c = Math.floor(c / n)) {
-    cols[c % n].appendChild(els[i]);
-    colHeights[c % n] += r[i];
+  els.forEach((el, i) => {
+    cols[best[i]].appendChild(el);
+    colHeights[best[i]] += r[i];
+  });
+}
+
+// move or swap photos between columns for as long as that flattens the heights (sum of squares falls)
+function settle(h, r, at) {
+  let improved = true;
+
+  while (improved) {
+    improved = false;
+
+    for (let i = 0; i < r.length; i++) {
+      for (let k = 0; k < h.length; k++) {
+        const a = at[i];
+
+        if (k !== a && r[i] * (h[k] - h[a] + r[i]) < -1e-9) {
+          h[a] -= r[i];
+          h[k] += r[i];
+          at[i] = k;
+          improved = true;
+        }
+      }
+
+      for (let j = i + 1; j < r.length; j++) {
+        const a = at[i];
+        const b = at[j];
+        const x = r[j] - r[i];
+
+        if (a !== b && x * (h[a] - h[b] + x) < -1e-9) {
+          h[a] += x;
+          h[b] -= x;
+          at[i] = b;
+          at[j] = a;
+          improved = true;
+        }
+      }
+    }
   }
 }
 
@@ -595,6 +666,8 @@ function loadRatio(url) {
 }
 
 /* ── HELPER: PROXY URL GENERATOR ── */
+const THUMB_WIDTHS = [400, 600, 800, 1000];
+
 function getProxyUrl(rawUrl, width) {
   const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
 
@@ -677,6 +750,7 @@ async function load() {
 
             ordered.push({
               probe: getProxyUrl(rawImgUrl, 100),
+              raw:   rawImgUrl,
               thumb: getProxyUrl(rawImgUrl, 600),
               full:  getProxyUrl(rawImgUrl, 1600)
             });
@@ -695,6 +769,7 @@ async function load() {
 
         ordered.push({
           probe: getProxyUrl(rawImgUrl, 100),
+          raw:   rawImgUrl,
           thumb: getProxyUrl(rawImgUrl, 600),
           full:  getProxyUrl(rawImgUrl, 1600)
         });
@@ -750,7 +825,7 @@ async function appendPhotos(from, count) {
 
     itemEls.push(item);
 
-    if (globalIdx < photos.length - TAIL) placeItem(item);
+    if (globalIdx < photos.length - tailSize()) placeItem(item);
     else tail.push(item);
   }
 
@@ -777,6 +852,9 @@ function makeItem(p, globalIdx, localIdx) {
 
   const img = document.createElement('img');
 
+  // the browser picks the width that's sharp for the column and screen: ~600 on phones, ~800 on retina laptops
+  img.sizes = colSizes();
+  img.srcset = THUMB_WIDTHS.map(w => `${getProxyUrl(p.raw, w)} ${w}w`).join(', ');
   img.src = p.thumb;
   img.loading = globalIdx < 6 ? 'eager' : 'lazy';
   img.decoding = 'async';
@@ -784,11 +862,14 @@ function makeItem(p, globalIdx, localIdx) {
 
   div.appendChild(img);
 
-  // the 600px thumb gives a truer shape than the 100px probe, so re-level once it's in
+  // the drawn photo gives a truer shape than the 100px probe, so re-level once it's in
+  // (its box, not naturalWidth: with srcset those are rounded to whole CSS pixels)
   img.addEventListener('load', () => {
-    if (!img.naturalWidth) return;
+    const box = img.getBoundingClientRect();
 
-    div.dataset.ratio = img.naturalHeight / img.naturalWidth;
+    if (!box.width || !box.height) return;
+
+    div.dataset.ratio = box.height / box.width;
     levelColumns();
   });
 
@@ -1042,18 +1123,7 @@ lb.addEventListener(
   { passive: true }
 );
 
-if (mqDesktop.addEventListener) {
-  mqDesktop.addEventListener(
-    'change',
-    layoutGrid
-  );
-} else {
-  mqDesktop.addListener(
-    layoutGrid
-  );
-}
-
-window.addEventListener('resize', levelColumns, { passive: true });
+window.addEventListener('resize', layoutGrid, { passive: true });
 
 load();
 </script>
