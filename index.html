@@ -54,7 +54,8 @@
     --color-bg:            #000000;
     --color-accent:        #d4af37;
     --color-grid-item-bg:  #131a16;
-    --color-footer-text:   rgba(235,235,245,0.52);
+    /* 7:1 on black, the Dark Mode aim for small custom-coloured text */
+    --color-footer-text:   rgba(235,235,245,0.64);
     --color-btn-bg:        rgba(118,128,120,0.26);
     --color-btn-text:      rgba(240,244,240,0.85);
     --color-btn-bg-hover:  rgba(118,128,120,0.33);
@@ -65,9 +66,12 @@
     --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
 
-    /* ── DYNAMIC TYPE — clamp(min, fluid, max) ── */
-    --text-caption: clamp(0.6875rem, 2.5vw, 0.75rem);
-    --text-body:    clamp(0.9375rem, 2.6vw, 1.0625rem);
+    /* ── TYPE — Caption 1 12pt and Body 17pt, the iOS defaults; iPhone and iPad scale them below ── */
+    --text-caption: 0.75rem;
+    --text-body:    1.0625rem;
+
+    /* dark scroll indicators to match the page */
+    color-scheme: dark;
   }
 
   html {
@@ -76,10 +80,7 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scrollbar-width: none;
   }
-
-  html::-webkit-scrollbar { display: none; }
 
   body {
     background: var(--color-bg);
@@ -111,6 +112,7 @@
   }
 
   .grid-item {
+    position: relative;
     width: 100%;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -151,8 +153,6 @@
     border-radius: 22px;
     border: none;
     background: var(--color-btn-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
                 0 1px 6px rgba(0,0,0,0.22);
     color: var(--color-btn-text);
@@ -250,6 +250,7 @@
     display: none;
     align-items: center;
     justify-content: center;
+    text-align: center;
   }
 
   footer span {
@@ -430,6 +431,9 @@
     border-radius: 3px;
   }
 
+  /* an end dot shrinks when more photos lie past it, as in iOS */
+  .lb-dot.more { transform: scale(0.67); }
+
   /* ── FOCUS — visible keyboard focus, brand gold ── */
   .pill:focus-visible,
   .lb-close:focus-visible {
@@ -440,6 +444,15 @@
   .grid-item:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: -2px;
+  }
+
+  /* a black edge inside the ring keeps it visible on gold and orange photos */
+  .grid-item:focus-visible::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    box-shadow: inset 0 0 0 2px var(--color-bg);
+    pointer-events: none;
   }
 
   .lb-prev:focus-visible,
@@ -494,7 +507,8 @@
     .lb-dot {
       transition: width 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
                   border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
-                  background 0.26s ease;
+                  background 0.26s ease,
+                  transform 0.26s ease;
     }
   }
 
@@ -522,7 +536,10 @@
 
 <body>
 
-<main id="grid" role="main"></main>
+<main>
+  <h1 class="sr-only">Andrew Rios Photography</h1>
+  <div id="grid"></div>
+</main>
 
 <div class="status" id="status" role="status" aria-live="polite">
   <div class="spinner" aria-hidden="true">
@@ -534,9 +551,9 @@
 </div>
 
 <div id="bottomBar">
-  <button class="pill" id="backTopBtn" aria-label="Scroll back to top">
+  <button class="pill" id="backTopBtn">
     Back to top
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
@@ -546,7 +563,7 @@
   <span>© 2026 Andrew Rios Photography</span>
 </footer>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1">
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1" inert>
   <div class="lb-backdrop" id="lbBackdrop"></div>
 
   <div id="lbTrack">
@@ -556,7 +573,7 @@
   </div>
 
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
   </button>
@@ -1112,12 +1129,14 @@ function updateLbDots() {
     )
   );
 
-  dots.forEach((d, i) =>
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', start + i === current);
     d.classList.toggle(
-      'active',
-      start + i === current
-    )
-  );
+      'more',
+      (i === 0 && start > 0) ||
+      (i === dots.length - 1 && start + dots.length < photos.length)
+    );
+  });
 }
 
 /* ── LIGHTBOX — Photos-style viewer: the photo follows the finger, pinch or double-tap to zoom, drag down to close ── */
@@ -1129,7 +1148,7 @@ const EASE      = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 const lbBackdrop = document.getElementById('lbBackdrop');
 const lbStatus   = document.getElementById('lbStatus');
 const slides     = [...document.getElementById('lbTrack').children];  // [previous, current, next], rotated as you move
-const behind     = [gridEl, document.getElementById('bottomBar'), document.querySelector('footer')];
+const behind     = [document.querySelector('main'), document.getElementById('bottomBar'), document.querySelector('footer')];
 
 let zoom = { s: 1, x: 0, y: 0 };
 let busy = false;  // a slide animation is running
@@ -1160,6 +1179,14 @@ function fillSlide(slide, i) {
   };
 
   hi.src = photos[i].full;
+}
+
+// VoiceOver reads only the photo on screen, not the neighbours waiting either side
+function markCurrent() {
+  slides.forEach((slide, k) => {
+    if (k === 1) slide.removeAttribute('aria-hidden');
+    else slide.setAttribute('aria-hidden', 'true');
+  });
 }
 
 function placeSlides(dx = 0, animate = false) {
@@ -1296,10 +1323,12 @@ function openLb(i) {
   fillSlide(slides[0], i - 1);
   fillSlide(slides[1], i);
   fillSlide(slides[2], i + 1);
+  markCurrent();
 
   lastFocused = document.activeElement;
 
   lb.classList.add('open');
+  lb.inert = false;
   behind.forEach(el => { el.inert = true; });
   document.body.style.overflow = 'hidden';
 
@@ -1318,6 +1347,7 @@ function closeLb(fromDrag = false) {
   }
 
   lb.classList.remove('open');
+  lb.inert = true;  // closed, it's out of the Tab order and out of VoiceOver's reach
   behind.forEach(el => { el.inert = false; });
   document.body.style.overflow = '';
 
@@ -1349,6 +1379,7 @@ function slideTo(dir) {
     current += dir;
 
     fillSlide(slides[1 + dir], current + dir);
+    markCurrent();
     placeSlides(0, false);
 
     busy = false;
