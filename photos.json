@@ -1,0 +1,4 @@
+---
+# GitHub Pages fills this in each time it builds the site: the path of every file, which the gallery reads for its photo list
+---
+{{ site.static_files | map: "path" | jsonify }}
