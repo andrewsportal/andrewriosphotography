@@ -91,7 +91,7 @@
     padding-bottom: var(--gap);
     padding-left:  calc(var(--safe-left)  + var(--gap));
     padding-right: calc(var(--safe-right) + var(--gap));
-    align-items: flex-start;
+    align-items: stretch;
     width: 100%;
   }
 
@@ -101,6 +101,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--gap);
+    container-type: inline-size;
   }
 
   .grid-item {
@@ -124,12 +125,24 @@
     opacity: 0.72;
   }
 
+  /* ── LEVEL ENDING — each column's last photo stretches to meet the longest, cropping at most 10% (MAX_CROP) ── */
+  .col > .grid-item:last-child {
+    flex: 1 1 auto;
+    display: flex;
+    max-height: calc(var(--r, 1) * 100cqi / 0.9);
+  }
+
+  .col > .grid-item:last-child img {
+    object-fit: cover;
+  }
+
   /* ── BOTTOM BAR ── */
   #bottomBar {
     display: none;
     align-items: center;
     justify-content: center;
-    padding: var(--space-32) var(--space-24) calc(var(--safe-bottom) + var(--space-24));
+    /* top matches the gap below the button (its 24 plus the footer's 16), less the grid's bottom gap */
+    padding: calc(var(--space-24) + var(--space-16) - var(--gap)) var(--space-24) var(--space-24);
   }
 
   /* ── BACK TO TOP BUTTON ── */
@@ -393,16 +406,12 @@
     :root { --gap: 2px; }
 
     #bottomBar {
-      padding: var(--space-48) var(--space-24) calc(var(--safe-bottom) + var(--space-32));
+      padding: calc(var(--space-32) + var(--space-16) - var(--gap)) var(--space-24) var(--space-32);
     }
 
     footer {
       padding-bottom: calc(var(--safe-bottom) + var(--space-32));
     }
-  }
-
-  @media (min-width: 1024px) {
-    #bottomBar { padding-top: var(--space-64); }
   }
 </style>
 </head>
@@ -498,7 +507,10 @@ function layoutGrid() {
     gridEl.appendChild(c);
   }
 
-  itemEls.forEach(el => placeItem(el));
+  const split = Math.max(0, itemEls.length - TAIL);
+
+  itemEls.slice(0, split).forEach(el => placeItem(el));
+  placeTail(itemEls.slice(split));
 }
 
 /* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
@@ -517,6 +529,57 @@ function placeItem(el) {
 
   cols[k].appendChild(el);
   colHeights[k] += parseFloat(el.dataset.ratio) || 1;
+}
+
+/* ── LEVEL TAIL — the last photos are placed as a set, trying every column choice ── */
+const TAIL     = 8;    // 3^8 = 6561 arrangements on desktop, still instant
+const MAX_CROP = 0.1;  // keep in step with the LEVEL ENDING max-height
+
+function placeTail(els) {
+  const n = cols.length;
+  const r = els.map(el => parseFloat(el.dataset.ratio) || 1);
+  const total = n ** els.length;
+
+  let best = 0;
+  let bestGap = Infinity;
+  let bestSpread = Infinity;
+
+  const lastBefore = cols.map(c => {
+    const el = c.lastElementChild;
+    return el ? parseFloat(el.dataset.ratio) || 1 : 0;
+  });
+
+  for (let code = 0; code < total; code++) {
+    const h = colHeights.slice();
+    const last = lastBefore.slice();
+
+    for (let i = 0, c = code; i < els.length; i++, c = Math.floor(c / n)) {
+      h[c % n] += r[i];
+      last[c % n] = r[i];
+    }
+
+    const top = Math.max(...h);
+    const spread = top - Math.min(...h);
+
+    // empty space left once each short column's last photo has stretched its allowed share
+    let gap = 0;
+
+    for (let k = 0; k < n; k++) {
+      const stretch = last[k] * MAX_CROP / (1 - MAX_CROP);
+      gap = Math.max(gap, top - h[k] - stretch);
+    }
+
+    if (gap < bestGap - 1e-6 || (gap < bestGap + 1e-6 && spread < bestSpread)) {
+      best = code;
+      bestGap = gap;
+      bestSpread = spread;
+    }
+  }
+
+  for (let i = 0, c = best; i < els.length; i++, c = Math.floor(c / n)) {
+    cols[c % n].appendChild(els[i]);
+    colHeights[c % n] += r[i];
+  }
 }
 
 /* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
@@ -664,6 +727,7 @@ async function appendPhotos(from, count) {
   if (!slice.length) return;
 
   const ratios = slice.map(p => loadRatio(p.probe));
+  const tail = [];
 
   const guard = ms =>
     new Promise(r =>
@@ -687,10 +751,15 @@ async function appendPhotos(from, count) {
     );
 
     item.dataset.ratio = ratio;
+    item.style.setProperty('--r', ratio);
 
     itemEls.push(item);
-    placeItem(item);
+
+    if (globalIdx < photos.length - TAIL) placeItem(item);
+    else tail.push(item);
   }
+
+  placeTail(tail);
 }
 
 function makeItem(p, globalIdx, localIdx) {
