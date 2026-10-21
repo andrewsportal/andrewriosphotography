@@ -27,8 +27,6 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
 
 <link rel="preconnect" href="https://wsrv.nl">
-<link rel="preconnect" href="https://api.github.com" crossorigin>
-<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,8 +88,9 @@
     overflow-y: scroll;
   }
 
-  /* ── MASONRY GRID ── */
+  /* ── MASONRY GRID — the columns are empty rulers; the script sets each photo over its column ── */
   #grid {
+    position: relative;
     display: flex;
     gap: var(--gap);
     margin: 0 auto;
@@ -106,14 +105,10 @@
   .col {
     flex: 1 1 0;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
   }
 
   .grid-item {
-    position: relative;
-    width: 100%;
+    position: absolute;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -608,6 +603,7 @@ const backTopBtn = document.getElementById('backTopBtn');
 
 let cols = [];
 let colHeights = [];
+let colItems = [];  // the photos in each column, top to bottom
 const itemEls = [];
 
 let lastFocused = null;
@@ -631,8 +627,11 @@ function layoutGrid() {
 
   if (cols.length === n) return levelColumns();
 
+  cols.forEach(c => reflow.unobserve(c));
+
   cols = [];
   colHeights = [];
+  colItems = [];
   gridEl.textContent = '';
 
   for (let i = 0; i < n; i++) {
@@ -641,7 +640,9 @@ function layoutGrid() {
 
     cols.push(c);
     colHeights.push(0);
+    colItems.push([]);
     gridEl.appendChild(c);
+    reflow.observe(c);
   }
 
   const split = Math.max(0, itemEls.length - tailSize());
@@ -668,7 +669,8 @@ function shortestCol() {
 function placeItem(el) {
   const k = shortestCol();
 
-  cols[k].appendChild(el);
+  colItems[k].push(el);
+  gridEl.appendChild(el);
   colHeights[k] += parseFloat(el.dataset.ratio) || 1;
 }
 
@@ -721,7 +723,8 @@ function placeTail(els) {
   }
 
   els.forEach((el, i) => {
-    cols[best[i]].appendChild(el);
+    colItems[best[i]].push(el);
+    gridEl.appendChild(el);
     colHeights[best[i]] += r[i];
   });
 }
@@ -767,17 +770,17 @@ const MAX_WIDTH_SHIFT = 0.05;  // past ±5% the difference would show, so leave 
 
 function levelColumns() {
   const n = cols.length;
-  const sums = cols.map(c =>
-    [...c.children].reduce((t, el) => t + (parseFloat(el.dataset.ratio) || 1), 0)
+  const sums = colItems.map(items =>
+    items.reduce((t, el) => t + (parseFloat(el.dataset.ratio) || 1), 0)
   );
 
-  if (!n || sums.some(t => !t)) return;
+  if (!n || sums.some(t => !t)) return positionItems();
 
   // a column of width w ends at w * sum + gap * (count - 1); solve for one shared end
   const cs = getComputedStyle(gridEl);
   const gap = parseFloat(cs.columnGap) || 0;
   const room = gridEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - gap * (n - 1);
-  const gaps = cols.map(c => gap * (c.children.length - 1));
+  const gaps = colItems.map(items => gap * (items.length - 1));
 
   const end = (room + gaps.reduce((t, g, k) => t + g / sums[k], 0)) /
               sums.reduce((t, s) => t + 1 / s, 0);
@@ -786,7 +789,47 @@ function levelColumns() {
     const share = ((end - gaps[k]) / sums[k]) / (room / n);
     c.style.flexGrow = Math.min(1 + MAX_WIDTH_SHIFT, Math.max(1 - MAX_WIDTH_SHIFT, share));
   });
+
+  positionItems();
 }
+
+/* ── POSITION — each photo is set over its column. In the page itself the photos run 1, 2, 3,
+   so Tab and VoiceOver take them in viewing order rather than down one column, then the next ── */
+function positionItems() {
+  const box = gridEl.getBoundingClientRect();
+  const cs = getComputedStyle(gridEl);
+  const gap = parseFloat(cs.rowGap) || 0;
+  const rulers = cols.map(c => c.getBoundingClientRect());
+
+  // widths first, so the browser sizes each photo before they're stacked
+  colItems.forEach((items, k) => items.forEach(el => {
+    el.style.left = `${rulers[k].left - box.left}px`;
+    el.style.width = `${rulers[k].width}px`;
+  }));
+
+  // computed height, which the fade-in's scale doesn't touch; it's printed to 3 decimals,
+  // so put it back on the 1/64px grid browsers lay out on, or photos drift a fraction down each column
+  const heights = colItems.map(items => items.map(el =>
+    Math.round(parseFloat(getComputedStyle(el).height) * 64) / 64
+  ));
+  let end = 0;
+
+  colItems.forEach((items, k) => {
+    let y = parseFloat(cs.paddingTop);
+
+    items.forEach((el, i) => {
+      el.style.top = `${y}px`;
+      y += heights[k][i] + gap;
+    });
+
+    end = Math.max(end, items.length ? y - gap : y);
+  });
+
+  gridEl.style.height = `${end + parseFloat(cs.paddingBottom)}px`;
+}
+
+// a column changing width, or a photo's true shape arriving, moves the photos before the next paint
+const reflow = new ResizeObserver(() => positionItems());
 
 /* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
 function loadRatio(url) {
@@ -821,13 +864,12 @@ async function load() {
   setStatus('loading');
 
   try {
-    const folder = GITHUB_FOLDER ? `/${GITHUB_FOLDER}` : '';
-
     const [files, orderRes] = await Promise.all([
-      listFiles(`${API}${folder}`),
+      listFiles(),
 
+      // from this site, not GitHub, so it doesn't count against GitHub's limits
       fetch(
-        `${RAW}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}/order.txt`
+        `${GITHUB_FOLDER ? GITHUB_FOLDER + '/' : ''}order.txt`
       ).catch(() => null)
     ]);
 
@@ -925,30 +967,17 @@ async function load() {
   }
 }
 
-/* ── FILE LIST — GitHub allows 60 lookups an hour per network, so keep the last good list as a fallback ── */
+/* ── FILE LIST — GitHub Pages writes photos.json each time it builds the site, so visitors needn't ask
+   GitHub's API, which allows 60 lookups an hour per network. The API, then the last good list, are fallbacks ── */
 const FILES_KEY = 'arp-files';
 
-async function listFiles(url) {
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Accept: 'application/vnd.github.v3+json'
-      }
-    });
+async function listFiles() {
+  const names = await siteFiles() || await apiFiles();
 
-    const list = await res.json();
+  if (names) {
+    try { localStorage.setItem(FILES_KEY, JSON.stringify(names)); } catch (e) {}
 
-    if (res.ok && Array.isArray(list)) {
-      const names = list.filter(f => f.type === 'file').map(f => f.name);
-
-      try { localStorage.setItem(FILES_KEY, JSON.stringify(names)); } catch (e) {}
-
-      return names;
-    }
-
-    console.error('GitHub API error', list);
-  } catch (e) {
-    console.error('GitHub API unreachable', e);
+    return names;
   }
 
   try {
@@ -957,6 +986,48 @@ async function listFiles(url) {
   } catch (e) {
     return null;
   }
+}
+
+// photos.json lists every file in the site from its root ("/001.png", "/icons/favicon.svg"); keep the photo folder's own
+async function siteFiles() {
+  try {
+    const res = await fetch('photos.json');
+    const paths = await res.json();
+
+    if (res.ok && Array.isArray(paths)) {
+      const dir = GITHUB_FOLDER ? `/${GITHUB_FOLDER}/` : '/';
+
+      return paths
+        .filter(p => p.startsWith(dir) && !p.includes('/', dir.length))
+        .map(p => p.slice(dir.length));
+    }
+  } catch (e) {
+    console.error('photos.json unreadable', e);
+  }
+
+  return null;
+}
+
+async function apiFiles() {
+  try {
+    const res = await fetch(`${API}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}`, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
+
+    const list = await res.json();
+
+    if (res.ok && Array.isArray(list)) {
+      return list.filter(f => f.type === 'file').map(f => f.name);
+    }
+
+    console.error('GitHub API error', list);
+  } catch (e) {
+    console.error('GitHub API unreachable', e);
+  }
+
+  return null;
 }
 
 /* ── STATUS — spinner only if loading takes a moment, so fast loads don't flash ── */
@@ -1023,8 +1094,12 @@ async function appendPhotos(from, count) {
 
     itemEls.push(item);
 
-    if (globalIdx < photos.length - tailSize()) placeItem(item);
-    else tail.push(item);
+    if (globalIdx < photos.length - tailSize()) {
+      placeItem(item);
+      positionItems();
+    } else {
+      tail.push(item);
+    }
   }
 
   placeTail(tail);
@@ -1041,12 +1116,9 @@ function makeItem(p, globalIdx, localIdx) {
     div.style.animationDelay = `${localIdx * 0.03}s`;
   }
 
+  // named by its photo's alt text: Photo 1, Photo 2
   div.setAttribute('role', 'button');
   div.setAttribute('tabindex', '0');
-  div.setAttribute(
-    'aria-label',
-    `Open photo ${globalIdx + 1} of ${photos.length}`
-  );
 
   const img = document.createElement('img');
 
@@ -1059,6 +1131,7 @@ function makeItem(p, globalIdx, localIdx) {
   img.alt = `Photo ${globalIdx + 1}`;
 
   div.appendChild(img);
+  reflow.observe(img);
 
   // the drawn photo gives a truer shape than the 100px probe, so re-level once it's in
   // (its box, not naturalWidth: with srcset those are rounded to whole CSS pixels)
