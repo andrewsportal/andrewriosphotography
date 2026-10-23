@@ -33,6 +33,9 @@
 
   button { font: inherit; }
 
+  /* the hidden attribute always wins, even over a class that sets display (Try Again is a .pill) */
+  [hidden] { display: none !important; }
+
   :root {
     --gap: 1px;
     --safe-top:    env(safe-area-inset-top);
@@ -184,6 +187,7 @@
     position: fixed;
     inset: 0;
     display: none;
+    pointer-events: none;  /* photos arriving underneath stay tappable; only Try Again takes a tap */
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -194,6 +198,8 @@
 
   .status.loading,
   .status.error { display: flex; }
+
+  .status .pill { pointer-events: auto; }
 
   .status-text {
     max-width: 280px;
@@ -1097,6 +1103,7 @@ async function appendPhotos(from, count) {
     if (globalIdx < photos.length - tailSize()) {
       placeItem(item);
       positionItems();
+      setStatus('');  // once photos are arriving they show the progress, so the spinner goes
     } else {
       tail.push(item);
     }
