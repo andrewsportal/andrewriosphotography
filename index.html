@@ -837,7 +837,7 @@ function positionItems() {
 // a column changing width, or a photo's true shape arriving, moves the photos before the next paint
 const reflow = new ResizeObserver(() => positionItems());
 
-/* ── RATIO PROBE — tiny 100px proxy image, just to learn each photo's shape ── */
+/* ── RATIO PROBE — tiny 100px proxy image, just to learn the shape of a photo without web copies yet ── */
 function loadRatio(url) {
   return new Promise(resolve => {
     const im = new Image();
@@ -862,6 +862,55 @@ function getProxyUrl(rawUrl, width) {
   return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&output=webp`;
 }
 
+/* ── WEB COPIES — after each upload GitHub makes small copies of every photo (.github/workflows/web-copies.yml)
+   and lists each one's shape in web/sizes.json. A listed photo loads straight from this site and is placed at once;
+   any other, such as one uploaded a minute ago, goes through wsrv as before ── */
+const WEB = 'web';
+
+async function webSizes() {
+  try {
+    const res = await fetch(`${WEB}/sizes.json`, { cache: 'no-cache' });
+
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.error('web/sizes.json unreadable', e);
+  }
+
+  return {};
+}
+
+function photoEntry(name, sizes) {
+  const raw = `${RAW}/${name}`;
+  const s = sizes[name];
+
+  if (!s || !(s.w > 0 && s.h > 0 && s.v)) {
+    return {
+      probe:  getProxyUrl(raw, 100),
+      raw,
+      srcset: THUMB_WIDTHS.map(w => `${getProxyUrl(raw, w)} ${w}w`).join(', '),
+      thumb:  getProxyUrl(raw, 600),
+      full:   getProxyUrl(raw, 1600)
+    };
+  }
+
+  // ?v= changes when the photo is replaced, so browsers drop the old copy
+  const copy = w => `${WEB}/${encodeURIComponent(name)}-${w}.webp?v=${s.v}`;
+
+  // a copy is never wider than its photo, so each size is listed at the width it really is
+  const srcset = THUMB_WIDTHS
+    .filter((w, i) => w < s.w || i === 0 || THUMB_WIDTHS[i - 1] < s.w)
+    .map(w => `${copy(w)} ${Math.min(w, s.w)}w`)
+    .join(', ');
+
+  return {
+    ratio: s.h / s.w,
+    raw,
+    srcset,
+    thumb: copy(600),
+    full:  copy(1600)
+  };
+}
+
 /* ── LOAD ── */
 async function load() {
   if (appLoaded) return;
@@ -870,13 +919,15 @@ async function load() {
   setStatus('loading');
 
   try {
-    const [files, orderRes] = await Promise.all([
+    const [files, orderRes, sizes] = await Promise.all([
       listFiles(),
 
       // from this site, not GitHub, so it doesn't count against GitHub's limits
       fetch(
         `${GITHUB_FOLDER ? GITHUB_FOLDER + '/' : ''}order.txt`
-      ).catch(() => null)
+      ).catch(() => null),
+
+      webSizes()
     ]);
 
     if (!files) throw new Error('No file list from GitHub');
@@ -924,14 +975,7 @@ async function load() {
           if (key && !seen.has(key)) {
             seen.add(key);
 
-            const rawImgUrl = `${RAW}/${fileMap[key]}`;
-
-            ordered.push({
-              probe: getProxyUrl(rawImgUrl, 100),
-              raw:   rawImgUrl,
-              thumb: getProxyUrl(rawImgUrl, 600),
-              full:  getProxyUrl(rawImgUrl, 1600)
-            });
+            ordered.push(photoEntry(fileMap[key], sizes));
 
             delete fileMap[key];
             delete stemMap[stem];
@@ -943,14 +987,7 @@ async function load() {
       if (!seen.has(key)) {
         seen.add(key);
 
-        const rawImgUrl = `${RAW}/${fileMap[key]}`;
-
-        ordered.push({
-          probe: getProxyUrl(rawImgUrl, 100),
-          raw:   rawImgUrl,
-          thumb: getProxyUrl(rawImgUrl, 600),
-          full:  getProxyUrl(rawImgUrl, 1600)
-        });
+        ordered.push(photoEntry(fileMap[key], sizes));
       }
     });
 
@@ -1070,7 +1107,8 @@ async function appendPhotos(from, count) {
 
   if (!slice.length) return;
 
-  const ratios = slice.map(p => loadRatio(p.probe));
+  // a photo with web copies already knows its shape; any other is probed through wsrv
+  const ratios = slice.map(p => p.ratio ? Promise.resolve(p.ratio) : loadRatio(p.probe));
   const tail = [];
 
   const guard = ms =>
@@ -1131,7 +1169,7 @@ function makeItem(p, globalIdx, localIdx) {
 
   // the browser picks the width that's sharp for the column and screen: ~600 on phones, ~800 on retina laptops
   img.sizes = colSizes();
-  img.srcset = THUMB_WIDTHS.map(w => `${getProxyUrl(p.raw, w)} ${w}w`).join(', ');
+  img.srcset = p.srcset;
   img.src = p.thumb;
   img.loading = globalIdx < 6 ? 'eager' : 'lazy';
   img.decoding = 'async';
