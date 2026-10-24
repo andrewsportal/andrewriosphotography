@@ -1,0 +1,60 @@
+name: Web copies of photos
+
+# When a photo is uploaded, replaced or deleted, make (or remove) its web-sized copies and record its
+# shape in web/sizes.json, then commit them so the site loads it directly. Until that lands, the
+# gallery loads the photo through wsrv as before.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.[jJ][pP][gG]'
+      - '*.[jJ][pP][eE][gG]'
+      - '*.[pP][nN][gG]'
+      - '*.[wW][eE][bB][pP]'
+      - '*.[hH][eE][iI][cC]'
+      - '.github/scripts/web_copies.py'
+      - '.github/workflows/web-copies.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# one run at a time; each starts from the latest main, so it sees the copies the last run made
+concurrency:
+  group: web-copies
+  cancel-in-progress: false
+
+jobs:
+  copies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install Pillow
+        run: pip install pillow==12.3.0 pillow-heif==1.8.0
+
+      - name: Make the copies
+        run: python .github/scripts/web_copies.py
+
+      - name: Commit them
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A web
+          if git diff --cached --quiet; then
+            echo 'Copies already up to date'
+            exit 0
+          fi
+          git commit -m 'Update web copies of photos'
+          # an order.txt edit or another upload may land meanwhile; this commit only touches web/, so it rebases cleanly
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1
