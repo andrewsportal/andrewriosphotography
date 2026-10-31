@@ -1893,9 +1893,16 @@ load();
 
   .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* 44pt to tap */
 
-  /* two notes with solid heads, the size of the close button's X with the same 1.53px strokes;
-     drawn in solid white and faded as one piece, so stems and heads don't show a seam where they meet */
-  .mx-music svg { width: 16.3px; height: 16.3px; opacity: 0.92; }
+  /* two notes with solid heads, the size of the close button's X, centred by their visual weight (the stems pull right).
+     Drawn as one shape, twice: each with its stem edges on whole pixels for one kind of screen, so they stay sharp;
+     the 16px box sits on whole pixels too */
+  .mx-music svg { width: 16px; height: 16px; }
+  .mx-music .n3 { display: none; }
+
+  @media (min-resolution: 2.5dppx), (-webkit-min-device-pixel-ratio: 2.5) {
+    .mx-music .n3 { display: inline; }   /* iPhone */
+    .mx-music .n2 { display: none; }     /* Mac Retina and other screens */
+  }
 
   .mx-music:active { transform: scale(0.9); }
 
@@ -2036,10 +2043,9 @@ load();
 </div>
 
 <button type="button" class="mx-music" id="mxMusic" aria-label="Soundtrack" aria-haspopup="dialog" aria-expanded="false">
-  <svg class="mx-icon" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M9 18V5l12-2v13" fill="none"/>
-    <circle cx="6" cy="18" r="3.6" stroke="none"/>
-    <circle cx="18" cy="16" r="3.6" stroke="none"/>
+  <svg class="mx-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+    <path class="n3" d="M4.333 2.385L13.667 0.798L13.667 2.075L4.333 3.662ZM4.333 2.91H5.667V11.74H4.333ZM12.333 1.55H13.667V10.38H12.333ZM0.52 11.74A2.44 2.44 0 1 1 5.4 11.74A2.44 2.44 0 1 1 0.52 11.74ZM8.52 10.38A2.44 2.44 0 1 1 13.4 10.38A2.44 2.44 0 1 1 8.52 10.38Z"/>
+    <path class="n2" d="M4 2.308L14 0.708L14 2.152L4 3.752ZM4 2.91H5.5V11.74H4ZM12.5 1.55H14V10.38H12.5ZM0.27 11.74A2.44 2.44 0 1 1 5.15 11.74A2.44 2.44 0 1 1 0.27 11.74ZM8.77 10.38A2.44 2.44 0 1 1 13.65 10.38A2.44 2.44 0 1 1 8.77 10.38Z"/>
   </svg>
 </button>
 
@@ -2068,7 +2074,7 @@ load();
   const SONGS = Array.from({ length: 5 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
 
   const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
-  const NOTE = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" fill="none"/><circle cx="6" cy="18" r="3.6" stroke="none"/><circle cx="18" cy="16" r="3.6" stroke="none"/></svg>';
+  const NOTE = '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.308L14 0.708L14 2.152L4 3.752ZM4 2.91H5.5V11.74H4ZM12.5 1.55H14V10.38H12.5ZM0.27 11.74A2.44 2.44 0 1 1 5.15 11.74A2.44 2.44 0 1 1 0.27 11.74ZM8.77 10.38A2.44 2.44 0 1 1 13.65 10.38A2.44 2.44 0 1 1 8.77 10.38Z"/></svg>';
 
   const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
