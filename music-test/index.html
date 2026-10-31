@@ -1818,7 +1818,7 @@ window.addEventListener('resize', layoutGrid, { passive: true });
 load();
 </script>
 
-<!-- ════ MUSIC TEST — a round music button opens a full-screen song list; songs open in Spotify. Test page only. ════ -->
+<!-- ════ MUSIC TEST — a round music button, the twin of the viewer's close button, opens a full-screen song list; songs open in Spotify. Test page only. ════ -->
 <style>
   .mx-icon { display: block; flex: none; }
 
@@ -1866,14 +1866,16 @@ load();
 
   .mx-testbar.mini > :not(.mx-hide-bar) { display: none; }
 
-  /* ── MUSIC BUTTON — a round glass button, like the photo viewer's close button ── */
+  /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size,
+     16pt in from the bottom-right corner as the close button is from the top right. It doesn't move or
+     change when a photo opens ── */
   .mx-music {
     position: fixed;
     z-index: 50;
-    right: calc(var(--safe-right) + 16px);
-    bottom: calc(var(--safe-bottom) + 16px);
-    width: 44px;
-    height: 44px;
+    right: calc(var(--safe-right) + var(--space-16));
+    bottom: calc(var(--safe-bottom) + var(--space-16));
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     display: flex;
@@ -1886,43 +1888,33 @@ load();
     color: var(--color-lb-close-text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.25s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
   }
 
-  .mx-music svg { width: 20px; height: 20px; }
-  .mx-music:active { transform: scale(0.92); }
+  .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* 44pt to tap */
+
+  /* drawn 13.8px across with 1.53px strokes, the same as the close button's X */
+  .mx-music svg { width: 16.3px; height: 16.3px; }
+
+  .mx-music:active { transform: scale(0.9); }
 
   /* not until the photos are in */
   body:not(.mx-ready) .mx-music { display: none; }
 
-  /* while a photo is open: the viewer's close-button size, over the viewer */
-  body.mx-viewer .mx-music {
-    z-index: 1000;
-    width: 32px;
-    height: 32px;
-  }
+  /* over the photo viewer while a photo is open */
+  body.mx-viewer .mx-music { z-index: 1000; }
 
-  body.mx-viewer .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* still 44pt to tap */
-  body.mx-viewer .mx-music svg { width: 15px; height: 15px; }
+  /* it steps back while the gallery scrolls, and returns when it stops */
+  body[data-scroll="fade"].mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
 
-  /* corner: in line with the page dots, on the black band below the photo */
-  body.mx-viewer[data-viewer="corner"] .mx-music {
-    bottom: calc(var(--safe-bottom) + 11px);
-  }
-
-  /* top left: mirrors the close button at top right */
-  body.mx-viewer[data-viewer="top"] .mx-music {
-    top: calc(var(--safe-top) + var(--space-16));
-    left: calc(var(--safe-left) + var(--space-16));
-    right: auto;
-    bottom: auto;
-  }
-
-  body.mx-viewer[data-viewer="hidden"] .mx-music,
+  /* hidden with the viewer's other controls: a tap on the photo, or dragging it down to close */
   body.mx-viewer.mx-bare .mx-music {
     opacity: 0;
     pointer-events: none;
   }
+
+  /* the page dots move up 5pt so they sit in line with the music button, as the X sits at the top */
+  .lb-dots { bottom: calc(var(--safe-bottom) + var(--space-16) + 13px); }
 
   /* ── FULL-SCREEN LIST ── */
   .mx-full {
@@ -2018,7 +2010,6 @@ load();
   .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .mx-title  { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mx-artist { font-size: 17px; line-height: 1.25; color: rgba(235,235,245,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-all .mx-title { font-size: 17px; }
   .mx-out { color: rgba(235,235,245,0.45); }
 
   .mx-music:focus-visible, .mx-close:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible {
@@ -2037,18 +2028,17 @@ load();
     <button type="button" data-v="close">Closes</button>
     <button type="button" data-v="stay">Stays open</button>
   </div>
-  <div class="mx-q">Music button while a photo is open</div>
-  <div class="mx-seg" data-setting="viewer">
-    <button type="button" data-v="corner">Corner</button>
-    <button type="button" data-v="top">Top left</button>
-    <button type="button" data-v="hidden">Hidden</button>
+  <div class="mx-q">While the gallery scrolls, the button</div>
+  <div class="mx-seg" data-setting="scroll">
+    <button type="button" data-v="fade">Fades back</button>
+    <button type="button" data-v="stay">Stays</button>
   </div>
   <div class="mx-q">Sample song names</div>
   <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
 </div>
 
 <button type="button" class="mx-music" id="mxMusic" aria-label="Soundtrack" aria-haspopup="dialog" aria-expanded="false">
-  <svg class="mx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <svg class="mx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
 </button>
 
 <div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
@@ -2067,8 +2057,8 @@ load();
 (() => {
   const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
 
-  // sample rows until the real songs are in; each opens the playlist for now
-  const SONGS = Array.from({ length: 8 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
+  // five sample rows until the real songs are in; until then each opens the playlist
+  const SONGS = Array.from({ length: 5 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
 
   const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   const NOTE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
@@ -2082,16 +2072,13 @@ load();
   const bar     = document.getElementById('mxBar');
   const LAST    = 'mx-last-song';
 
-  const settings = { after: 'close', viewer: 'corner' };
+  const settings = { after: 'close', scroll: 'fade' };
 
   let last = null;
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
 
   function render() {
-    const all = `<a class="mx-row mx-all" href="${PLAYLIST}" target="_blank" rel="noopener" data-i="all" aria-label="Open the whole playlist in Spotify">
-      <span class="mx-num"></span><span class="mx-text"><span class="mx-title">Open the whole playlist</span></span>${OUT}</a>`;
-
-    list.innerHTML = all + SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
+    list.innerHTML = SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
       aria-label="${esc(s.title)} by ${esc(s.artist)}${String(i) === last ? ', opened last' : ''}, opens in Spotify">
       <span class="mx-num">${String(i) === last ? NOTE : i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
   }
@@ -2139,11 +2126,9 @@ load();
     const row = e.target.closest('.mx-row');
     if (!row) return;
 
-    if (row.dataset.i !== 'all') {
-      last = row.dataset.i;
-      try { sessionStorage.setItem(LAST, last); } catch (err) {}
-      setTimeout(render, 400);
-    }
+    last = row.dataset.i;
+    try { sessionStorage.setItem(LAST, last); } catch (err) {}
+    setTimeout(render, 400);
 
     if (settings.after === 'close') setTimeout(() => close(false), 150);
   });
@@ -2174,6 +2159,15 @@ load();
       stops[next].focus();
     }
   }, true);
+
+  /* ── SCROLLING — the button steps back while the gallery moves ── */
+  let scrollTimer = 0;
+
+  window.addEventListener('scroll', () => {
+    document.body.classList.add('mx-scrolling');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => document.body.classList.remove('mx-scrolling'), 600);
+  }, { passive: true });
 
   /* ── FOLLOW THE PHOTO VIEWER — the button moves into it, and hides when its controls do ── */
   new MutationObserver(() => {
