@@ -1820,6 +1820,19 @@ load();
 
 <!-- ════ MUSIC TEST — a round music button, the twin of the viewer's close button, opens a full-screen song list; songs open in Spotify. Test page only. ════ -->
 <style>
+  /* ── NO COLOUR — the music design is white, greys and black only. Its glass keeps the lightness of the site's
+     green-grey without the green, and blurs whatever is behind it in grey ── */
+  :root {
+    --mx-glass:         rgba(63,63,63,0.62);
+    --mx-glass-pressed: rgba(82,82,82,0.68);
+    --mx-text:          rgba(255,255,255,0.92);
+    --mx-text-2:        rgba(255,255,255,0.6);    /* 7:1 on the list's black, as the footer's grey */
+    --mx-text-3:        rgba(255,255,255,0.48);   /* 4.5:1, the least for text */
+    --mx-mark:          rgba(255,255,255,0.42);   /* the arrows: 3:1, the least for a symbol */
+    --mx-line:          rgba(84,84,84,0.6);
+    --mx-fill:          rgba(124,124,124,0.42);   /* a song under the finger */
+  }
+
   .mx-icon { display: block; flex: none; }
 
   /* ── TEST BAR — switches for the choices being tested; not part of the design ── */
@@ -1833,12 +1846,12 @@ load();
     gap: 6px;
     padding: 8px;
     border-radius: 14px;
-    background: rgba(28,32,30,0.86);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
+    background: rgba(30,30,30,0.86);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48);
     font-size: 12px;
-    color: rgba(235,235,245,0.64);
+    color: var(--mx-text-2);
     max-width: calc(100vw - 20px);
   }
 
@@ -1852,7 +1865,7 @@ load();
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: rgba(235,235,245,0.8);
+    color: rgba(255,255,255,0.8);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -1860,9 +1873,9 @@ load();
     -webkit-tap-highlight-color: transparent;
   }
 
-  .mx-seg button[aria-pressed="true"] { background: rgba(118,128,120,0.5); color: #fff; }
+  .mx-seg button[aria-pressed="true"] { background: rgba(124,124,124,0.5); color: #fff; }
 
-  .mx-testbar .mx-hide-bar { align-self: flex-start; height: 26px; font-size: 12px; font-weight: 500; color: rgba(235,235,245,0.6); background: none; border: none; padding: 0 2px; cursor: pointer; }
+  .mx-testbar .mx-hide-bar { align-self: flex-start; height: 26px; font-size: 12px; font-weight: 500; color: var(--mx-text-2); background: none; border: none; padding: 0 2px; cursor: pointer; }
 
   .mx-testbar.mini > :not(.mx-hide-bar) { display: none; }
 
@@ -1884,11 +1897,11 @@ load();
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
+    background: var(--mx-glass);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48), 0 1px 3px rgba(0,0,0,0.30);
-    color: var(--color-lb-close-text);
+    color: var(--mx-text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: opacity 0.25s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
@@ -1909,7 +1922,7 @@ load();
   }
 
   /* pressed, it shrinks and lightens exactly as the X does */
-  .mx-music:active { transform: scale(0.9); background: rgba(76,86,80,0.68); }
+  .mx-music:active { transform: scale(0.9); background: var(--mx-glass-pressed); }
 
   /* not until the photos are in */
   body:not(.mx-ready) .mx-music { display: none; }
@@ -1941,7 +1954,7 @@ load();
     position: fixed;
     z-index: 1100;
     inset: 0;
-    color: rgba(240,244,240,0.92);
+    color: var(--mx-text);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1), visibility 0s linear 0.28s;
@@ -1953,13 +1966,17 @@ load();
     transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1);
   }
 
+  /* opened from the keyboard, the list itself takes focus without a ring (Safari would draw it in blue round the whole
+     screen); Tab then moves to the X and the songs, which show white rings */
+  .mx-full:focus { outline: none; }
+
   /* behind the list; it fades as the list is dragged down, uncovering the gallery as an open photo does */
   .mx-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.92);
-    -webkit-backdrop-filter: blur(30px);
-    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: grayscale(1) blur(30px);
+    backdrop-filter: grayscale(1) blur(30px);
   }
 
   .mx-scroll {
@@ -1999,11 +2016,19 @@ load();
 
   /* the X is the photo viewer's own close button (class lb-close), so the two can't drift apart;
      as in the viewer, it steps aside while the list is dragged */
-  .mx-full .lb-close { transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease; }
+  .mx-full .lb-close {
+    background: var(--mx-glass);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
+    color: var(--mx-text);
+    transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
+  }
+
+  .mx-full .lb-close:active { background: var(--mx-glass-pressed); }
+  .mx-full .lb-close:focus-visible { outline-color: var(--mx-text); }
   .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
 
-  /* the title sits beside the X on one line, centred on it, as an iOS screen's title sits beside its Close button.
-     The grey text is the site's own, 7:1 on black */
+  /* the title sits beside the X on one line, centred on it, as an iOS screen's title sits beside its Close button */
   .mx-head {
     display: flex;
     flex-wrap: wrap;
@@ -2013,8 +2038,8 @@ load();
     margin-bottom: 8px;
   }
 
-  .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-footer-text); }
-  .mx-sub { font-size: 15px; line-height: 20px; color: var(--color-footer-text); }
+  .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mx-text-2); }
+  .mx-sub { font-size: 15px; line-height: 20px; color: var(--mx-text-2); }
 
   .mx-row {
     --mx-num: 28px;
@@ -2039,19 +2064,19 @@ load();
     left: calc(var(--mx-num) + 12px);
     right: 0;
     height: 0.5px;
-    background: rgba(84,84,88,0.6);
+    background: var(--mx-line);
     transition: opacity 0.3s ease;
   }
 
   /* touched, a song lights up the way an iOS list row does and the hairlines beside it give way; the light fades as the
-     finger lifts. The fill is the Back to top button's, pressed. A drag down to close puts it out */
+     finger lifts. A drag down to close puts it out */
   .mx-row::after {
     content: '';
     position: absolute;
     z-index: -1;
     inset: 0 -12px;
     border-radius: 12px;
-    background: var(--color-btn-bg-active);
+    background: var(--mx-fill);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -2070,24 +2095,24 @@ load();
     width: var(--mx-num);
     font-size: 15px;
     font-variant-numeric: tabular-nums;
-    color: rgba(235,235,245,0.5);   /* 4.5:1 on the list's black, the least for text */
+    color: var(--mx-text-3);
     flex: none;
   }
 
-  /* the song opened last shows a small note in its number's place, so it's easy to pick a different one */
-  .mx-row.last .mx-num { color: var(--color-accent); }
+  /* the song opened last shows a small white note in its number's place, so it's easy to pick a different one */
+  .mx-row.last .mx-num { color: var(--mx-text); }
 
   /* Apple Music's list sizes: the song in iOS's Headline style (17pt semibold), the artist in Subheadline (15pt), each at
      its own line height, so a row is 58pt before it grows to fill the screen */
   .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   .mx-title  { font-size: 17px; font-weight: 600; letter-spacing: -0.022em; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-artist { font-size: 15px; line-height: 20px; color: var(--color-footer-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-artist { font-size: 15px; line-height: 20px; color: var(--mx-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* the X's line weight at the size of an iOS row's arrow, centred under the X */
-  .mx-out { color: rgba(235,235,245,0.45); margin-right: 1px; }
+  .mx-out { color: var(--mx-mark); margin-right: 1px; }
 
   .mx-music:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--mx-text);
     outline-offset: 2px;
   }
 
