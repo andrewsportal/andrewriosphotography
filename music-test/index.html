@@ -40,6 +40,9 @@
   /* the hidden attribute always wins, even over a class that sets display (Try Again is a .pill) */
   [hidden] { display: none !important; }
 
+  /* selected text is grey too, not the system's blue */
+  ::selection { background: rgba(255,255,255,0.3); color: #fff; }
+
   :root {
     --gap: 1px;
     --safe-top:    env(safe-area-inset-top);
@@ -55,18 +58,18 @@
     --space-64: 64px;
 
     /* ── LOCKED DARK — always black regardless of system setting.
-       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
+       No colour anywhere: white, greys and black only, so the photos carry all of it. ── */
     --color-bg:            #000000;
-    --color-accent:        #d4af37;
-    --color-grid-item-bg:  #131a16;
+    --color-focus:         rgba(255,255,255,0.92);
+    --color-grid-item-bg:  #181818;
     /* 7:1 on black, the Dark Mode aim for small custom-coloured text */
-    --color-footer-text:   rgba(235,235,245,0.64);
-    --color-btn-bg:        rgba(118,128,120,0.26);
-    --color-btn-text:      rgba(240,244,240,0.85);
-    --color-btn-bg-hover:  rgba(118,128,120,0.33);
-    --color-btn-bg-active: rgba(118,128,120,0.42);
+    --color-footer-text:   rgba(255,255,255,0.6);
+    --color-btn-bg:        rgba(124,124,124,0.26);
+    --color-btn-text:      rgba(255,255,255,0.85);
+    --color-btn-bg-hover:  rgba(124,124,124,0.33);
+    --color-btn-bg-active: rgba(124,124,124,0.42);
     --color-lb-bg:         #000000;
-    --color-lb-close-bg:   rgba(58,66,61,0.62);
+    --color-lb-close-bg:   rgba(63,63,63,0.62);
     --color-lb-close-text: rgba(255,255,255,0.92);
     --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
@@ -244,7 +247,7 @@
     width: 2px;
     height: 6px;
     border-radius: 1px;
-    background: rgba(235,235,245,0.6);
+    background: rgba(255,255,255,0.56);
     transform-origin: 1px 10px;
     transform: rotate(calc(var(--i) * 45deg));
     animation: spinnerFade 0.8s linear infinite;
@@ -346,8 +349,8 @@
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
                 0 2px 12px rgba(0,0,0,0.48),
                 0 1px 3px  rgba(0,0,0,0.30);
@@ -370,7 +373,7 @@
 
   .lb-close:active {
     transform: scale(0.90);
-    background: rgba(76,86,80,0.68);
+    background: rgba(82,82,82,0.68);
   }
 
   .lb-prev, .lb-next {
@@ -447,19 +450,19 @@
   /* an end dot shrinks when more photos lie past it, as in iOS */
   .lb-dot.more { transform: scale(0.67); }
 
-  /* ── FOCUS — visible keyboard focus, brand gold ── */
+  /* ── FOCUS — visible keyboard focus, in white ── */
   .pill:focus-visible,
   .lb-close:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   .grid-item:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: -2px;
   }
 
-  /* a black edge inside the ring keeps it visible on gold and orange photos */
+  /* a black edge inside the ring keeps it visible on white and pale photos */
   .grid-item:focus-visible::after {
     content: '';
     position: absolute;
@@ -470,7 +473,7 @@
 
   .lb-prev:focus-visible,
   .lb-next:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: -6px;
   }
 
@@ -2111,7 +2114,7 @@ load();
   /* the X's line weight at the size of an iOS row's arrow, centred under the X */
   .mx-out { color: var(--mx-mark); margin-right: 1px; }
 
-  .mx-music:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible {
+  .mx-music:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible, .mx-hide-bar:focus-visible {
     outline: 2px solid var(--mx-text);
     outline-offset: 2px;
   }
