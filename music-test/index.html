@@ -1,0 +1,2369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- test page for the music designs: not linked from the gallery and kept out of search results.
+     base points every relative address (photos.json, web/, icons/) at the site's root, as on the real page -->
+<base href="/">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Andrew Rios">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Music test · Andrew Rios Photography</title>
+
+<meta name="description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
+<link rel="canonical" href="https://andrewriosphotography.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://andrewriosphotography.com/">
+<meta property="og:title" content="Andrew Rios Photography">
+<meta property="og:description" content="The photography portfolio of Andrew Rios. A curated gallery of original photographs.">
+<meta property="og:image" content="https://wsrv.nl/?url=raw.githubusercontent.com/andrewsportal/andrewriosphotography/main/001.png&amp;w=1200&amp;output=jpg&amp;q=82">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96.png?v=2">
+<!-- black shutter on light tabs, white on dark; browsers without SVG icons (older Safari) use the PNGs above -->
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg?v=2">
+
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
+
+<link rel="preconnect" href="https://wsrv.nl">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  button { font: inherit; }
+
+  /* the hidden attribute always wins, even over a class that sets display (Try Again is a .pill) */
+  [hidden] { display: none !important; }
+
+  :root {
+    --gap: 1px;
+    --safe-top:    env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-left:   env(safe-area-inset-left);
+    --safe-right:  env(safe-area-inset-right);
+
+    /* ── SPACING — 8px grid ── */
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --space-48: 48px;
+    --space-64: 64px;
+
+    /* ── LOCKED DARK — always black regardless of system setting.
+       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
+    --color-bg:            #000000;
+    --color-accent:        #d4af37;
+    --color-grid-item-bg:  #131a16;
+    /* 7:1 on black, the Dark Mode aim for small custom-coloured text */
+    --color-footer-text:   rgba(235,235,245,0.64);
+    --color-btn-bg:        rgba(118,128,120,0.26);
+    --color-btn-text:      rgba(240,244,240,0.85);
+    --color-btn-bg-hover:  rgba(118,128,120,0.33);
+    --color-btn-bg-active: rgba(118,128,120,0.42);
+    --color-lb-bg:         #000000;
+    --color-lb-close-bg:   rgba(58,66,61,0.62);
+    --color-lb-close-text: rgba(255,255,255,0.92);
+    --color-lb-dot:        rgba(255,255,255,0.32);
+    --color-lb-dot-active: #ffffff;
+
+    /* ── TYPE — Caption 1 12pt and Body 17pt, the iOS defaults; iPhone and iPad scale them below ── */
+    --text-caption: 0.75rem;
+    --text-body:    1.0625rem;
+
+    /* dark scroll indicators to match the page */
+    color-scheme: dark;
+  }
+
+  html {
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-bg);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  /* ── MASONRY GRID — the columns are empty rulers; the script sets each photo over its column ── */
+  #grid {
+    position: relative;
+    display: flex;
+    gap: var(--gap);
+    margin: 0 auto;
+    padding-top: calc(var(--safe-top) + var(--gap));
+    padding-bottom: var(--gap);
+    padding-left:  calc(var(--safe-left)  + var(--gap));
+    padding-right: calc(var(--safe-right) + var(--gap));
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .col {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .grid-item {
+    position: absolute;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    overflow: hidden;
+    background: var(--color-grid-item-bg);
+  }
+
+  .grid-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.18s ease;
+  }
+
+  .grid-item:active img {
+    opacity: 0.72;
+  }
+
+  /* ── BOTTOM BAR ── */
+  #bottomBar {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    /* top matches the gap below the button (its 24 plus the footer's 16), less the grid's bottom gap */
+    padding: calc(var(--space-24) + var(--space-16) - var(--gap)) var(--space-24) var(--space-24);
+  }
+
+  /* ── PILL BUTTON — Back to top, Try Again ── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 22px;
+    border: none;
+    background: var(--color-btn-bg);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
+                0 1px 6px rgba(0,0,0,0.22);
+    color: var(--color-btn-text);
+    font-size: var(--text-body);
+    font-weight: 500;
+    letter-spacing: -0.12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    transition: background 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  /* the arrowhead is sized in em, as Apple sizes symbols beside text: it matches the label, its strokes as thick
+     as the letters, and it grows with the reader's text size */
+  .pill svg {
+    width: 0.76em;
+    height: 0.46em;
+    flex: none;
+  }
+
+  /* ── HOVER — pointer devices only ── */
+  @media (hover: hover) and (pointer: fine) {
+    .grid-item:hover img {
+      transform: scale(1.016);
+    }
+
+    .pill:hover {
+      background: var(--color-btn-bg-hover);
+      transform: translateY(-1px);
+    }
+  }
+
+  .pill:active {
+    background: var(--color-btn-bg-active);
+    transform: scale(0.97);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
+                0 1px 2px rgba(0,0,0,0.16);
+  }
+
+  /* ── STATUS — loading spinner, then an error with Try Again if GitHub doesn't answer ── */
+  .status {
+    position: fixed;
+    inset: 0;
+    display: none;
+    pointer-events: none;  /* photos arriving underneath stay tappable; only Try Again takes a tap */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-16);
+    padding: var(--space-24);
+    text-align: center;
+  }
+
+  .status.loading,
+  .status.error { display: flex; }
+
+  .status .pill { pointer-events: auto; }
+
+  .status-text {
+    max-width: 280px;
+    font-size: var(--text-body);
+    line-height: 1.35;
+    color: var(--color-footer-text);
+  }
+
+  .status:not(.error) .status-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .spinner {
+    display: none;
+    position: relative;
+    width: 20px;
+    height: 20px;
+  }
+
+  .status.loading .spinner { display: block; }
+
+  .spinner i {
+    position: absolute;
+    left: 9px;
+    top: 0;
+    width: 2px;
+    height: 6px;
+    border-radius: 1px;
+    background: rgba(235,235,245,0.6);
+    transform-origin: 1px 10px;
+    transform: rotate(calc(var(--i) * 45deg));
+    animation: spinnerFade 0.8s linear infinite;
+    animation-delay: calc(var(--i) * 0.1s - 0.8s);
+  }
+
+  @keyframes spinnerFade {
+    from { opacity: 1; }
+    to   { opacity: 0.15; }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: var(--space-16) var(--space-24);
+    padding-bottom: calc(var(--safe-bottom) + var(--space-24));
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  footer span {
+    font-size: var(--text-caption);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--color-footer-text);
+  }
+
+  /* ── LIGHTBOX ── */
+  .lb {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .lb:focus { outline: none; }
+
+  .lb.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .lb-backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--color-lb-bg);
+  }
+
+  /* three slides (previous, current, next) that move with the finger */
+  .lb-slide {
+    position: absolute;
+    inset: 0;
+  }
+
+  .lb-slide[hidden] { display: none; }
+
+  /* the zoom layer covers the screen, so a zoomed photo can use all of it */
+  .lb-zoom {
+    position: absolute;
+    inset: 0;
+    padding: calc(var(--safe-top) + var(--space-64)) var(--safe-right) calc(var(--safe-bottom) + 56px) var(--safe-left);
+    transform-origin: center;
+  }
+
+  .lb.zoomed .lb-zoom { cursor: grab; }
+
+  .lb-zoom img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── LIGHTBOX CLOSE ── */
+  .lb-close {
+    position: absolute;
+    top:   calc(var(--safe-top)   + var(--space-16));
+    right: calc(var(--safe-right) + var(--space-16));
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-lb-close-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
+                0 2px 12px rgba(0,0,0,0.48),
+                0 1px 3px  rgba(0,0,0,0.30);
+    color: var(--color-lb-close-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease;
+  }
+
+  .lb-close::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  .lb-close svg { pointer-events: none; }
+
+  .lb-close:active {
+    transform: scale(0.90);
+    background: rgba(76,86,80,0.68);
+  }
+
+  .lb-prev, .lb-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    z-index: 8;
+    border: none;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: none;
+  }
+
+  .lb.open .lb-prev,
+  .lb.open .lb-next { pointer-events: all; }
+
+  .lb-prev { left: 0; }
+  .lb-next { right: 0; }
+
+  .lb.zoomed .lb-prev,
+  .lb.zoomed .lb-next { display: none; }
+
+  /* touch screens swipe instead; the buttons stay for VoiceOver */
+  @media (hover: none), (pointer: coarse) {
+    .lb-prev,
+    .lb-next {
+      top: 0;
+      bottom: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+
+  /* a tap hides the controls, as in Photos; dragging to close hides them too */
+  .lb.bare .lb-close,
+  .lb.bare .lb-dots,
+  .lb.dragging .lb-close,
+  .lb.dragging .lb-dots {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ── PAGE CONTROL DOTS ── */
+  .lb-dots {
+    position: absolute;
+    bottom: calc(var(--safe-bottom) + var(--space-24));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .lb-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-lb-dot);
+    flex-shrink: 0;
+  }
+
+  .lb-dot.active {
+    background: var(--color-lb-dot-active);
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  /* an end dot shrinks when more photos lie past it, as in iOS */
+  .lb-dot.more { transform: scale(0.67); }
+
+  /* ── FOCUS — visible keyboard focus, brand gold ── */
+  .pill:focus-visible,
+  .lb-close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .grid-item:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  /* a black edge inside the ring keeps it visible on gold and orange photos */
+  .grid-item:focus-visible::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    box-shadow: inset 0 0 0 2px var(--color-bg);
+    pointer-events: none;
+  }
+
+  .lb-prev:focus-visible,
+  .lb-next:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -6px;
+  }
+
+  /* ── MOTION — transforms animate only when the user allows it ── */
+  @media (prefers-reduced-motion: no-preference) {
+    .grid-item img {
+      transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+                  opacity   0.18s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(7px) scale(0.984);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .grid-item.animate {
+      animation: fadeIn 0.48s cubic-bezier(0.2, 0, 0, 1) both;
+    }
+
+    .pill {
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.18s ease,
+                  box-shadow 0.18s ease;
+    }
+
+    .lb {
+      transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .lb-close {
+      transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+                  background 0.15s ease,
+                  opacity 0.2s ease;
+    }
+
+    .lb-dots {
+      transition: opacity 0.2s ease;
+    }
+
+    .lb-dot {
+      transition: width 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  border-radius 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background 0.26s ease,
+                  transform 0.26s ease;
+    }
+  }
+
+  /* ── DYNAMIC TYPE — on iPhone and iPad, text follows the reader's text size setting ── */
+  @supports (font: -apple-system-body) and (-webkit-touch-callout: none) {
+    .pill        { font: -apple-system-body; font-weight: 500; }
+    .status-text { font: -apple-system-body; }
+    footer span  { font: -apple-system-caption1; }
+  }
+
+  /* ── DESKTOP — layered over the mobile-first base ── */
+  @media (min-width: 768px) {
+    :root { --gap: 2px; }
+
+    #bottomBar {
+      padding: calc(var(--space-32) + var(--space-16) - var(--gap)) var(--space-24) var(--space-32);
+    }
+
+    footer {
+      padding-bottom: calc(var(--safe-bottom) + var(--space-32));
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main>
+  <h1 class="sr-only">Andrew Rios Photography</h1>
+  <div id="grid"></div>
+</main>
+
+<div class="status" id="status" role="status" aria-live="polite">
+  <div class="spinner" aria-hidden="true">
+    <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+    <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+  </div>
+  <p class="status-text" id="statusText"></p>
+  <button class="pill" id="retryBtn" hidden>Try Again</button>
+</div>
+
+<div id="bottomBar">
+  <button class="pill" id="backTopBtn">
+    Back to top
+    <svg width="13" height="8" viewBox="0 0 13 8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="1.25 6.75 6.5 1.25 11.75 6.75"></polyline>
+    </svg>
+  </button>
+</div>
+
+<footer role="contentinfo">
+  <span>© 2026 Andrew Rios Photography</span>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="-1" inert>
+  <div class="lb-backdrop" id="lbBackdrop"></div>
+
+  <div id="lbTrack">
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+    <div class="lb-slide"><div class="lb-zoom"><img alt="" draggable="false"></div></div>
+  </div>
+
+  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M1 1l14 14M15 1L1 15"/>
+    </svg>
+  </button>
+
+  <button class="lb-prev" id="lbPrev" aria-label="Previous photo"></button>
+  <button class="lb-next" id="lbNext" aria-label="Next photo"></button>
+
+  <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+
+  <p class="sr-only" id="lbStatus" aria-live="polite"></p>
+</div>
+
+<script>
+const GITHUB_USER   = 'andrewsportal';
+const GITHUB_REPO   = 'andrewriosphotography';
+const GITHUB_FOLDER = '';
+
+const EXTS = ['jpg','jpeg','png','webp','heic'];
+const RAW  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+const API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let photos     = [];
+let current    = 0;
+let appLoaded  = false;
+
+const gridEl     = document.getElementById('grid');
+const lb         = document.getElementById('lb');
+const dotsEl     = document.getElementById('lbDots');
+const backTopBtn = document.getElementById('backTopBtn');
+
+let cols = [];
+let colHeights = [];
+let colItems = [];  // the photos in each column, top to bottom
+const itemEls = [];
+
+let lastFocused = null;
+
+/* ── RESPONSIVE COLUMNS — 2 on phones; from 768px up, as many ~400px columns as fit (3 to 6) ── */
+const mqDesktop  = window.matchMedia('(min-width: 768px)');
+const COL_TARGET = 400;
+
+function colCount() {
+  if (!mqDesktop.matches) return 2;
+
+  return Math.min(6, Math.max(3, Math.round(window.innerWidth / COL_TARGET)));
+}
+
+function colSizes() {
+  return `${Math.ceil(window.innerWidth / cols.length)}px`;
+}
+
+function layoutGrid() {
+  const n = colCount();
+
+  if (cols.length === n) return levelColumns();
+
+  cols.forEach(c => reflow.unobserve(c));
+
+  cols = [];
+  colHeights = [];
+  colItems = [];
+  gridEl.textContent = '';
+
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'col';
+
+    cols.push(c);
+    colHeights.push(0);
+    colItems.push([]);
+    gridEl.appendChild(c);
+    reflow.observe(c);
+  }
+
+  const split = Math.max(0, itemEls.length - tailSize());
+
+  itemEls.slice(0, split).forEach(el => placeItem(el));
+  placeTail(itemEls.slice(split));
+  levelColumns();
+
+  const sizes = colSizes();
+  itemEls.forEach(el => { el.querySelector('img').sizes = sizes; });
+}
+
+/* ── SHORTEST-COLUMN PLACEMENT — balance height, not count ── */
+function shortestCol() {
+  let k = 0;
+
+  for (let i = 1; i < colHeights.length; i++) {
+    if (colHeights[i] < colHeights[k]) k = i;
+  }
+
+  return k;
+}
+
+function placeItem(el) {
+  const k = shortestCol();
+
+  colItems[k].push(el);
+  gridEl.appendChild(el);
+  colHeights[k] += parseFloat(el.dataset.ratio) || 1;
+}
+
+/* ── LEVEL TAIL — the last photos are shared out so the columns end as close to level as possible ── */
+const TAIL_PER_COL = 4;
+const TAIL_TRIES   = 200;  // ~3ms even at 6 columns
+
+function tailSize() {
+  return TAIL_PER_COL * cols.length;
+}
+
+function placeTail(els) {
+  const r = els.map(el => parseFloat(el.dataset.ratio) || 1);
+
+  let seed = 7;  // fixed, so the same photos always land the same way
+  const rand = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+
+  let best = [];
+  let bestSpread = Infinity;
+
+  for (let t = 0; t < TAIL_TRIES; t++) {
+    const h = colHeights.slice();
+    const at = [];
+    const idx = [...r.keys()];
+
+    // first try biggest first, then shuffled orders; each photo starts in the shortest column
+    if (t === 0) {
+      idx.sort((a, b) => r[b] - r[a]);
+    } else {
+      for (let i = idx.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [idx[i], idx[j]] = [idx[j], idx[i]];
+      }
+    }
+
+    idx.forEach(i => {
+      const k = h.indexOf(Math.min(...h));
+      at[i] = k;
+      h[k] += r[i];
+    });
+
+    settle(h, r, at);
+
+    const spread = Math.max(...h) - Math.min(...h);
+
+    if (spread < bestSpread) {
+      best = at;
+      bestSpread = spread;
+    }
+  }
+
+  els.forEach((el, i) => {
+    colItems[best[i]].push(el);
+    gridEl.appendChild(el);
+    colHeights[best[i]] += r[i];
+  });
+}
+
+// move or swap photos between columns for as long as that flattens the heights (sum of squares falls)
+function settle(h, r, at) {
+  let improved = true;
+
+  while (improved) {
+    improved = false;
+
+    for (let i = 0; i < r.length; i++) {
+      for (let k = 0; k < h.length; k++) {
+        const a = at[i];
+
+        if (k !== a && r[i] * (h[k] - h[a] + r[i]) < -1e-9) {
+          h[a] -= r[i];
+          h[k] += r[i];
+          at[i] = k;
+          improved = true;
+        }
+      }
+
+      for (let j = i + 1; j < r.length; j++) {
+        const a = at[i];
+        const b = at[j];
+        const x = r[j] - r[i];
+
+        if (a !== b && x * (h[a] - h[b] + x) < -1e-9) {
+          h[a] += x;
+          h[b] -= x;
+          at[i] = b;
+          at[j] = a;
+          improved = true;
+        }
+      }
+    }
+  }
+}
+
+/* ── LEVEL COLUMNS — width each column so all end on one line, no cropping ── */
+const MAX_WIDTH_SHIFT = 0.05;  // past ±5% the difference would show, so leave the ends uneven
+
+function levelColumns() {
+  const n = cols.length;
+  const sums = colItems.map(items =>
+    items.reduce((t, el) => t + (parseFloat(el.dataset.ratio) || 1), 0)
+  );
+
+  if (!n || sums.some(t => !t)) return positionItems();
+
+  // a column of width w ends at w * sum + gap * (count - 1); solve for one shared end
+  const cs = getComputedStyle(gridEl);
+  const gap = parseFloat(cs.columnGap) || 0;
+  const room = gridEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - gap * (n - 1);
+  const gaps = colItems.map(items => gap * (items.length - 1));
+
+  const end = (room + gaps.reduce((t, g, k) => t + g / sums[k], 0)) /
+              sums.reduce((t, s) => t + 1 / s, 0);
+
+  cols.forEach((c, k) => {
+    const share = ((end - gaps[k]) / sums[k]) / (room / n);
+    c.style.flexGrow = Math.min(1 + MAX_WIDTH_SHIFT, Math.max(1 - MAX_WIDTH_SHIFT, share));
+  });
+
+  positionItems();
+}
+
+/* ── POSITION — each photo is set over its column. In the page itself the photos run 1, 2, 3,
+   so Tab and VoiceOver take them in viewing order rather than down one column, then the next ── */
+function positionItems() {
+  const box = gridEl.getBoundingClientRect();
+  const cs = getComputedStyle(gridEl);
+  const gap = parseFloat(cs.rowGap) || 0;
+  const rulers = cols.map(c => c.getBoundingClientRect());
+
+  // widths first, so the browser sizes each photo before they're stacked
+  colItems.forEach((items, k) => items.forEach(el => {
+    el.style.left = `${rulers[k].left - box.left}px`;
+    el.style.width = `${rulers[k].width}px`;
+  }));
+
+  // computed height, which the fade-in's scale doesn't touch; it's printed to 3 decimals,
+  // so put it back on the 1/64px grid browsers lay out on, or photos drift a fraction down each column
+  const heights = colItems.map(items => items.map(el =>
+    Math.round(parseFloat(getComputedStyle(el).height) * 64) / 64
+  ));
+  let end = 0;
+
+  colItems.forEach((items, k) => {
+    let y = parseFloat(cs.paddingTop);
+
+    items.forEach((el, i) => {
+      el.style.top = `${y}px`;
+      y += heights[k][i] + gap;
+    });
+
+    end = Math.max(end, items.length ? y - gap : y);
+  });
+
+  gridEl.style.height = `${end + parseFloat(cs.paddingBottom)}px`;
+}
+
+// a column changing width, or a photo's true shape arriving, moves the photos before the next paint
+const reflow = new ResizeObserver(() => positionItems());
+
+/* ── RATIO PROBE — tiny 100px proxy image, just to learn the shape of a photo without web copies yet ── */
+function loadRatio(url) {
+  return new Promise(resolve => {
+    const im = new Image();
+
+    im.onload = () => resolve(
+      im.naturalWidth
+        ? im.naturalHeight / im.naturalWidth
+        : 1
+    );
+
+    im.onerror = () => resolve(1);
+    im.src = url;
+  });
+}
+
+/* ── HELPER: PROXY URL GENERATOR ── */
+const THUMB_WIDTHS = [400, 600, 800, 1000];
+
+function getProxyUrl(rawUrl, width) {
+  const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
+
+  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&output=webp`;
+}
+
+/* ── WEB COPIES — after each upload GitHub makes small copies of every photo (.github/workflows/web-copies.yml)
+   and lists each one's shape in web/sizes.json. A listed photo loads straight from this site and is placed at once;
+   any other, such as one uploaded a minute ago, goes through wsrv as before ── */
+const WEB = 'web';
+
+async function webSizes() {
+  try {
+    const res = await fetch(`${WEB}/sizes.json`, { cache: 'no-cache' });
+
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.error('web/sizes.json unreadable', e);
+  }
+
+  return {};
+}
+
+function photoEntry(name, sizes) {
+  const raw = `${RAW}/${name}`;
+  const s = sizes[name];
+
+  if (!s || !(s.w > 0 && s.h > 0 && s.v)) {
+    return {
+      probe:  getProxyUrl(raw, 100),
+      raw,
+      srcset: THUMB_WIDTHS.map(w => `${getProxyUrl(raw, w)} ${w}w`).join(', '),
+      thumb:  getProxyUrl(raw, 600),
+      full:   getProxyUrl(raw, 1600)
+    };
+  }
+
+  // ?v= changes when the photo is replaced, so browsers drop the old copy
+  const copy = w => `${WEB}/${encodeURIComponent(name)}-${w}.webp?v=${s.v}`;
+
+  // a copy is never wider than its photo, so each size is listed at the width it really is
+  const srcset = THUMB_WIDTHS
+    .filter((w, i) => w < s.w || i === 0 || THUMB_WIDTHS[i - 1] < s.w)
+    .map(w => `${copy(w)} ${Math.min(w, s.w)}w`)
+    .join(', ');
+
+  return {
+    ratio: s.h / s.w,
+    raw,
+    srcset,
+    thumb: copy(600),
+    full:  copy(1600)
+  };
+}
+
+/* ── LOAD ── */
+async function load() {
+  if (appLoaded) return;
+
+  appLoaded = true;
+  setStatus('loading');
+
+  try {
+    const [files, orderRes, sizes] = await Promise.all([
+      listFiles(),
+
+      // from this site, not GitHub, so it doesn't count against GitHub's limits
+      fetch(
+        `${GITHUB_FOLDER ? GITHUB_FOLDER + '/' : ''}order.txt`
+      ).catch(() => null),
+
+      webSizes()
+    ]);
+
+    if (!files) throw new Error('No file list from GitHub');
+
+    const fileMap = {};
+
+    files
+      .filter(
+        name =>
+          EXTS.some(
+            e => name.toLowerCase().endsWith('.' + e)
+          )
+      )
+      .forEach(name => {
+        fileMap[name.toLowerCase()] = name;
+      });
+
+    const stemMap = {};
+
+    Object.keys(fileMap).forEach(key => {
+      const stem = key.replace(/\.[^.]+$/, '');
+
+      if (!stemMap[stem]) {
+        stemMap[stem] = key;
+      }
+    });
+
+    let ordered = [];
+    const seen = new Set();
+
+    if (orderRes && orderRes.ok) {
+      const text = await orderRes.text();
+
+      text
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith('#'))
+        .forEach(name => {
+          const stem = name
+            .toLowerCase()
+            .replace(/\.[^.]+$/, '');
+
+          const key = stemMap[stem];
+
+          if (key && !seen.has(key)) {
+            seen.add(key);
+
+            ordered.push(photoEntry(fileMap[key], sizes));
+
+            delete fileMap[key];
+            delete stemMap[stem];
+          }
+        });
+    }
+
+    Object.keys(fileMap).sort().forEach(key => {
+      if (!seen.has(key)) {
+        seen.add(key);
+
+        ordered.push(photoEntry(fileMap[key], sizes));
+      }
+    });
+
+    photos = ordered;
+
+    layoutGrid();
+    await appendPhotos(0, photos.length);
+    buildLbDots();
+
+    setStatus('');
+
+    document.getElementById('bottomBar').style.display = 'flex';
+    document.querySelector('footer').style.display = 'flex';
+
+  } catch (e) {
+    console.error('Load error:', e);
+
+    appLoaded = false;
+    setStatus('error');
+  }
+}
+
+/* ── FILE LIST — GitHub Pages writes photos.json each time it builds the site, so visitors needn't ask
+   GitHub's API, which allows 60 lookups an hour per network. The API, then the last good list, are fallbacks ── */
+const FILES_KEY = 'arp-files';
+
+async function listFiles() {
+  const names = await siteFiles() || await apiFiles();
+
+  if (names) {
+    try { localStorage.setItem(FILES_KEY, JSON.stringify(names)); } catch (e) {}
+
+    return names;
+  }
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(FILES_KEY));
+    return Array.isArray(saved) ? saved : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// photos.json lists every file in the site from its root ("/001.png", "/icons/favicon.svg"); keep the photo folder's own
+async function siteFiles() {
+  try {
+    const res = await fetch('photos.json');
+    const paths = await res.json();
+
+    if (res.ok && Array.isArray(paths)) {
+      const dir = GITHUB_FOLDER ? `/${GITHUB_FOLDER}/` : '/';
+
+      return paths
+        .filter(p => p.startsWith(dir) && !p.includes('/', dir.length))
+        .map(p => p.slice(dir.length));
+    }
+  } catch (e) {
+    console.error('photos.json unreadable', e);
+  }
+
+  return null;
+}
+
+async function apiFiles() {
+  try {
+    const res = await fetch(`${API}${GITHUB_FOLDER ? '/' + GITHUB_FOLDER : ''}`, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
+
+    const list = await res.json();
+
+    if (res.ok && Array.isArray(list)) {
+      return list.filter(f => f.type === 'file').map(f => f.name);
+    }
+
+    console.error('GitHub API error', list);
+  } catch (e) {
+    console.error('GitHub API unreachable', e);
+  }
+
+  return null;
+}
+
+/* ── STATUS — spinner only if loading takes a moment, so fast loads don't flash ── */
+const statusEl   = document.getElementById('status');
+const statusText = document.getElementById('statusText');
+const retryBtn   = document.getElementById('retryBtn');
+
+let statusTimer = 0;
+
+function setStatus(state) {
+  clearTimeout(statusTimer);
+
+  statusEl.classList.remove('loading', 'error');
+  retryBtn.hidden = true;
+
+  if (state === 'loading') {
+    statusText.textContent = 'Loading photos';
+    statusTimer = setTimeout(() => statusEl.classList.add('loading'), 400);
+  } else if (state === 'error') {
+    statusText.textContent = 'Photos couldn\u2019t load. Check your connection and try again.';
+    statusEl.classList.add('error');
+    retryBtn.hidden = false;
+  } else {
+    statusText.textContent = '';
+  }
+}
+
+retryBtn.addEventListener('click', load);
+
+/* ── APPEND — probes load in parallel, photos placed in order into the shortest column ── */
+async function appendPhotos(from, count) {
+  const to = Math.min(from + count, photos.length);
+  const slice = photos.slice(from, to);
+
+  if (!slice.length) return;
+
+  // a photo with web copies already knows its shape; any other is probed through wsrv
+  const ratios = slice.map(p => p.ratio ? Promise.resolve(p.ratio) : loadRatio(p.probe));
+  const tail = [];
+
+  const guard = ms =>
+    new Promise(r =>
+      setTimeout(() => r(null), ms)
+    );
+
+  for (let idx = 0; idx < slice.length; idx++) {
+    const globalIdx = from + idx;
+
+    const ratio = (
+      await Promise.race([
+        ratios[idx],
+        guard(5000)
+      ])
+    ) ?? 1;
+
+    const item = makeItem(
+      slice[idx],
+      globalIdx,
+      idx
+    );
+
+    item.dataset.ratio = ratio;
+    // hold the photo's shape before it loads, so the page doesn't jump and lazy loading works
+    item.querySelector('img').style.aspectRatio = `auto 1 / ${ratio}`;
+
+    itemEls.push(item);
+
+    if (globalIdx < photos.length - tailSize()) {
+      placeItem(item);
+      positionItems();
+      setStatus('');  // once photos are arriving they show the progress, so the spinner goes
+    } else {
+      tail.push(item);
+    }
+  }
+
+  placeTail(tail);
+  levelColumns();
+}
+
+function makeItem(p, globalIdx, localIdx) {
+  const div = document.createElement('div');
+
+  div.className = 'grid-item';
+
+  if (!reduceMotion && localIdx < 12) {
+    div.classList.add('animate');
+    div.style.animationDelay = `${localIdx * 0.03}s`;
+  }
+
+  // named by its photo's alt text: Photo 1, Photo 2
+  div.setAttribute('role', 'button');
+  div.setAttribute('tabindex', '0');
+
+  const img = document.createElement('img');
+
+  // the browser picks the width that's sharp for the column and screen: ~600 on phones, ~800 on retina laptops
+  img.sizes = colSizes();
+  img.srcset = p.srcset;
+  img.src = p.thumb;
+  img.loading = globalIdx < 6 ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  img.alt = `Photo ${globalIdx + 1}`;
+
+  div.appendChild(img);
+  reflow.observe(img);
+
+  // the drawn photo gives a truer shape than the 100px probe, so re-level once it's in
+  // (its box, not naturalWidth: with srcset those are rounded to whole CSS pixels)
+  img.addEventListener('load', () => {
+    const box = img.getBoundingClientRect();
+
+    if (!box.width || !box.height) return;
+
+    div.dataset.ratio = box.height / box.width;
+    levelColumns();
+  });
+
+  div.addEventListener(
+    'click',
+    () => openLb(globalIdx)
+  );
+
+  div.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openLb(globalIdx);
+    }
+  });
+
+  return div;
+}
+
+/* ── BACK TO TOP ── */
+backTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: reduceMotion ? 'instant' : 'smooth'
+  });
+});
+
+/* ── LIGHTBOX DOTS ── */
+const MAX_DOTS = 7;
+
+function buildLbDots() {
+  dotsEl.innerHTML = '';
+
+  const n = Math.min(photos.length, MAX_DOTS);
+
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div');
+
+    d.className = 'lb-dot';
+    dotsEl.appendChild(d);
+  }
+
+  updateLbDots();
+}
+
+function updateLbDots() {
+  const dots = [
+    ...dotsEl.querySelectorAll('.lb-dot')
+  ];
+
+  if (!dots.length) return;
+
+  const half = Math.floor(MAX_DOTS / 2);
+
+  const start = Math.max(
+    0,
+    Math.min(
+      current - half,
+      photos.length - MAX_DOTS
+    )
+  );
+
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', start + i === current);
+    d.classList.toggle(
+      'more',
+      (i === 0 && start > 0) ||
+      (i === dots.length - 1 && start + dots.length < photos.length)
+    );
+  });
+}
+
+/* ── LIGHTBOX — Photos-style viewer: the photo follows the finger, pinch or double-tap to zoom, drag down to close ── */
+const SLIDE_GAP = 24;   // px between photos while swiping, as in Photos
+const MAX_ZOOM  = 4;
+const TAP_ZOOM  = 2.5;
+const EASE      = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+const lbBackdrop = document.getElementById('lbBackdrop');
+const lbStatus   = document.getElementById('lbStatus');
+const slides     = [...document.getElementById('lbTrack').children];  // [previous, current, next], rotated as you move
+const behind     = [document.querySelector('main'), document.getElementById('bottomBar'), document.querySelector('footer')];
+
+let zoom = { s: 1, x: 0, y: 0 };
+let busy = false;  // a slide animation is running
+
+const dur = sec => `${reduceMotion ? 0 : sec}s`;
+const after = (ms, fn) => setTimeout(fn, reduceMotion ? 0 : ms);
+
+function fillSlide(slide, i) {
+  const img = slide.querySelector('img');
+
+  slide.dataset.index = i;
+
+  if (i < 0 || i >= photos.length) {
+    slide.hidden = true;
+    img.removeAttribute('src');
+    img.alt = '';
+    return;
+  }
+
+  slide.hidden = false;
+  img.alt = `Photo ${i + 1} of ${photos.length}`;
+  img.src = photos[i].thumb;
+
+  const hi = new Image();
+
+  hi.onload = () => {
+    if (slide.dataset.index === String(i)) img.src = photos[i].full;
+  };
+
+  hi.src = photos[i].full;
+}
+
+// VoiceOver reads only the photo on screen, not the neighbours waiting either side
+function markCurrent() {
+  slides.forEach((slide, k) => {
+    if (k === 1) slide.removeAttribute('aria-hidden');
+    else slide.setAttribute('aria-hidden', 'true');
+  });
+}
+
+function placeSlides(dx = 0, animate = false) {
+  slides.forEach((slide, k) => {
+    slide.style.transition = animate ? `transform ${dur(0.35)} ${EASE}` : 'none';
+    slide.style.transform = `translateX(calc(${(k - 1) * 100}% + ${(k - 1) * SLIDE_GAP + dx}px))`;
+  });
+}
+
+/* ── ZOOM — x and y measured from the screen's centre ── */
+function zoomLayer() {
+  return slides[1].firstElementChild;
+}
+
+function applyZoom(animate) {
+  const layer = zoomLayer();
+
+  layer.style.transition = animate ? `transform ${dur(0.3)} ${EASE}` : 'none';
+  layer.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.s})`;
+
+  lb.classList.toggle('zoomed', zoom.s > 1.01);
+}
+
+// where the photo sits inside its letterbox at 1x: size, and centre offset from the screen's centre
+function photoBox() {
+  const layer = zoomLayer();
+  const img = layer.querySelector('img');
+  const r = img.naturalWidth ? img.naturalHeight / img.naturalWidth : 1;
+
+  let w = img.clientWidth;
+  let h = w * r;
+
+  if (h > img.clientHeight) {
+    h = img.clientHeight;
+    w = h / r;
+  }
+
+  return {
+    w,
+    h,
+    cx: img.offsetLeft + img.clientWidth / 2 - layer.clientWidth / 2,
+    cy: img.offsetTop + img.clientHeight / 2 - layer.clientHeight / 2,
+    W: layer.clientWidth,
+    H: layer.clientHeight
+  };
+}
+
+// keep a zoomed photo covering the screen; a photo smaller than the screen stays centred on that axis
+function clampZoom({ s, x, y }) {
+  const b = photoBox();
+
+  const fit = (t, c, size, view) => {
+    if (size * s <= view) return c * (1 - s);
+
+    const lo = view / 2 - size * s / 2 - c * s;
+    const hi = -view / 2 + size * s / 2 - c * s;
+
+    return Math.min(hi, Math.max(lo, t));
+  };
+
+  return { s, x: fit(x, b.cx, b.w, b.W), y: fit(y, b.cy, b.h, b.H) };
+}
+
+function settleZoom() {
+  let { s, x, y } = zoom;
+
+  if (s <= 1) {
+    zoom = { s: 1, x: 0, y: 0 };
+  } else {
+    if (s > MAX_ZOOM) {
+      x *= MAX_ZOOM / s;
+      y *= MAX_ZOOM / s;
+      s = MAX_ZOOM;
+    }
+
+    zoom = clampZoom({ s, x, y });
+  }
+
+  applyZoom(true);
+}
+
+function resetZoom() {
+  zoom = { s: 1, x: 0, y: 0 };
+
+  slides.forEach(slide => {
+    slide.firstElementChild.style.transition = 'none';
+    slide.firstElementChild.style.transform = '';
+  });
+
+  lb.classList.remove('zoomed');
+}
+
+function local(clientX, clientY) {
+  return { x: clientX - lb.clientWidth / 2, y: clientY - lb.clientHeight / 2 };
+}
+
+function onPhoto(p) {
+  const b = photoBox();
+  const cx = (p.x - zoom.x) / zoom.s;
+  const cy = (p.y - zoom.y) / zoom.s;
+
+  return Math.abs(cx - b.cx) <= b.w / 2 && Math.abs(cy - b.cy) <= b.h / 2;
+}
+
+function toggleZoomAt(clientX, clientY) {
+  if (zoom.s > 1.01) {
+    zoom = { s: 1, x: 0, y: 0 };
+  } else {
+    const p = local(clientX, clientY);
+    zoom = clampZoom({ s: TAP_ZOOM, x: p.x * (1 - TAP_ZOOM), y: p.y * (1 - TAP_ZOOM) });
+  }
+
+  applyZoom(true);
+}
+
+/* ── OPEN / CLOSE ── */
+function announce() {
+  lbStatus.textContent = `Photo ${current + 1} of ${photos.length}`;
+}
+
+function resetViewer() {
+  resetZoom();
+  placeSlides(0, false);
+
+  lb.classList.remove('bare', 'dragging');
+  lbBackdrop.style.transition = 'none';
+  lbBackdrop.style.opacity = '';
+}
+
+function openLb(i) {
+  current = i;
+
+  resetViewer();
+  fillSlide(slides[0], i - 1);
+  fillSlide(slides[1], i);
+  fillSlide(slides[2], i + 1);
+  markCurrent();
+
+  lastFocused = document.activeElement;
+
+  lb.classList.add('open');
+  lb.inert = false;
+  behind.forEach(el => { el.inert = true; });
+  document.body.style.overflow = 'hidden';
+
+  lb.focus();
+
+  updateLbDots();
+  announce();
+}
+
+function closeLb(fromDrag = false) {
+  clearTimeout(tapTimer);
+
+  if (fromDrag) {
+    slides[1].style.transition = `transform ${dur(0.3)} ${EASE}`;
+    slides[1].style.transform = `translate(0, ${lb.clientHeight * 0.4}px) scale(0.6)`;
+  }
+
+  lb.classList.remove('open');
+  lb.inert = true;  // closed, it's out of the Tab order and out of VoiceOver's reach
+  behind.forEach(el => { el.inert = false; });
+  document.body.style.overflow = '';
+
+  if (lastFocused && lastFocused.focus) {
+    lastFocused.focus({ preventScroll: true });
+  }
+
+  after(320, () => {
+    if (!lb.classList.contains('open')) resetViewer();
+  });
+}
+
+/* ── MOVE — slide the next photo in, then rotate the three slides so nothing reloads ── */
+function slideTo(dir) {
+  if (busy || slides[1 + dir].hidden) {
+    placeSlides(0, true);
+    return;
+  }
+
+  busy = true;
+  placeSlides(-dir * (lb.clientWidth + SLIDE_GAP), true);
+
+  after(350, () => {
+    resetZoom();
+
+    if (dir > 0) slides.push(slides.shift());
+    else slides.unshift(slides.pop());
+
+    current += dir;
+
+    fillSlide(slides[1 + dir], current + dir);
+    markCurrent();
+    placeSlides(0, false);
+
+    busy = false;
+
+    updateLbDots();
+    announce();
+  });
+}
+
+function goNext() {
+  slideTo(1);
+}
+
+function goPrev() {
+  slideTo(-1);
+}
+
+/* ── DRAG TO CLOSE ── */
+function dragDismiss(dy) {
+  const p = Math.min(1, Math.max(0, dy) / lb.clientHeight);
+
+  lb.classList.add('dragging');
+
+  slides[1].style.transition = 'none';
+  slides[1].style.transform = `translate(0, ${dy}px) scale(${1 - p * 0.35})`;
+
+  lbBackdrop.style.transition = 'none';
+  lbBackdrop.style.opacity = Math.max(0, 1 - p * 1.6);
+}
+
+function cancelDismiss() {
+  lb.classList.remove('dragging');
+
+  placeSlides(0, true);
+
+  lbBackdrop.style.transition = `opacity ${dur(0.3)} ease`;
+  lbBackdrop.style.opacity = '';
+}
+
+/* ── GESTURES — pointer events cover touch, pen and mouse ── */
+const pointers = new Map();
+
+let g = null;  // the gesture in progress
+let suppressClick = false;
+let lastTap = null;
+let tapTimer = 0;
+
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+function velocity(gesture) {
+  const s = gesture.samples;
+  const last = s[s.length - 1];
+  const first = s.find(p => last.t - p.t < 100) || last;
+  const dt = Math.max(1, last.t - first.t);
+
+  return { x: (last.x - first.x) / dt, y: (last.y - first.y) / dt };
+}
+
+function rubber(value, min, max) {
+  if (value < min) return min + (value - min) * 0.3;
+  if (value > max) return max + (value - max) * 0.3;
+  return value;
+}
+
+lb.addEventListener('pointerdown', e => {
+  if (!lb.classList.contains('open') || busy) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('.lb-close')) return;
+
+  suppressClick = false;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (pointers.size === 1) {
+    g = {
+      kind: 'pending',
+      x0: e.clientX,
+      y0: e.clientY,
+      t0: e.timeStamp,
+      z0: { ...zoom },
+      onButton: !!e.target.closest('button'),
+      mouse: e.pointerType === 'mouse',
+      samples: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }]
+    };
+  } else if (pointers.size === 2) {
+    if (g && g.kind === 'swipe') placeSlides(0, true);
+    if (g && g.kind === 'dismiss') cancelDismiss();
+
+    const [a, b] = [...pointers.values()];
+    const m = mid(a, b);
+
+    clearTimeout(tapTimer);
+    suppressClick = true;
+
+    g = { kind: 'pinch', d0: dist(a, b), m0: local(m.x, m.y), z0: { ...zoom } };
+  }
+});
+
+window.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (!g) return;
+
+  if (g.kind === 'pinch') {
+    if (pointers.size < 2) return;
+
+    const [a, b] = [...pointers.values()];
+    const m = mid(a, b);
+    const p = local(m.x, m.y);
+
+    let s = g.z0.s * dist(a, b) / g.d0;
+    s = s < 1 ? 1 - (1 - s) * 0.5 : s > MAX_ZOOM ? MAX_ZOOM + (s - MAX_ZOOM) * 0.3 : s;
+
+    // keep the point first under the fingers under them as they move and spread
+    const cx = (g.m0.x - g.z0.x) / g.z0.s;
+    const cy = (g.m0.y - g.z0.y) / g.z0.s;
+
+    zoom = { s, x: p.x - cx * s, y: p.y - cy * s };
+    applyZoom(false);
+    return;
+  }
+
+  const dx = e.clientX - g.x0;
+  const dy = e.clientY - g.y0;
+
+  g.samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+  if (g.samples.length > 8) g.samples.shift();
+
+  if (g.kind === 'pending') {
+    if (Math.hypot(dx, dy) < 8) return;
+
+    if (zoom.s > 1.01) g.kind = 'pan';
+    else g.kind = Math.abs(dx) > Math.abs(dy) ? 'swipe' : 'dismiss';
+
+    clearTimeout(tapTimer);
+    suppressClick = true;
+  }
+
+  if (g.kind === 'pan') {
+    const want = { s: zoom.s, x: g.z0.x + dx, y: g.z0.y + dy };
+    const c = clampZoom(want);
+
+    zoom = { s: zoom.s, x: rubber(want.x, c.x, c.x), y: rubber(want.y, c.y, c.y) };
+    applyZoom(false);
+  } else if (g.kind === 'swipe') {
+    const edge = slides[dx > 0 ? 0 : 2].hidden;
+    placeSlides(edge ? dx * 0.3 : dx);
+  } else if (g.kind === 'dismiss') {
+    dragDismiss(dy > 0 ? dy : dy * 0.2);
+  }
+});
+
+function endPointer(e, cancelled) {
+  if (!pointers.has(e.pointerId)) return;
+
+  pointers.delete(e.pointerId);
+
+  if (!g) return;
+
+  if (g.kind === 'pinch') {
+    if (pointers.size < 2) {
+      settleZoom();
+      g = null;
+    }
+    return;
+  }
+
+  if (pointers.size) return;
+
+  const gesture = g;
+  g = null;
+
+  const dx = e.clientX - gesture.x0;
+  const dy = e.clientY - gesture.y0;
+  const v = velocity(gesture);
+
+  if (gesture.kind === 'pending') {
+    if (!cancelled) handleTap(e, gesture);
+  } else if (gesture.kind === 'pan') {
+    settleZoom();
+  } else if (gesture.kind === 'swipe') {
+    const width = lb.clientWidth;
+    const dir = cancelled ? 0
+      : (dx < -width * 0.2 || v.x < -0.35) ? 1
+      : (dx > width * 0.2 || v.x > 0.35) ? -1
+      : 0;
+
+    if (dir) slideTo(dir);
+    else placeSlides(0, true);
+  } else if (gesture.kind === 'dismiss') {
+    if (!cancelled && (dy > 110 || v.y > 0.5)) closeLb(true);
+    else cancelDismiss();
+  }
+}
+
+window.addEventListener('pointerup', e => endPointer(e, false));
+window.addEventListener('pointercancel', e => endPointer(e, true));
+
+// a drag or pinch that ends over a button isn't a press of that button
+lb.addEventListener('click', e => {
+  if (!suppressClick) return;
+
+  suppressClick = false;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
+
+function handleTap(e, gesture) {
+  if (gesture.onButton || e.timeStamp - gesture.t0 > 400) return;
+
+  const p = local(e.clientX, e.clientY);
+
+  // with a mouse, a click beside the photo closes the viewer
+  if (gesture.mouse && zoom.s <= 1.01 && !onPhoto(p)) {
+    closeLb();
+    return;
+  }
+
+  if (lastTap && e.timeStamp - lastTap.t < 300 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+    clearTimeout(tapTimer);
+    lastTap = null;
+    toggleZoomAt(e.clientX, e.clientY);
+    return;
+  }
+
+  lastTap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
+
+  // a single tap on a touch screen shows or hides the controls; wait to be sure it isn't a double tap
+  tapTimer = setTimeout(() => {
+    lastTap = null;
+    if (!gesture.mouse) lb.classList.toggle('bare');
+  }, 300);
+}
+
+// trackpad pinch on a Mac arrives as a ctrl + wheel event
+lb.addEventListener('wheel', e => {
+  if (!e.ctrlKey) return;
+
+  e.preventDefault();
+
+  const p = local(e.clientX, e.clientY);
+  const s = Math.min(MAX_ZOOM, Math.max(1, zoom.s * Math.exp(-e.deltaY * 0.01)));
+  const cx = (p.x - zoom.x) / zoom.s;
+  const cy = (p.y - zoom.y) / zoom.s;
+
+  zoom = s === 1 ? { s: 1, x: 0, y: 0 } : clampZoom({ s, x: p.x - cx * s, y: p.y - cy * s });
+  applyZoom(false);
+}, { passive: false });
+
+// stop Safari's own page zoom inside the viewer
+lb.addEventListener('gesturestart', e => e.preventDefault());
+
+/* ── CONTROLS ── */
+document
+  .getElementById('lbClose')
+  .addEventListener('click', () => closeLb());
+
+document
+  .getElementById('lbPrev')
+  .addEventListener('click', goPrev);
+
+document
+  .getElementById('lbNext')
+  .addEventListener('click', goNext);
+
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+
+  if (e.key === 'Escape') {
+    closeLb();
+    return;
+  }
+
+  if (e.key === 'ArrowRight') {
+    goNext();
+  }
+
+  if (e.key === 'ArrowLeft') {
+    goPrev();
+  }
+
+  // keep keyboard focus inside the viewer while it's open
+  if (e.key === 'Tab') {
+    const stops = [...lb.querySelectorAll('button')].filter(b => b.getClientRects().length);
+    const at = stops.indexOf(document.activeElement);
+    const next = e.shiftKey
+      ? (at <= 0 ? stops.length - 1 : at - 1)
+      : (at === -1 || at === stops.length - 1 ? 0 : at + 1);
+
+    e.preventDefault();
+    stops[next].focus();
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (!lb.classList.contains('open')) return;
+
+  resetZoom();
+  placeSlides(0, false);
+}, { passive: true });
+
+window.addEventListener('resize', layoutGrid, { passive: true });
+
+load();
+</script>
+
+<!-- ════ MUSIC TEST — five designs for a song list whose songs open in Spotify. Test page only. ════ -->
+<style>
+  .mx-icon { display: block; flex: none; }
+
+  /* ── TEST BAR — pick a design; not part of any design ── */
+  .mx-testbar {
+    position: fixed;
+    z-index: 60;
+    top: calc(var(--safe-top) + 10px);
+    left: calc(var(--safe-left) + 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 14px;
+    background: rgba(28,32,30,0.82);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48);
+    font-size: 13px;
+    color: rgba(235,235,245,0.64);
+  }
+
+  .mx-seg { display: flex; gap: 2px; }
+
+  .mx-seg button {
+    width: 36px;
+    height: 32px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(235,235,245,0.8);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mx-seg button[aria-pressed="true"] { background: rgba(118,128,120,0.5); color: #fff; }
+  .mx-testbar p { padding: 0 6px 2px; line-height: 1.3; }
+  .mx-testbar b { color: rgba(240,244,240,0.92); font-weight: 600; }
+
+  /* ── SHARED PIECES ── */
+  .mx-glass {
+    background: rgba(26,30,28,0.88);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    backdrop-filter: saturate(180%) blur(30px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.10), 0 12px 40px rgba(0,0,0,0.55);
+    color: rgba(240,244,240,0.92);
+  }
+
+  .mx-round {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-lb-close-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48), 0 1px 3px rgba(0,0,0,0.30);
+    color: var(--color-lb-close-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mx-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(118,128,120,0.26);
+    color: rgba(235,235,245,0.8);
+    cursor: pointer;
+    flex: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mx-close::before { content: ''; position: absolute; inset: -7px; }   /* 44pt to tap */
+
+  .mx-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 10px;
+  }
+
+  .mx-head h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+  .mx-head p  { font-size: 13px; color: rgba(235,235,245,0.6); margin-top: 1px; }
+  .mx-head > div { flex: 1; min-width: 0; }
+
+  .mx-list { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+
+  .mx-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 16px;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+
+  .mx-row + .mx-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 0;
+    height: 0.5px;
+    background: rgba(84,84,88,0.6);
+  }
+
+  .mx-row:active { background: rgba(255,255,255,0.06); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .mx-row:hover { background: rgba(255,255,255,0.05); }
+  }
+
+  .mx-row .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .mx-title  { font-size: 17px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-artist { font-size: 15px; line-height: 1.25; color: rgba(235,235,245,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-out    { color: rgba(235,235,245,0.45); }
+  .mx-num    { display: none; }
+
+  .mx-row.mx-all .mx-title { font-weight: 600; }
+
+  .mx-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(118,128,120,0.3);
+    flex: none;
+  }
+
+  .mx-compact .mx-row { min-height: 48px; padding: 6px 14px; }
+  .mx-compact .mx-title  { font-size: 15px; }
+  .mx-compact .mx-artist { font-size: 13px; }
+  .mx-compact .mx-row + .mx-row::before { left: 14px; }
+  .mx-compact .mx-badge { width: 28px; height: 28px; }
+
+  .mx-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(0,0,0,0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .mx-scrim.open { opacity: 1; pointer-events: auto; }
+
+  /* every design's parts are hidden until the test bar picks that design */
+  .mx-d { display: none !important; }
+  [data-design="1"] .mx-d1, [data-design="2"] .mx-d2, [data-design="3"] .mx-d3,
+  [data-design="4"] .mx-d4, [data-design="5"] .mx-d5 { display: flex !important; }
+
+  /* ── 1 · SHEET — corner button, the list slides up from the bottom like an iPhone sheet ── */
+  .mx-fab {
+    position: fixed;
+    z-index: 50;
+    right: calc(var(--safe-right) + 16px);
+    bottom: calc(var(--safe-bottom) + 16px);
+  }
+
+  .mx-sheet {
+    position: fixed;
+    z-index: 80;
+    left: 50%;
+    bottom: 0;
+    width: min(100%, 440px);
+    max-height: min(72vh, 640px);
+    flex-direction: column;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: var(--safe-bottom);
+    transform: translate(-50%, 100%);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .mx-sheet.open { transform: translate(-50%, 0); }
+
+  .mx-grabber {
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(235,235,245,0.3);
+    margin: 6px auto 0;
+    flex: none;
+  }
+
+  /* ── 2 · POPOVER — corner button, a small card opens above it ── */
+  .mx-pop {
+    position: fixed;
+    z-index: 80;
+    right: calc(var(--safe-right) + 16px);
+    bottom: calc(var(--safe-bottom) + 72px);
+    width: min(320px, calc(100vw - 32px));
+    max-height: min(56vh, 480px);
+    flex-direction: column;
+    border-radius: 14px;
+    transform-origin: calc(100% - 22px) calc(100% + 34px);
+    transform: scale(0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+  }
+
+  .mx-pop.open { transform: none; opacity: 1; pointer-events: auto; }
+  .mx-pop .mx-head { padding: 12px 14px 8px; }
+
+  /* ── 3 · CAPSULE — a small "Soundtrack" capsule at the bottom grows into the list ── */
+  .mx-capsule {
+    position: fixed;
+    z-index: 50;
+    left: 50%;
+    bottom: calc(var(--safe-bottom) + 16px);
+    transform: translateX(-50%);
+    height: 40px;
+    padding: 0 16px 0 13px;
+    border-radius: 20px;
+    border: none;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mx-capsule::before { content: ''; position: absolute; inset: -4px 0; }
+  .mx-capsule.hide { opacity: 0; transform: translateX(-50%) scale(0.8); pointer-events: none; }
+
+  .mx-island {
+    position: fixed;
+    z-index: 80;
+    left: 50%;
+    bottom: calc(var(--safe-bottom) + 12px);
+    width: min(360px, calc(100vw - 24px));
+    max-height: min(62vh, 520px);
+    flex-direction: column;
+    border-radius: 28px;
+    transform-origin: 50% 100%;
+    transform: translateX(-50%) scale(0.35, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease;
+  }
+
+  .mx-island.open { transform: translateX(-50%); opacity: 1; pointer-events: auto; }
+  .mx-island .mx-head { padding: 16px 18px 8px; }
+  .mx-island .mx-row { padding-left: 18px; padding-right: 18px; }
+
+  /* ── 4 · END OF GALLERY — a quiet list after the last photo, nothing over the photos ── */
+  .mx-inline {
+    flex-direction: column;
+    width: min(100% - 32px, 640px);
+    margin: 0 auto;
+    padding-top: calc(var(--space-24) + var(--space-16));
+    color: rgba(240,244,240,0.92);
+  }
+
+  body:not(.mx-ready) .mx-inline { display: none !important; }
+
+  .mx-inline .mx-head { padding: 0 0 12px; }
+  .mx-inline .mx-head h2 { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(235,235,245,0.64); }
+  .mx-inline .mx-list { padding: 0; overflow: visible; }
+  .mx-inline .mx-row { padding-left: 0; padding-right: 0; }
+  .mx-inline .mx-row + .mx-row::before { left: 0; }
+  .mx-inline .mx-row:active, .mx-inline .mx-row:hover { background: none; opacity: 0.7; }
+  .mx-inline .mx-num, .mx-full .mx-num {
+    display: block;
+    width: 1.6em;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(235,235,245,0.45);
+    flex: none;
+  }
+
+  @media (min-width: 768px) {
+    .mx-inline .mx-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+    .mx-inline .mx-row.mx-all { grid-column: 1 / -1; }
+    .mx-inline .mx-row + .mx-row::before { right: 0; }
+  }
+
+  /* ── 5 · FULL SCREEN — a small text button opens a full-screen list in large type ── */
+  .mx-textbtn {
+    position: fixed;
+    z-index: 50;
+    top: calc(var(--safe-top) + 12px);
+    right: calc(var(--safe-right) + 12px);
+    height: 32px;
+    padding: 0 12px 0 10px;
+    border-radius: 16px;
+    border: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mx-textbtn::before { content: ''; position: absolute; inset: -6px -4px; }
+
+  .mx-full {
+    position: fixed;
+    z-index: 80;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0,0,0,0.92);
+    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
+    color: rgba(240,244,240,0.92);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: calc(var(--safe-top) + 64px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 24px);
+    overflow-y: auto;
+  }
+
+  .mx-full.open { opacity: 1; pointer-events: auto; }
+
+  .mx-full > .mx-close {
+    position: absolute;
+    top: calc(var(--safe-top) + 16px);
+    right: calc(var(--safe-right) + 16px);
+    width: 32px;
+    height: 32px;
+    background: var(--color-lb-close-bg);
+  }
+
+  .mx-full .mx-inner { width: 100%; max-width: 560px; }
+  .mx-full .mx-kicker { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(235,235,245,0.64); }
+  .mx-full .mx-sub { font-size: 15px; color: rgba(235,235,245,0.6); margin: 6px 0 20px; }
+  .mx-full .mx-list { overflow: visible; }
+  .mx-full .mx-row { padding: 12px 0; min-height: 64px; }
+  .mx-full .mx-row + .mx-row::before { left: 0; }
+  .mx-full .mx-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .mx-full .mx-artist { font-size: 17px; }
+  .mx-full .mx-num { font-size: 17px; }
+  .mx-full .mx-row:active, .mx-full .mx-row:hover { background: none; opacity: 0.7; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mx-sheet, .mx-pop, .mx-island, .mx-capsule, .mx-full, .mx-scrim { transition: none; }
+  }
+
+  .mx-seg button:focus-visible, .mx-round:focus-visible, .mx-close:focus-visible, .mx-capsule:focus-visible,
+  .mx-textbtn:focus-visible, .mx-row:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+</style>
+
+<div class="mx-testbar" role="group" aria-label="Music design test">
+  <div class="mx-seg">
+    <button type="button" data-n="1" aria-label="Design 1">1</button>
+    <button type="button" data-n="2" aria-label="Design 2">2</button>
+    <button type="button" data-n="3" aria-label="Design 3">3</button>
+    <button type="button" data-n="4" aria-label="Design 4">4</button>
+    <button type="button" data-n="5" aria-label="Design 5">5</button>
+  </div>
+  <p><b id="mxName"></b><br>Sample song names</p>
+</div>
+
+<!-- 1 · sheet -->
+<button type="button" class="mx-round mx-fab mx-d mx-d1" data-open="mxSheet" aria-label="Soundtrack" aria-haspopup="dialog">
+  <svg class="mx-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+</button>
+<div class="mx-scrim" id="mxScrim"></div>
+<div class="mx-glass mx-sheet mx-d mx-d1" id="mxSheet" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
+  <div class="mx-grabber" aria-hidden="true"></div>
+  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div><button type="button" class="mx-close" data-close aria-label="Close"></button></div>
+  <div class="mx-list" data-list></div>
+</div>
+
+<!-- 2 · popover -->
+<button type="button" class="mx-round mx-fab mx-d mx-d2" data-open="mxPop" aria-label="Soundtrack" aria-haspopup="dialog">
+  <svg class="mx-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+</button>
+<div class="mx-glass mx-pop mx-compact mx-d mx-d2" id="mxPop" role="dialog" aria-label="Soundtrack" tabindex="-1">
+  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div></div>
+  <div class="mx-list" data-list></div>
+</div>
+
+<!-- 3 · capsule -->
+<button type="button" class="mx-glass mx-capsule mx-d mx-d3" data-open="mxIsland" aria-haspopup="dialog">
+  <svg class="mx-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  Soundtrack
+</button>
+<div class="mx-glass mx-island mx-d mx-d3" id="mxIsland" role="dialog" aria-label="Soundtrack" tabindex="-1">
+  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div><button type="button" class="mx-close" data-close aria-label="Close"></button></div>
+  <div class="mx-list" data-list></div>
+</div>
+
+<!-- 4 · end of gallery (moved in front of Back to top by the script) -->
+<section class="mx-inline mx-d mx-d4" id="mxInline" aria-label="Soundtrack">
+  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div></div>
+  <div class="mx-list" data-list data-numbered></div>
+</section>
+
+<!-- 5 · full screen -->
+<button type="button" class="mx-glass mx-textbtn mx-d mx-d5" data-open="mxFull" aria-haspopup="dialog">
+  <svg class="mx-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  Soundtrack
+</button>
+<div class="mx-full mx-d mx-d5" id="mxFull" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
+  <button type="button" class="mx-close" data-close aria-label="Close"></button>
+  <div class="mx-inner">
+    <div class="mx-kicker">Soundtrack</div>
+    <div class="mx-sub">Choose a song and it opens in Spotify</div>
+    <div class="mx-list" data-list data-numbered></div>
+  </div>
+</div>
+
+<script>
+/* ── MUSIC TEST — the same song list in five designs; the test bar switches between them ── */
+(() => {
+  const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
+
+  // sample rows until the real songs are in; each opens the playlist for now
+  const SONGS = Array.from({ length: 8 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
+
+  const NAMES = { 1: 'Design 1 · Sheet', 2: 'Design 2 · Popover', 3: 'Design 3 · Capsule', 4: 'Design 4 · End of gallery', 5: 'Design 5 · Full screen' };
+
+  const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+  const PLAY = '<span class="mx-badge" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>';
+  const X    = '<svg class="mx-icon" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11"/></svg>';
+
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function rows(numbered) {
+    const all = `<a class="mx-row mx-all" href="${PLAYLIST}" target="_blank" rel="noopener" aria-label="Open the whole playlist in Spotify">
+      ${numbered ? '<span class="mx-num"></span>' : PLAY}<span class="mx-text"><span class="mx-title">Open the whole playlist</span></span>${OUT}</a>`;
+
+    return all + SONGS.map((s, i) => `<a class="mx-row" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(s.title)} by ${esc(s.artist)}, opens in Spotify">
+      <span class="mx-num">${i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
+  }
+
+  document.querySelectorAll('[data-list]').forEach(el => { el.innerHTML = rows(el.hasAttribute('data-numbered')); });
+  document.querySelectorAll('.mx-close').forEach(el => { el.innerHTML = X; });
+
+  // design 4 sits after the last photo, in front of Back to top; it shows once the gallery has loaded
+  const bottomBar = document.getElementById('bottomBar');
+  bottomBar.parentNode.insertBefore(document.getElementById('mxInline'), bottomBar);
+
+  const ready = setInterval(() => {
+    if (getComputedStyle(bottomBar).display !== 'none') {
+      document.body.classList.add('mx-ready');
+      clearInterval(ready);
+    }
+  }, 200);
+
+  /* ── OPEN / CLOSE ── */
+  const scrim = document.getElementById('mxScrim');
+  const panels = ['mxSheet', 'mxPop', 'mxIsland', 'mxFull'].map(id => document.getElementById(id));
+  let openPanel = null;
+  let opener = null;
+
+  // a closed list is out of the Tab order and out of VoiceOver's reach
+  panels.forEach(p => { p.inert = true; });
+
+  function open(panel, from) {
+    close(false);
+    openPanel = panel;
+    opener = from;
+    panel.inert = false;
+    panel.classList.add('open');
+
+    if (panel.id === 'mxSheet') scrim.classList.add('open');
+    if (panel.id === 'mxIsland') document.querySelector('.mx-capsule').classList.add('hide');
+    if (panel.getAttribute('aria-modal') === 'true') document.body.style.overflow = 'hidden';
+
+    from.setAttribute('aria-expanded', 'true');
+    setTimeout(() => panel.focus({ preventScroll: true }), 50);
+  }
+
+  function close(restoreFocus = true) {
+    if (!openPanel) return;
+
+    openPanel.classList.remove('open');
+    openPanel.inert = true;
+    scrim.classList.remove('open');
+    document.querySelector('.mx-capsule').classList.remove('hide');
+    document.body.style.overflow = '';
+
+    if (opener) {
+      opener.setAttribute('aria-expanded', 'false');
+      if (restoreFocus) opener.focus({ preventScroll: true });
+    }
+
+    openPanel = null;
+    opener = null;
+  }
+
+  document.querySelectorAll('[data-open]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const panel = document.getElementById(btn.dataset.open);
+      openPanel === panel ? close() : open(panel, btn);
+    });
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => close()));
+  scrim.addEventListener('click', () => close());
+
+  // a tap anywhere outside the open list closes it, as with Apple's popovers
+  document.addEventListener('click', e => {
+    if (openPanel && !openPanel.contains(e.target)) close(false);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && openPanel) close();
+  });
+
+  /* ── TEST BAR ── */
+  const seg = [...document.querySelectorAll('.mx-seg button')];
+
+  function setDesign(n) {
+    close(false);
+    document.body.dataset.design = n;
+    seg.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.n === String(n))));
+    document.getElementById('mxName').textContent = NAMES[n];
+    history.replaceState(null, '', `${location.pathname}?design=${n}`);
+  }
+
+  seg.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); setDesign(+b.dataset.n); }));
+
+  const asked = +new URLSearchParams(location.search).get('design');
+  setDesign(asked >= 1 && asked <= 5 ? asked : 1);
+})();
+</script>
+
+</body>
+</html>
