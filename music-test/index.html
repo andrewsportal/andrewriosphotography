@@ -1968,17 +1968,17 @@ load();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 64px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
+    padding: calc(var(--safe-top) + 14px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  /* the songs share the screen's height, so a full set fills an iPhone from the title down to the bottom edge with no
-     scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (140pt on a phone,
-     120pt on a wider screen) and the list sits in the middle; only very large text scrolls */
+  /* the songs share the screen's height, so all eight fill an iPhone from the title down to the bottom edge with no
+     scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
+     80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
   .mx-inner {
-    --mx-head: 60px;
-    --mx-row-max: 140px;
+    --mx-head: 44px;   /* the title's two lines and the space under them */
+    --mx-row-max: 100px;
     width: 100%;
     max-width: 560px;
     flex: 1 0 auto;
@@ -1991,7 +1991,7 @@ load();
     transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  @media (min-width: 600px) { .mx-inner { --mx-row-max: 120px; } }
+  @media (min-width: 600px) { .mx-inner { --mx-head: 28px; --mx-row-max: 80px; } }   /* the title on one line */
 
   .mx-full.open .mx-inner { transform: none; }
 
@@ -2002,9 +2002,19 @@ load();
   .mx-full .lb-close { transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease; }
   .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
 
-  /* the grey text is the site's own, 7:1 on black like the footer */
-  .mx-kicker { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-footer-text); }
-  .mx-sub { font-size: 15px; color: var(--color-footer-text); margin: 6px 0 20px; }
+  /* the title sits beside the X, as an iOS screen's title sits beside its Close button: on a phone its two lines are
+     centred on the X, and where there's room it runs on one line. The grey text is the site's own, 7:1 on black */
+  .mx-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 12px;
+    padding-right: 48px;   /* clear of the X */
+    margin-bottom: 8px;
+  }
+
+  .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-footer-text); }
+  .mx-sub { font-size: 15px; line-height: 20px; color: var(--color-footer-text); }
 
   .mx-row {
     --mx-num: 28px;
@@ -2012,8 +2022,8 @@ load();
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 64px;
-    padding: 12px 0;
+    min-height: 44px;
+    padding: 8px 0;
     color: inherit;
     text-decoration: none;
     position: relative;
@@ -2058,7 +2068,7 @@ load();
 
   .mx-num {
     width: var(--mx-num);
-    font-size: 17px;
+    font-size: 15px;
     font-variant-numeric: tabular-nums;
     color: rgba(235,235,245,0.5);   /* 4.5:1 on the list's black, the least for text */
     flex: none;
@@ -2067,9 +2077,11 @@ load();
   /* the song opened last shows a small note in its number's place, so it's easy to pick a different one */
   .mx-row.last .mx-num { color: var(--color-accent); }
 
-  .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .mx-title  { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-artist { font-size: 17px; line-height: 1.25; color: var(--color-footer-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Apple Music's list sizes: the song in iOS's Headline style (17pt semibold), the artist in Subheadline (15pt), each at
+     its own line height, so a row is 58pt before it grows to fill the screen */
+  .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .mx-title  { font-size: 17px; font-weight: 600; letter-spacing: -0.022em; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-artist { font-size: 15px; line-height: 20px; color: var(--color-footer-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* the X's line weight at the size of an iOS row's arrow, centred under the X */
   .mx-out { color: rgba(235,235,245,0.45); margin-right: 1px; }
@@ -2079,17 +2091,13 @@ load();
     outline-offset: 2px;
   }
 
-  /* a phone turned sideways: the title moves up beside the X and the songs take the iOS sizes for a compact list,
-     so the whole set still fits without scrolling */
-  @media (max-height: 500px) {
+  /* a phone turned sideways: the title runs on one line beside the X and the songs split into two columns, so all eight
+     still fit without scrolling */
+  @media (max-height: 500px) and (orientation: landscape) {
     .mx-scroll { padding-top: calc(var(--safe-top) + 22px); padding-bottom: calc(var(--safe-bottom) + 12px); }
-    .mx-inner { --mx-head: 28px; --mx-row-max: 64px; }
-    .mx-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; padding-right: 48px; margin-bottom: 8px; }
-    .mx-sub { margin: 0; }
-    .mx-row { min-height: 44px; padding: 3px 0; }
-    .mx-num { font-size: 15px; }
-    .mx-title { font-size: 17px; letter-spacing: -0.4px; }
-    .mx-artist { font-size: 15px; }
+    .mx-inner { --mx-head: 28px; --mx-row-max: 72px; max-width: 760px; max-height: calc(var(--mx-head) + var(--mx-half, 4) * var(--mx-row-max)); }
+    .mx-list { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(var(--mx-half, 4), 1fr); grid-auto-flow: column; column-gap: 32px; }
+    .mx-row.top2::before { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -2148,8 +2156,11 @@ load();
 (() => {
   const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
 
-  // five sample rows until the real songs are in; until then each opens the playlist
-  const SONGS = Array.from({ length: 5 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
+  // eight sample rows until the real songs are in; until then each opens the playlist
+  const SONGS = Array.from({ length: 8 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
+
+  // sideways the songs split into two columns, the first the longer; this one heads the second
+  const half = Math.ceil(SONGS.length / 2);
 
   const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5 12.5 3.5M5 3.5h7.5V11"/></svg>';
   const NOTE = '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g ><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g></svg>';
@@ -2173,7 +2184,7 @@ load();
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
 
   function render() {
-    list.innerHTML = SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
+    list.innerHTML = SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}${i === half ? ' top2' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
       aria-label="${esc(s.title)} by ${esc(s.artist)}${String(i) === last ? ', opened last' : ''}, opens in Spotify">
       <span class="mx-num">${String(i) === last ? NOTE : i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
   }
@@ -2182,6 +2193,7 @@ load();
 
   // the list's height cap counts the songs
   inner.style.setProperty('--mx-rows', SONGS.length);
+  inner.style.setProperty('--mx-half', half);
 
   /* ── OPEN / CLOSE ── */
   let isOpen = false;
