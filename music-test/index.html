@@ -1818,11 +1818,11 @@ window.addEventListener('resize', layoutGrid, { passive: true });
 load();
 </script>
 
-<!-- ════ MUSIC TEST — five designs for a song list whose songs open in Spotify. Test page only. ════ -->
+<!-- ════ MUSIC TEST — a round music button opens a full-screen song list; songs open in Spotify. Test page only. ════ -->
 <style>
   .mx-icon { display: block; flex: none; }
 
-  /* ── TEST BAR — pick a design; not part of any design ── */
+  /* ── TEST BAR — switches for the choices being tested; not part of the design ── */
   .mx-testbar {
     position: fixed;
     z-index: 60;
@@ -1831,45 +1831,47 @@ load();
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 6px;
+    padding: 8px;
     border-radius: 14px;
-    background: rgba(28,32,30,0.82);
+    background: rgba(28,32,30,0.86);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     backdrop-filter: saturate(180%) blur(24px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48);
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(235,235,245,0.64);
+    max-width: calc(100vw - 20px);
   }
+
+  .mx-testbar .mx-q { padding: 0 2px; }
 
   .mx-seg { display: flex; gap: 2px; }
 
   .mx-seg button {
-    width: 36px;
-    height: 32px;
+    height: 30px;
+    padding: 0 10px;
     border: none;
-    border-radius: 9px;
+    border-radius: 8px;
     background: transparent;
     color: rgba(235,235,245,0.8);
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
     -webkit-tap-highlight-color: transparent;
   }
 
   .mx-seg button[aria-pressed="true"] { background: rgba(118,128,120,0.5); color: #fff; }
-  .mx-testbar p { padding: 0 6px 2px; line-height: 1.3; }
-  .mx-testbar b { color: rgba(240,244,240,0.92); font-weight: 600; }
 
-  /* ── SHARED PIECES ── */
-  .mx-glass {
-    background: rgba(26,30,28,0.88);
-    -webkit-backdrop-filter: saturate(180%) blur(30px);
-    backdrop-filter: saturate(180%) blur(30px);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.10), 0 12px 40px rgba(0,0,0,0.55);
-    color: rgba(240,244,240,0.92);
-  }
+  .mx-testbar .mx-hide-bar { align-self: flex-start; height: 26px; font-size: 12px; font-weight: 500; color: rgba(235,235,245,0.6); background: none; border: none; padding: 0 2px; cursor: pointer; }
 
-  .mx-round {
+  .mx-testbar.mini > :not(.mx-hide-bar) { display: none; }
+
+  /* ── MUSIC BUTTON — a round glass button, like the photo viewer's close button ── */
+  .mx-music {
+    position: fixed;
+    z-index: 50;
+    right: calc(var(--safe-right) + 16px);
+    bottom: calc(var(--safe-bottom) + 16px);
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -1884,262 +1886,50 @@ load();
     color: var(--color-lb-close-text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.2s ease;
   }
 
-  .mx-close {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(118,128,120,0.26);
-    color: rgba(235,235,245,0.8);
-    cursor: pointer;
-    flex: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .mx-music svg { width: 20px; height: 20px; }
+  .mx-music:active { transform: scale(0.92); }
 
-  .mx-close::before { content: ''; position: absolute; inset: -7px; }   /* 44pt to tap */
+  /* not until the photos are in */
+  body:not(.mx-ready) .mx-music { display: none; }
 
-  .mx-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px 10px;
-  }
-
-  .mx-head h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
-  .mx-head p  { font-size: 13px; color: rgba(235,235,245,0.6); margin-top: 1px; }
-  .mx-head > div { flex: 1; min-width: 0; }
-
-  .mx-list { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
-
-  .mx-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 8px 16px;
-    color: inherit;
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-  }
-
-  .mx-row + .mx-row::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 16px;
-    right: 0;
-    height: 0.5px;
-    background: rgba(84,84,88,0.6);
-  }
-
-  .mx-row:active { background: rgba(255,255,255,0.06); }
-
-  @media (hover: hover) and (pointer: fine) {
-    .mx-row:hover { background: rgba(255,255,255,0.05); }
-  }
-
-  .mx-row .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .mx-title  { font-size: 17px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-artist { font-size: 15px; line-height: 1.25; color: rgba(235,235,245,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-out    { color: rgba(235,235,245,0.45); }
-  .mx-num    { display: none; }
-
-  .mx-row.mx-all .mx-title { font-weight: 600; }
-
-  .mx-badge {
+  /* while a photo is open: the viewer's close-button size, over the viewer */
+  body.mx-viewer .mx-music {
+    z-index: 1000;
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(118,128,120,0.3);
-    flex: none;
   }
 
-  .mx-compact .mx-row { min-height: 48px; padding: 6px 14px; }
-  .mx-compact .mx-title  { font-size: 15px; }
-  .mx-compact .mx-artist { font-size: 13px; }
-  .mx-compact .mx-row + .mx-row::before { left: 14px; }
-  .mx-compact .mx-badge { width: 28px; height: 28px; }
+  body.mx-viewer .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* still 44pt to tap */
+  body.mx-viewer .mx-music svg { width: 15px; height: 15px; }
 
-  .mx-scrim {
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    background: rgba(0,0,0,0.45);
+  /* corner: in line with the page dots, on the black band below the photo */
+  body.mx-viewer[data-viewer="corner"] .mx-music {
+    bottom: calc(var(--safe-bottom) + 11px);
+  }
+
+  /* top left: mirrors the close button at top right */
+  body.mx-viewer[data-viewer="top"] .mx-music {
+    top: calc(var(--safe-top) + var(--space-16));
+    left: calc(var(--safe-left) + var(--space-16));
+    right: auto;
+    bottom: auto;
+  }
+
+  body.mx-viewer[data-viewer="hidden"] .mx-music,
+  body.mx-viewer.mx-bare .mx-music {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
   }
 
-  .mx-scrim.open { opacity: 1; pointer-events: auto; }
-
-  /* every design's parts are hidden until the test bar picks that design */
-  .mx-d { display: none !important; }
-  [data-design="1"] .mx-d1, [data-design="2"] .mx-d2, [data-design="3"] .mx-d3,
-  [data-design="4"] .mx-d4, [data-design="5"] .mx-d5 { display: flex !important; }
-
-  /* ── 1 · SHEET — corner button, the list slides up from the bottom like an iPhone sheet ── */
-  .mx-fab {
-    position: fixed;
-    z-index: 50;
-    right: calc(var(--safe-right) + 16px);
-    bottom: calc(var(--safe-bottom) + 16px);
-  }
-
-  .mx-sheet {
-    position: fixed;
-    z-index: 80;
-    left: 50%;
-    bottom: 0;
-    width: min(100%, 440px);
-    max-height: min(72vh, 640px);
-    flex-direction: column;
-    border-radius: 16px 16px 0 0;
-    padding-bottom: var(--safe-bottom);
-    transform: translate(-50%, 100%);
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .mx-sheet.open { transform: translate(-50%, 0); }
-
-  .mx-grabber {
-    width: 36px;
-    height: 5px;
-    border-radius: 3px;
-    background: rgba(235,235,245,0.3);
-    margin: 6px auto 0;
-    flex: none;
-  }
-
-  /* ── 2 · POPOVER — corner button, a small card opens above it ── */
-  .mx-pop {
-    position: fixed;
-    z-index: 80;
-    right: calc(var(--safe-right) + 16px);
-    bottom: calc(var(--safe-bottom) + 72px);
-    width: min(320px, calc(100vw - 32px));
-    max-height: min(56vh, 480px);
-    flex-direction: column;
-    border-radius: 14px;
-    transform-origin: calc(100% - 22px) calc(100% + 34px);
-    transform: scale(0.6);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
-  }
-
-  .mx-pop.open { transform: none; opacity: 1; pointer-events: auto; }
-  .mx-pop .mx-head { padding: 12px 14px 8px; }
-
-  /* ── 3 · CAPSULE — a small "Soundtrack" capsule at the bottom grows into the list ── */
-  .mx-capsule {
-    position: fixed;
-    z-index: 50;
-    left: 50%;
-    bottom: calc(var(--safe-bottom) + 16px);
-    transform: translateX(-50%);
-    height: 40px;
-    padding: 0 16px 0 13px;
-    border-radius: 20px;
-    border: none;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mx-capsule::before { content: ''; position: absolute; inset: -4px 0; }
-  .mx-capsule.hide { opacity: 0; transform: translateX(-50%) scale(0.8); pointer-events: none; }
-
-  .mx-island {
-    position: fixed;
-    z-index: 80;
-    left: 50%;
-    bottom: calc(var(--safe-bottom) + 12px);
-    width: min(360px, calc(100vw - 24px));
-    max-height: min(62vh, 520px);
-    flex-direction: column;
-    border-radius: 28px;
-    transform-origin: 50% 100%;
-    transform: translateX(-50%) scale(0.35, 0.12);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease;
-  }
-
-  .mx-island.open { transform: translateX(-50%); opacity: 1; pointer-events: auto; }
-  .mx-island .mx-head { padding: 16px 18px 8px; }
-  .mx-island .mx-row { padding-left: 18px; padding-right: 18px; }
-
-  /* ── 4 · END OF GALLERY — a quiet list after the last photo, nothing over the photos ── */
-  .mx-inline {
-    flex-direction: column;
-    width: min(100% - 32px, 640px);
-    margin: 0 auto;
-    padding-top: calc(var(--space-24) + var(--space-16));
-    color: rgba(240,244,240,0.92);
-  }
-
-  body:not(.mx-ready) .mx-inline { display: none !important; }
-
-  .mx-inline .mx-head { padding: 0 0 12px; }
-  .mx-inline .mx-head h2 { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(235,235,245,0.64); }
-  .mx-inline .mx-list { padding: 0; overflow: visible; }
-  .mx-inline .mx-row { padding-left: 0; padding-right: 0; }
-  .mx-inline .mx-row + .mx-row::before { left: 0; }
-  .mx-inline .mx-row:active, .mx-inline .mx-row:hover { background: none; opacity: 0.7; }
-  .mx-inline .mx-num, .mx-full .mx-num {
-    display: block;
-    width: 1.6em;
-    font-size: 15px;
-    font-variant-numeric: tabular-nums;
-    color: rgba(235,235,245,0.45);
-    flex: none;
-  }
-
-  @media (min-width: 768px) {
-    .mx-inline .mx-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
-    .mx-inline .mx-row.mx-all { grid-column: 1 / -1; }
-    .mx-inline .mx-row + .mx-row::before { right: 0; }
-  }
-
-  /* ── 5 · FULL SCREEN — a small text button opens a full-screen list in large type ── */
-  .mx-textbtn {
-    position: fixed;
-    z-index: 50;
-    top: calc(var(--safe-top) + 12px);
-    right: calc(var(--safe-right) + 12px);
-    height: 32px;
-    padding: 0 12px 0 10px;
-    border-radius: 16px;
-    border: none;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mx-textbtn::before { content: ''; position: absolute; inset: -6px -4px; }
-
+  /* ── FULL-SCREEN LIST ── */
   .mx-full {
     position: fixed;
-    z-index: 80;
+    z-index: 1100;
     inset: 0;
+    display: flex;
     flex-direction: column;
     align-items: center;
     background: rgba(0,0,0,0.92);
@@ -2147,137 +1937,254 @@ load();
     backdrop-filter: blur(30px);
     color: rgba(240,244,240,0.92);
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    padding: calc(var(--safe-top) + 64px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 24px);
+    visibility: hidden;
+    transform: scale(1.02);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 0.3s;
+    padding: calc(var(--safe-top) + 64px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 32px) calc(var(--safe-left) + 24px);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
-  .mx-full.open { opacity: 1; pointer-events: auto; }
+  .mx-full.open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 
-  .mx-full > .mx-close {
+  .mx-close {
     position: absolute;
-    top: calc(var(--safe-top) + 16px);
-    right: calc(var(--safe-right) + 16px);
+    top: calc(var(--safe-top) + var(--space-16));
+    right: calc(var(--safe-right) + var(--space-16));
     width: 32px;
     height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--color-lb-close-bg);
+    color: var(--color-lb-close-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .mx-full .mx-inner { width: 100%; max-width: 560px; }
-  .mx-full .mx-kicker { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(235,235,245,0.64); }
-  .mx-full .mx-sub { font-size: 15px; color: rgba(235,235,245,0.6); margin: 6px 0 20px; }
-  .mx-full .mx-list { overflow: visible; }
-  .mx-full .mx-row { padding: 12px 0; min-height: 64px; }
-  .mx-full .mx-row + .mx-row::before { left: 0; }
-  .mx-full .mx-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
-  .mx-full .mx-artist { font-size: 17px; }
-  .mx-full .mx-num { font-size: 17px; }
-  .mx-full .mx-row:active, .mx-full .mx-row:hover { background: none; opacity: 0.7; }
+  .mx-close::before { content: ''; position: absolute; inset: -6px; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .mx-sheet, .mx-pop, .mx-island, .mx-capsule, .mx-full, .mx-scrim { transition: none; }
+  .mx-inner { width: 100%; max-width: 560px; }
+  .mx-kicker { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(235,235,245,0.64); }
+  .mx-sub { font-size: 15px; color: rgba(235,235,245,0.6); margin: 6px 0 20px; }
+
+  .mx-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 12px 0;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s ease;
   }
 
-  .mx-seg button:focus-visible, .mx-round:focus-visible, .mx-close:focus-visible, .mx-capsule:focus-visible,
-  .mx-textbtn:focus-visible, .mx-row:focus-visible {
+  .mx-row + .mx-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.5px;
+    background: rgba(84,84,88,0.6);
+  }
+
+  .mx-row:active { opacity: 0.6; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .mx-row:hover { opacity: 0.75; }
+  }
+
+  .mx-num {
+    width: 1.6em;
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(235,235,245,0.45);
+    flex: none;
+  }
+
+  /* the song opened last shows a small note in its number's place, so it's easy to pick a different one */
+  .mx-row.last .mx-num { color: var(--color-accent); }
+
+  .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .mx-title  { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-artist { font-size: 17px; line-height: 1.25; color: rgba(235,235,245,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-all .mx-title { font-size: 17px; }
+  .mx-out { color: rgba(235,235,245,0.45); }
+
+  .mx-music:focus-visible, .mx-close:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mx-full, .mx-full.open, .mx-music { transition: none; transform: none; }
+  }
 </style>
 
-<div class="mx-testbar" role="group" aria-label="Music design test">
-  <div class="mx-seg">
-    <button type="button" data-n="1" aria-label="Design 1">1</button>
-    <button type="button" data-n="2" aria-label="Design 2">2</button>
-    <button type="button" data-n="3" aria-label="Design 3">3</button>
-    <button type="button" data-n="4" aria-label="Design 4">4</button>
-    <button type="button" data-n="5" aria-label="Design 5">5</button>
+<div class="mx-testbar" id="mxBar" role="group" aria-label="Music test settings">
+  <div class="mx-q">After choosing a song, the list</div>
+  <div class="mx-seg" data-setting="after">
+    <button type="button" data-v="close">Closes</button>
+    <button type="button" data-v="stay">Stays open</button>
   </div>
-  <p><b id="mxName"></b><br>Sample song names</p>
+  <div class="mx-q">Music button while a photo is open</div>
+  <div class="mx-seg" data-setting="viewer">
+    <button type="button" data-v="corner">Corner</button>
+    <button type="button" data-v="top">Top left</button>
+    <button type="button" data-v="hidden">Hidden</button>
+  </div>
+  <div class="mx-q">Sample song names</div>
+  <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
 </div>
 
-<!-- 1 · sheet -->
-<button type="button" class="mx-round mx-fab mx-d mx-d1" data-open="mxSheet" aria-label="Soundtrack" aria-haspopup="dialog">
-  <svg class="mx-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+<button type="button" class="mx-music" id="mxMusic" aria-label="Soundtrack" aria-haspopup="dialog" aria-expanded="false">
+  <svg class="mx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
 </button>
-<div class="mx-scrim" id="mxScrim"></div>
-<div class="mx-glass mx-sheet mx-d mx-d1" id="mxSheet" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
-  <div class="mx-grabber" aria-hidden="true"></div>
-  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div><button type="button" class="mx-close" data-close aria-label="Close"></button></div>
-  <div class="mx-list" data-list></div>
-</div>
 
-<!-- 2 · popover -->
-<button type="button" class="mx-round mx-fab mx-d mx-d2" data-open="mxPop" aria-label="Soundtrack" aria-haspopup="dialog">
-  <svg class="mx-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-</button>
-<div class="mx-glass mx-pop mx-compact mx-d mx-d2" id="mxPop" role="dialog" aria-label="Soundtrack" tabindex="-1">
-  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div></div>
-  <div class="mx-list" data-list></div>
-</div>
-
-<!-- 3 · capsule -->
-<button type="button" class="mx-glass mx-capsule mx-d mx-d3" data-open="mxIsland" aria-haspopup="dialog">
-  <svg class="mx-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-  Soundtrack
-</button>
-<div class="mx-glass mx-island mx-d mx-d3" id="mxIsland" role="dialog" aria-label="Soundtrack" tabindex="-1">
-  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div><button type="button" class="mx-close" data-close aria-label="Close"></button></div>
-  <div class="mx-list" data-list></div>
-</div>
-
-<!-- 4 · end of gallery (moved in front of Back to top by the script) -->
-<section class="mx-inline mx-d mx-d4" id="mxInline" aria-label="Soundtrack">
-  <div class="mx-head"><div><h2>Soundtrack</h2><p>Songs open in Spotify</p></div></div>
-  <div class="mx-list" data-list data-numbered></div>
-</section>
-
-<!-- 5 · full screen -->
-<button type="button" class="mx-glass mx-textbtn mx-d mx-d5" data-open="mxFull" aria-haspopup="dialog">
-  <svg class="mx-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-  Soundtrack
-</button>
-<div class="mx-full mx-d mx-d5" id="mxFull" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
-  <button type="button" class="mx-close" data-close aria-label="Close"></button>
+<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
+  <button type="button" class="mx-close" id="mxClose" aria-label="Close">
+    <svg class="mx-icon" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11"/></svg>
+  </button>
   <div class="mx-inner">
     <div class="mx-kicker">Soundtrack</div>
     <div class="mx-sub">Choose a song and it opens in Spotify</div>
-    <div class="mx-list" data-list data-numbered></div>
+    <div class="mx-list" id="mxList"></div>
   </div>
 </div>
 
 <script>
-/* ── MUSIC TEST — the same song list in five designs; the test bar switches between them ── */
+/* ── MUSIC TEST — the music button opens a full-screen list; a chosen song opens in Spotify ── */
 (() => {
   const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
 
   // sample rows until the real songs are in; each opens the playlist for now
   const SONGS = Array.from({ length: 8 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
 
-  const NAMES = { 1: 'Design 1 · Sheet', 2: 'Design 2 · Popover', 3: 'Design 3 · Capsule', 4: 'Design 4 · End of gallery', 5: 'Design 5 · Full screen' };
-
   const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
-  const PLAY = '<span class="mx-badge" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>';
-  const X    = '<svg class="mx-icon" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11"/></svg>';
+  const NOTE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
 
   const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  function rows(numbered) {
-    const all = `<a class="mx-row mx-all" href="${PLAYLIST}" target="_blank" rel="noopener" aria-label="Open the whole playlist in Spotify">
-      ${numbered ? '<span class="mx-num"></span>' : PLAY}<span class="mx-text"><span class="mx-title">Open the whole playlist</span></span>${OUT}</a>`;
+  const list    = document.getElementById('mxList');
+  const full    = document.getElementById('mxFull');
+  const music   = document.getElementById('mxMusic');
+  const lbEl    = document.getElementById('lb');
+  const bar     = document.getElementById('mxBar');
+  const LAST    = 'mx-last-song';
 
-    return all + SONGS.map((s, i) => `<a class="mx-row" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(s.title)} by ${esc(s.artist)}, opens in Spotify">
-      <span class="mx-num">${i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
+  const settings = { after: 'close', viewer: 'corner' };
+
+  let last = null;
+  try { last = sessionStorage.getItem(LAST); } catch (e) {}
+
+  function render() {
+    const all = `<a class="mx-row mx-all" href="${PLAYLIST}" target="_blank" rel="noopener" data-i="all" aria-label="Open the whole playlist in Spotify">
+      <span class="mx-num"></span><span class="mx-text"><span class="mx-title">Open the whole playlist</span></span>${OUT}</a>`;
+
+    list.innerHTML = all + SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
+      aria-label="${esc(s.title)} by ${esc(s.artist)}${String(i) === last ? ', opened last' : ''}, opens in Spotify">
+      <span class="mx-num">${String(i) === last ? NOTE : i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
   }
 
-  document.querySelectorAll('[data-list]').forEach(el => { el.innerHTML = rows(el.hasAttribute('data-numbered')); });
-  document.querySelectorAll('.mx-close').forEach(el => { el.innerHTML = X; });
+  render();
 
-  // design 4 sits after the last photo, in front of Back to top; it shows once the gallery has loaded
+  /* ── OPEN / CLOSE ── */
+  let isOpen = false;
+
+  full.inert = true;  // closed, it's out of the Tab order and out of VoiceOver's reach
+
+  function open() {
+    isOpen = true;
+    full.inert = false;
+    full.classList.add('open');
+    music.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+
+    // the song opened last comes into view, for picking a different one; only the list scrolls, never the gallery behind
+    const lastRow = list.querySelector('.mx-row.last');
+    full.scrollTop = lastRow ? Math.max(0, lastRow.offsetTop - full.clientHeight / 2 + lastRow.offsetHeight / 2) : 0;
+
+    setTimeout(() => full.focus({ preventScroll: true }), 50);
+  }
+
+  function close(restoreFocus = true) {
+    if (!isOpen) return;
+
+    isOpen = false;
+    full.classList.remove('open');
+    full.inert = true;
+    music.setAttribute('aria-expanded', 'false');
+
+    // the photo viewer keeps the page from scrolling while it's open
+    if (!lbEl.classList.contains('open')) document.body.style.overflow = '';
+
+    if (restoreFocus && getComputedStyle(music).opacity !== '0') music.focus({ preventScroll: true });
+  }
+
+  music.addEventListener('click', () => (isOpen ? close() : open()));
+  document.getElementById('mxClose').addEventListener('click', () => close());
+
+  // choosing a song: Spotify opens; with "Closes" the list is gone by the time the visitor comes back
+  list.addEventListener('click', e => {
+    const row = e.target.closest('.mx-row');
+    if (!row) return;
+
+    if (row.dataset.i !== 'all') {
+      last = row.dataset.i;
+      try { sessionStorage.setItem(LAST, last); } catch (err) {}
+      setTimeout(render, 400);
+    }
+
+    if (settings.after === 'close') setTimeout(() => close(false), 150);
+  });
+
+  // if the page is hidden before then (Spotify took over), close at once
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isOpen && settings.after === 'close') close(false);
+  });
+
+  // keys go to the list first while it's open, so Escape and the arrows don't also move the photo viewer
+  window.addEventListener('keydown', e => {
+    if (!isOpen) return;
+
+    if (e.key === 'Escape') {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      close();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.stopImmediatePropagation();
+    } else if (e.key === 'Tab') {
+      e.stopImmediatePropagation();
+
+      const stops = [document.getElementById('mxClose'), ...list.querySelectorAll('.mx-row')];
+      const at = stops.indexOf(document.activeElement);
+      const next = e.shiftKey ? (at <= 0 ? stops.length - 1 : at - 1) : (at === -1 || at === stops.length - 1 ? 0 : at + 1);
+
+      e.preventDefault();
+      stops[next].focus();
+    }
+  }, true);
+
+  /* ── FOLLOW THE PHOTO VIEWER — the button moves into it, and hides when its controls do ── */
+  new MutationObserver(() => {
+    const viewing = lbEl.classList.contains('open');
+
+    document.body.classList.toggle('mx-viewer', viewing);
+    document.body.classList.toggle('mx-bare', viewing && (lbEl.classList.contains('bare') || lbEl.classList.contains('dragging')));
+  }).observe(lbEl, { attributes: true, attributeFilter: ['class'] });
+
+  // the button appears with the photos
   const bottomBar = document.getElementById('bottomBar');
-  bottomBar.parentNode.insertBefore(document.getElementById('mxInline'), bottomBar);
-
   const ready = setInterval(() => {
     if (getComputedStyle(bottomBar).display !== 'none') {
       document.body.classList.add('mx-ready');
@@ -2285,83 +2192,29 @@ load();
     }
   }, 200);
 
-  /* ── OPEN / CLOSE ── */
-  const scrim = document.getElementById('mxScrim');
-  const panels = ['mxSheet', 'mxPop', 'mxIsland', 'mxFull'].map(id => document.getElementById(id));
-  let openPanel = null;
-  let opener = null;
-
-  // a closed list is out of the Tab order and out of VoiceOver's reach
-  panels.forEach(p => { p.inert = true; });
-
-  function open(panel, from) {
-    close(false);
-    openPanel = panel;
-    opener = from;
-    panel.inert = false;
-    panel.classList.add('open');
-
-    if (panel.id === 'mxSheet') scrim.classList.add('open');
-    if (panel.id === 'mxIsland') document.querySelector('.mx-capsule').classList.add('hide');
-    if (panel.getAttribute('aria-modal') === 'true') document.body.style.overflow = 'hidden';
-
-    from.setAttribute('aria-expanded', 'true');
-    setTimeout(() => panel.focus({ preventScroll: true }), 50);
-  }
-
-  function close(restoreFocus = true) {
-    if (!openPanel) return;
-
-    openPanel.classList.remove('open');
-    openPanel.inert = true;
-    scrim.classList.remove('open');
-    document.querySelector('.mx-capsule').classList.remove('hide');
-    document.body.style.overflow = '';
-
-    if (opener) {
-      opener.setAttribute('aria-expanded', 'false');
-      if (restoreFocus) opener.focus({ preventScroll: true });
-    }
-
-    openPanel = null;
-    opener = null;
-  }
-
-  document.querySelectorAll('[data-open]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const panel = document.getElementById(btn.dataset.open);
-      openPanel === panel ? close() : open(panel, btn);
-    });
-  });
-
-  document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => close()));
-  scrim.addEventListener('click', () => close());
-
-  // a tap anywhere outside the open list closes it, as with Apple's popovers
-  document.addEventListener('click', e => {
-    if (openPanel && !openPanel.contains(e.target)) close(false);
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && openPanel) close();
-  });
-
   /* ── TEST BAR ── */
-  const seg = [...document.querySelectorAll('.mx-seg button')];
+  const params = new URLSearchParams(location.search);
 
-  function setDesign(n) {
-    close(false);
-    document.body.dataset.design = n;
-    seg.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.n === String(n))));
-    document.getElementById('mxName').textContent = NAMES[n];
-    history.replaceState(null, '', `${location.pathname}?design=${n}`);
+  function apply(name, value) {
+    settings[name] = value;
+    document.body.dataset[name] = value;
+    bar.querySelectorAll(`[data-setting="${name}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
+    params.set(name, value);
+    history.replaceState(null, '', `${location.pathname}?${params}`);
   }
 
-  seg.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); setDesign(+b.dataset.n); }));
+  bar.querySelectorAll('.mx-seg').forEach(seg => {
+    const name = seg.dataset.setting;
+    const values = [...seg.querySelectorAll('button')].map(b => b.dataset.v);
 
-  const asked = +new URLSearchParams(location.search).get('design');
-  setDesign(asked >= 1 && asked <= 5 ? asked : 1);
+    seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => apply(name, b.dataset.v)));
+    apply(name, values.includes(params.get(name)) ? params.get(name) : settings[name]);
+  });
+
+  document.getElementById('mxHideBar').addEventListener('click', () => {
+    const mini = bar.classList.toggle('mini');
+    document.getElementById('mxHideBar').textContent = mini ? 'Test settings' : 'Hide this panel';
+  });
 })();
 </script>
 
