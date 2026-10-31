@@ -1869,11 +1869,14 @@ load();
   /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size,
      16pt in from the bottom-right corner as the close button is from the top right. It doesn't move or
      change when a photo opens ── */
+  /* it sits in the page just after Back to top, pulled up onto that button's line and taking no space (the margins
+     cancel its height). Sticky: while the gallery scrolls it holds the screen's corner, and when the page reaches its
+     end it stops on the Back to top line. The browser does this itself, so it never lags behind the page */
   .mx-music {
-    position: fixed;
+    position: sticky;
     z-index: 50;
-    right: calc(var(--safe-right) + var(--space-16));
     bottom: calc(var(--safe-bottom) + var(--space-16));
+    margin: calc(-1 * (var(--space-24) + 38px)) calc(var(--safe-right) + var(--space-16)) calc(var(--space-24) + 6px) auto;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -1910,11 +1913,33 @@ load();
   /* not until the photos are in */
   body:not(.mx-ready) .mx-music { display: none; }
 
-  /* over the photo viewer while a photo is open */
+  @media (min-width: 768px) {
+    .mx-music {
+      margin-top: calc(-1 * (var(--space-32) + 38px));
+      margin-bottom: calc(var(--space-32) + 6px);
+    }
+  }
+
+  /* over the photo viewer while a photo is open, in its bottom-right corner; and, as a test choice, always floating */
+  body.mx-viewer .mx-music,
+  body[data-place="float"] .mx-music {
+    position: fixed;
+    right: calc(var(--safe-right) + var(--space-16));
+    bottom: calc(var(--safe-bottom) + var(--space-16));
+    margin: 0;
+  }
+
   body.mx-viewer .mx-music { z-index: 1000; }
 
+  /* test choice: only at the end of the page, on the Back to top line */
+  body[data-place="end"] .mx-music:not(.mx-docked),
+  body[data-place="end"].mx-viewer .mx-music {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* it steps back while the gallery scrolls, and returns when it stops */
-  body[data-scroll="fade"].mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
+  body[data-scroll="fade"].mx-scrolling:not(.mx-viewer) .mx-music:not(.mx-docked) { opacity: 0.3; }
 
   /* hidden with the viewer's other controls: a tap on the photo, or dragging it down to close */
   body.mx-viewer.mx-bare .mx-music {
@@ -2039,6 +2064,12 @@ load();
     <button type="button" data-v="fade">Fades back</button>
     <button type="button" data-v="stay">Stays</button>
   </div>
+  <div class="mx-q">At the end of the page, the button</div>
+  <div class="mx-seg" data-setting="place">
+    <button type="button" data-v="dock">Docks</button>
+    <button type="button" data-v="float">Keeps floating</button>
+    <button type="button" data-v="end">Only at the end</button>
+  </div>
   <div class="mx-q">Sample song names</div>
   <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
 </div>
@@ -2090,7 +2121,7 @@ load();
   const bar     = document.getElementById('mxBar');
   const LAST    = 'mx-last-song';
 
-  const settings = { after: 'close', scroll: 'fade' };
+  const settings = { after: 'close', scroll: 'fade', place: 'dock' };
 
   let last = null;
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
@@ -2284,6 +2315,26 @@ load();
     }
   }, true);
 
+  /* ── DOCKING — the button lives just after Back to top; it has docked once it stops above the screen's corner ── */
+  document.getElementById('bottomBar').after(music);
+
+  let dockFrame = 0;
+
+  function checkDock() {
+    dockFrame = 0;
+
+    const r = music.getBoundingClientRect();
+    const corner = innerHeight - parseFloat(getComputedStyle(music).bottom);
+    const viewing = document.body.classList.contains('mx-viewer');
+
+    music.classList.toggle('mx-docked', settings.place !== 'float' && !viewing && r.height > 0 && r.bottom < corner - 0.5);
+  }
+
+  const queueDock = () => { if (!dockFrame) dockFrame = requestAnimationFrame(checkDock); };
+
+  window.addEventListener('scroll', queueDock, { passive: true });
+  window.addEventListener('resize', queueDock, { passive: true });
+
   /* ── SCROLLING — the button steps back while the gallery moves ── */
   let scrollTimer = 0;
 
@@ -2299,6 +2350,7 @@ load();
 
     document.body.classList.toggle('mx-viewer', viewing);
     document.body.classList.toggle('mx-bare', viewing && (lbEl.classList.contains('bare') || lbEl.classList.contains('dragging')));
+    queueDock();
   }).observe(lbEl, { attributes: true, attributeFilter: ['class'] });
 
   // the button appears with the photos
@@ -2307,6 +2359,7 @@ load();
     if (getComputedStyle(bottomBar).display !== 'none') {
       document.body.classList.add('mx-ready');
       clearInterval(ready);
+      queueDock();
     }
   }, 200);
 
@@ -2319,6 +2372,7 @@ load();
     bar.querySelectorAll(`[data-setting="${name}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
     params.set(name, value);
     history.replaceState(null, '', `${location.pathname}?${params}`);
+    queueDock();
   }
 
   bar.querySelectorAll('.mx-seg').forEach(seg => {
