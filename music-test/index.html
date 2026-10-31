@@ -1920,6 +1920,15 @@ load();
     }
   }
 
+  /* test choice: it stops with the photos instead. It sits just after the gallery, pulled up to 16pt above the last
+     photo's bottom edge, so at the end it locks onto that photo's corner and scrolls away with it toward the footer */
+  body[data-place="photo"] .mx-music {
+    margin: calc(-1 * (var(--space-16) + 32px + var(--gap))) calc(var(--safe-right) + var(--space-16)) calc(var(--space-16) + var(--gap)) auto;
+  }
+
+  /* over the photos it steps back while scrolling, locked or not */
+  body[data-scroll="fade"][data-place="photo"].mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
+
   /* over the photo viewer while a photo is open, in its bottom-right corner; and, as a test choice, always floating */
   body.mx-viewer .mx-music,
   body[data-place="float"] .mx-music {
@@ -2066,6 +2075,7 @@ load();
   </div>
   <div class="mx-q">At the end of the page, the button</div>
   <div class="mx-seg" data-setting="place">
+    <button type="button" data-v="photo">Stays with the photos</button>
     <button type="button" data-v="dock">Docks</button>
     <button type="button" data-v="float">Keeps floating</button>
     <button type="button" data-v="end">Only at the end</button>
@@ -2121,7 +2131,7 @@ load();
   const bar     = document.getElementById('mxBar');
   const LAST    = 'mx-last-song';
 
-  const settings = { after: 'close', scroll: 'fade', place: 'dock' };
+  const settings = { after: 'close', scroll: 'fade', place: 'photo' };
 
   let last = null;
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
@@ -2316,7 +2326,13 @@ load();
   }, true);
 
   /* ── DOCKING — the button lives just after Back to top; it has docked once it stops above the screen's corner ── */
-  document.getElementById('bottomBar').after(music);
+  function seat() {
+    // after <main>, not inside it: the photo viewer makes <main> inert while a photo is open, which would take the button with it
+    if (settings.place === 'photo') document.querySelector('main').after(music);
+    else document.getElementById('bottomBar').after(music);
+  }
+
+  seat();
 
   let dockFrame = 0;
 
@@ -2372,6 +2388,7 @@ load();
     bar.querySelectorAll(`[data-setting="${name}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
     params.set(name, value);
     history.replaceState(null, '', `${location.pathname}?${params}`);
+    seat();
     queueDock();
   }
 
