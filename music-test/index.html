@@ -1968,7 +1968,7 @@ load();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 14px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
+    padding: calc(var(--safe-top) + 22px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -1977,7 +1977,7 @@ load();
      scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
      80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
   .mx-inner {
-    --mx-head: 44px;   /* the title's two lines and the space under them */
+    --mx-head: 28px;   /* the title's line and the space under it */
     --mx-row-max: 100px;
     width: 100%;
     max-width: 560px;
@@ -1991,7 +1991,7 @@ load();
     transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  @media (min-width: 600px) { .mx-inner { --mx-head: 28px; --mx-row-max: 80px; } }   /* the title on one line */
+  @media (min-width: 600px) { .mx-inner { --mx-row-max: 80px; } }
 
   .mx-full.open .mx-inner { transform: none; }
 
@@ -2002,8 +2002,8 @@ load();
   .mx-full .lb-close { transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease; }
   .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
 
-  /* the title sits beside the X, as an iOS screen's title sits beside its Close button: on a phone its two lines are
-     centred on the X, and where there's room it runs on one line. The grey text is the site's own, 7:1 on black */
+  /* the title sits beside the X on one line, centred on it, as an iOS screen's title sits beside its Close button.
+     The grey text is the site's own, 7:1 on black */
   .mx-head {
     display: flex;
     flex-wrap: wrap;
@@ -2091,11 +2091,10 @@ load();
     outline-offset: 2px;
   }
 
-  /* a phone turned sideways: the title runs on one line beside the X and the songs split into two columns, so all eight
-     still fit without scrolling */
+  /* a phone turned sideways: the songs split into two columns, so all eight still fit without scrolling */
   @media (max-height: 500px) and (orientation: landscape) {
-    .mx-scroll { padding-top: calc(var(--safe-top) + 22px); padding-bottom: calc(var(--safe-bottom) + 12px); }
-    .mx-inner { --mx-head: 28px; --mx-row-max: 72px; max-width: 760px; max-height: calc(var(--mx-head) + var(--mx-half, 4) * var(--mx-row-max)); }
+    .mx-scroll { padding-bottom: calc(var(--safe-bottom) + 12px); }
+    .mx-inner { --mx-row-max: 72px; max-width: 760px; max-height: calc(var(--mx-head) + var(--mx-half, 4) * var(--mx-row-max)); }
     .mx-list { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(var(--mx-half, 4), 1fr); grid-auto-flow: column; column-gap: 32px; }
     .mx-row.top2::before { display: none; }
   }
@@ -2126,25 +2125,25 @@ load();
   <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
 </div>
 
-<button type="button" class="mx-music" id="mxMusic" aria-label="Soundtrack" aria-haspopup="dialog" aria-expanded="false">
+<button type="button" class="mx-music" id="mxMusic" aria-label="Music" aria-haspopup="dialog" aria-expanded="false">
   <svg class="mx-icon" viewBox="0 0 16 16" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <g class="n3"><path d="M5.167 11.74V2.91L12.833 1.55V10.38" fill="none" stroke-width="1.667"/><circle cx="3.127" cy="11.74" r="2.44" stroke="none"/><circle cx="10.793" cy="10.38" r="2.44" stroke="none"/></g>
     <g class="n2"><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g>
   </svg>
 </button>
 
-<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Soundtrack" tabindex="-1">
+<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Music" tabindex="-1">
   <div class="mx-backdrop" id="mxBackdrop"></div>
   <div class="mx-scroll" id="mxScroll">
     <div class="mx-inner" id="mxInner">
       <div class="mx-head">
-        <div class="mx-kicker">Soundtrack</div>
-        <div class="mx-sub">Choose a song and it opens in Spotify</div>
+        <div class="mx-kicker">Music</div>
+        <div class="mx-sub">Listen on Spotify</div>
       </div>
       <div class="mx-list" id="mxList"></div>
     </div>
   </div>
-  <button type="button" class="lb-close" id="mxClose" aria-label="Close soundtrack">
+  <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M1 1l14 14M15 1L1 15"/>
     </svg>
