@@ -1898,16 +1898,11 @@ load();
      screen, so they stay sharp; the 16px box sits on whole pixels too. Solid white faded as one piece: no seams */
   .mx-music svg { width: 16px; height: 16px; opacity: 0.92; }
 
-  /* test switch: notes centred by visual weight (n), or filling the X's corner-to-corner square (f) */
-  .mx-music g { display: none; }
-  body[data-notes="weight"] .mx-music .n2,
-  body[data-notes="fill"] .mx-music .f2 { display: inline; }   /* Mac Retina and other screens */
+  .mx-music .n3 { display: none; }
 
   @media (min-resolution: 2.5dppx), (-webkit-min-device-pixel-ratio: 2.5) {
-    body[data-notes="weight"] .mx-music .n2,
-    body[data-notes="fill"] .mx-music .f2 { display: none; }
-    body[data-notes="weight"] .mx-music .n3,
-    body[data-notes="fill"] .mx-music .f3 { display: inline; }  /* iPhone */
+    .mx-music .n3 { display: inline; }   /* iPhone */
+    .mx-music .n2 { display: none; }     /* Mac Retina and other screens */
   }
 
   .mx-music:active { transform: scale(0.9); }
@@ -2044,11 +2039,6 @@ load();
     <button type="button" data-v="fade">Fades back</button>
     <button type="button" data-v="stay">Stays</button>
   </div>
-  <div class="mx-q">Music notes</div>
-  <div class="mx-seg" data-setting="notes">
-    <button type="button" data-v="fill">Fill the X's square</button>
-    <button type="button" data-v="weight">Centered by weight</button>
-  </div>
   <div class="mx-q">Sample song names</div>
   <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
 </div>
@@ -2057,8 +2047,6 @@ load();
   <svg class="mx-icon" viewBox="0 0 16 16" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <g class="n3"><path d="M5.167 11.74V2.91L12.833 1.55V10.38" fill="none" stroke-width="1.667"/><circle cx="3.127" cy="11.74" r="2.44" stroke="none"/><circle cx="10.793" cy="10.38" r="2.44" stroke="none"/></g>
     <g class="n2"><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g>
-    <g class="f3"><path d="M5.833 12.392V3.336L14.167 1.943V11" fill="none" stroke-width="1.667"/><circle cx="3.745" cy="12.392" r="2.498" stroke="none"/><circle cx="12.078" cy="11" r="2.498" stroke="none"/></g>
-    <g class="f2"><path d="M5.75 12.392V3.252L14.25 1.86V11" fill="none" stroke-width="1.5"/><circle cx="3.662" cy="12.392" r="2.498" stroke="none"/><circle cx="12.162" cy="11" r="2.498" stroke="none"/></g>
   </svg>
 </button>
 
@@ -2102,7 +2090,7 @@ load();
   const bar     = document.getElementById('mxBar');
   const LAST    = 'mx-last-song';
 
-  const settings = { after: 'close', scroll: 'fade', notes: 'fill' };
+  const settings = { after: 'close', scroll: 'fade' };
 
   let last = null;
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
