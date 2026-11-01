@@ -1827,6 +1827,7 @@ load();
      green-grey without the green, and blurs whatever is behind it in grey ── */
   :root {
     --mx-glass:         rgba(63,63,63,0.62);
+    --mx-glass-hover:   rgba(72,72,72,0.66);
     --mx-glass-pressed: rgba(82,82,82,0.68);
     --mx-text:          rgba(255,255,255,0.92);
     --mx-text-2:        rgba(255,255,255,0.6);    /* 7:1 on the list's black, as the footer's grey */
@@ -1932,7 +1933,7 @@ load();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 22px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
+    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -1941,7 +1942,7 @@ load();
      scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
      80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
   .mx-inner {
-    --mx-head: 28px;   /* the title's line and the space under it */
+    --mx-head: 40px;   /* the title's line, the X's height, and the space under it */
     --mx-row-max: 100px;
     width: 100%;
     max-width: 560px;
@@ -1961,8 +1962,8 @@ load();
 
   .mx-list { flex: 1 0 auto; display: flex; flex-direction: column; }
 
-  /* the X is the photo viewer's own close button (class lb-close), so the two can't drift apart;
-     as in the viewer, it steps aside while the list is dragged */
+  /* the X is the photo viewer's own close button (class lb-close), so the two can't drift apart; as in the viewer, it
+     steps aside while the list is dragged */
   .mx-full .lb-close {
     background: var(--mx-glass);
     -webkit-backdrop-filter: grayscale(1) blur(24px);
@@ -1975,15 +1976,19 @@ load();
   .mx-full .lb-close:focus-visible { outline-color: var(--mx-text); }
   .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
 
-  /* the title sits beside the X on one line, centred on it, as an iOS screen's title sits beside its Close button */
+  /* the title and the X share one line, as an iOS screen's title sits beside its Close button. The X belongs to the
+     list: on a phone it lands 16pt from the corner, where the photo viewer's is; on a wider screen it stays beside the
+     list instead of out in the window's corner. Either way its centre sits over the songs' arrows */
   .mx-head {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 12px;
-    padding-right: 48px;   /* clear of the X */
+    align-items: center;
+    gap: 12px;
     margin-bottom: 8px;
   }
+
+  .mx-label { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; }
+
+  .mx-head .lb-close { position: relative; top: auto; right: auto; flex: none; margin-right: -8px; }
 
   .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mx-text-2); }
   .mx-sub { font-size: 15px; line-height: 20px; color: var(--mx-text-2); }
@@ -2058,9 +2063,21 @@ load();
   /* the X's line weight at the size of an iOS row's arrow, centred under the X */
   .mx-out { color: var(--mx-mark); margin-right: 1px; }
 
-  .mx-music:focus-visible, .mx-row:focus-visible {
+  .mx-music:focus-visible {
     outline: 2px solid var(--mx-text);
     outline-offset: 2px;
+  }
+
+  /* reached from the keyboard, a song takes the highlight's rounded shape with a white ring, as a focus ring on a Mac
+     follows the shape it marks */
+  .mx-row:focus-visible { outline: none; }
+  .mx-row:focus-visible::after { opacity: 1; background: rgba(124,124,124,0.25); box-shadow: inset 0 0 0 2px var(--mx-text); }
+  .mx-row:focus-visible::before, .mx-row:focus-visible + .mx-row::before { opacity: 0; }
+
+  /* with a mouse or trackpad, the music button and the X lighten a little under the pointer, as buttons do on a Mac
+     and an iPad; pressed, they still shrink and lighten further */
+  @media (hover: hover) and (pointer: fine) {
+    .mx-music:hover:not(:active), .lb-close:hover:not(:active) { background: var(--mx-glass-hover); }
   }
 
   /* a phone turned sideways: the songs split into two columns, so all eight still fit without scrolling */
@@ -2089,17 +2106,19 @@ load();
   <div class="mx-scroll" id="mxScroll">
     <div class="mx-inner" id="mxInner">
       <div class="mx-head">
-        <div class="mx-kicker">Music</div>
-        <div class="mx-sub">Listen on Spotify</div>
+        <div class="mx-label">
+          <div class="mx-kicker">Music</div>
+          <div class="mx-sub">Listen on Spotify</div>
+        </div>
+        <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 1l14 14M15 1L1 15"/>
+          </svg>
+        </button>
       </div>
       <div class="mx-list" id="mxList"></div>
     </div>
   </div>
-  <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M1 1l14 14M15 1L1 15"/>
-    </svg>
-  </button>
 </div>
 
 <script>
@@ -2313,6 +2332,19 @@ load();
       close();
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       e.stopImmediatePropagation();
+    } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+      // the arrows move between the songs, as in a list on a Mac, and stop at the first and the last
+      e.stopImmediatePropagation();
+      e.preventDefault();
+
+      const rows = [...list.querySelectorAll('.mx-row')];
+      const at = rows.indexOf(document.activeElement);
+      const down = e.key === 'ArrowDown';
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? rows.length - 1
+        : at === -1 ? (down ? 0 : rows.length - 1)
+        : Math.min(rows.length - 1, Math.max(0, at + (down ? 1 : -1)));
+
+      rows[next].focus();
     } else if (e.key === 'Tab') {
       e.stopImmediatePropagation();
 
