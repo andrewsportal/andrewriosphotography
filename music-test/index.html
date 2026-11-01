@@ -2445,24 +2445,21 @@ load();
     }
   }, 200);
 
-  /* ── TEST BAR ── */
-  const params = new URLSearchParams(location.search);
+  /* ── TEST BAR — every visit opens on the chosen design; a switch lasts only until the page is reloaded ── */
+  if (location.search) history.replaceState(null, '', location.pathname);   // drops choices an earlier version kept in the address
 
   function apply(name, value) {
     settings[name] = value;
     document.body.dataset[name] = value;
     bar.querySelectorAll(`[data-setting="${name}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
-    params.set(name, value);
-    history.replaceState(null, '', `${location.pathname}?${params}`);
     if (name === 'viewer') hideInViewer();
   }
 
   bar.querySelectorAll('.mx-seg').forEach(seg => {
     const name = seg.dataset.setting;
-    const values = [...seg.querySelectorAll('button')].map(b => b.dataset.v);
 
     seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => apply(name, b.dataset.v)));
-    apply(name, values.includes(params.get(name)) ? params.get(name) : settings[name]);
+    apply(name, settings[name]);
   });
 
   document.getElementById('mxHideBar').addEventListener('click', () => {
