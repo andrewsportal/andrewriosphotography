@@ -1840,16 +1840,17 @@ load();
   .mx-icon { display: block; flex: none; }
 
   /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size, 16pt in from
-     the screen's bottom-right corner as the close button is from the top right. It stays with the photos: it sits
-     just after the gallery, pulled up to 16pt above the last photo's bottom edge and taking no space (the margins
-     cancel its height). Sticky, so while the gallery scrolls it holds the screen's corner, and when the photos end it
-     locks onto the last photo's corner and scrolls away with it toward the footer. The browser does this itself, so it
-     never lags behind the page ── */
+     the screen's bottom-right corner as the close button is from the top right. It belongs to the photos, not to the
+     page's controls: it sits just after the gallery, 16pt under the last photo's corner, taking no space (the margins
+     cancel its height), so Back to top keeps its own spacing and the two never read as a pair. Sticky, so while the
+     gallery scrolls it holds the screen's corner, and when the photos end it settles under the last one, covering
+     none of it, and scrolls away with it toward the footer. The browser does this itself, so it never lags behind
+     the page ── */
   .mx-music {
     position: sticky;
     z-index: 50;
     bottom: calc(var(--safe-bottom) + var(--space-16));
-    margin: calc(-1 * (var(--space-16) + 32px + var(--gap))) calc(var(--safe-right) + var(--space-16)) calc(var(--space-16) + var(--gap)) auto;
+    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + 32px)) auto;
     width: 32px;
     height: 32px;
     border-radius: 50%;
