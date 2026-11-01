@@ -1907,7 +1907,7 @@ load();
     color: var(--mx-text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.25s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
+    transition: opacity 0.2s ease-out, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
   }
 
   .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* 44pt to tap */
@@ -1930,7 +1930,7 @@ load();
   /* not until the photos are in */
   body:not(.mx-ready) .mx-music { display: none; }
 
-  /* it steps back while the gallery scrolls, and returns when it stops */
+  /* it steps back while the gallery scrolls, and returns as soon as the page stops, in a fifth of a second */
   body[data-scroll="fade"].mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
 
   /* while a photo is open it's hidden, so the viewer holds only that photo's own controls (test choice: or it stays,
@@ -2416,13 +2416,15 @@ load();
     music.inert = document.body.classList.contains('mx-viewer') && settings.viewer === 'hidden';
   };
 
-  /* ── SCROLLING — the button steps back while the gallery moves ── */
+  /* ── SCROLLING — the button steps back while the gallery moves and comes back as soon as it stops: once the page has
+     been still for 150ms. Safari reports the page's position frame by frame while it glides, so a pause that long
+     means it has stopped ── */
   let scrollTimer = 0;
 
   window.addEventListener('scroll', () => {
     document.body.classList.add('mx-scrolling');
     clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => document.body.classList.remove('mx-scrolling'), 600);
+    scrollTimer = setTimeout(() => document.body.classList.remove('mx-scrolling'), 150);
   }, { passive: true });
 
   /* ── FOLLOW THE PHOTO VIEWER — the button moves into it, and hides when its controls do ── */
