@@ -1821,7 +1821,7 @@ window.addEventListener('resize', layoutGrid, { passive: true });
 load();
 </script>
 
-<!-- ════ MUSIC TEST — a round music button, the twin of the viewer's close button, opens a full-screen song list; songs open in Spotify. Test page only. ════ -->
+<!-- ════ MUSIC — a round music button, the twin of the photo viewer's close button, opens a full-screen list of songs; each opens in Spotify ════ -->
 <style>
   /* ── NO COLOUR — the music design is white, greys and black only. Its glass keeps the lightness of the site's
      green-grey without the green, and blurs whatever is behind it in grey ── */
@@ -1837,50 +1837,6 @@ load();
   }
 
   .mx-icon { display: block; flex: none; }
-
-  /* ── TEST BAR — switches for the choices being tested; not part of the design ── */
-  .mx-testbar {
-    position: fixed;
-    z-index: 60;
-    top: calc(var(--safe-top) + 10px);
-    left: calc(var(--safe-left) + 10px);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px;
-    border-radius: 14px;
-    background: rgba(30,30,30,0.86);
-    -webkit-backdrop-filter: grayscale(1) blur(24px);
-    backdrop-filter: grayscale(1) blur(24px);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48);
-    font-size: 12px;
-    color: var(--mx-text-2);
-    max-width: calc(100vw - 20px);
-  }
-
-  .mx-testbar .mx-q { padding: 0 2px; }
-
-  .mx-seg { display: flex; gap: 2px; }
-
-  .mx-seg button {
-    height: 30px;
-    padding: 0 10px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: rgba(255,255,255,0.8);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mx-seg button[aria-pressed="true"] { background: rgba(124,124,124,0.5); color: #fff; }
-
-  .mx-testbar .mx-hide-bar { align-self: flex-start; height: 26px; font-size: 12px; font-weight: 500; color: var(--mx-text-2); background: none; border: none; padding: 0 2px; cursor: pointer; }
-
-  .mx-testbar.mini > :not(.mx-hide-bar) { display: none; }
 
   /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size, 16pt in from
      the screen's bottom-right corner as the close button is from the top right. It stays with the photos: it sits
@@ -1931,25 +1887,13 @@ load();
   body:not(.mx-ready) .mx-music { display: none; }
 
   /* it steps back while the gallery scrolls, and returns as soon as the page stops, in a fifth of a second */
-  body[data-scroll="fade"].mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
+  body.mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
 
-  /* while a photo is open it's hidden, so the viewer holds only that photo's own controls (test choice: or it stays,
-     in the viewer's bottom-right corner, with the page dots raised 5pt to sit in line with it) */
-  body.mx-viewer[data-viewer="hidden"] .mx-music,
-  body.mx-viewer.mx-bare .mx-music {
+  /* while a photo is open it's hidden, so the viewer holds only that photo's own controls */
+  body.mx-viewer .mx-music {
     opacity: 0;
     pointer-events: none;
   }
-
-  body.mx-viewer[data-viewer="corner"] .mx-music {
-    position: fixed;
-    z-index: 1000;
-    right: calc(var(--safe-right) + var(--space-16));
-    bottom: calc(var(--safe-bottom) + var(--space-16));
-    margin: 0;
-  }
-
-  body[data-viewer="corner"] .lb-dots { bottom: calc(var(--safe-bottom) + var(--space-16) + 13px); }
 
   /* ── FULL-SCREEN LIST — it rises a little as it fades in, the way an iOS sheet comes up, and leaves by the X, a drag down
      or a tap beside the songs ── */
@@ -2114,7 +2058,7 @@ load();
   /* the X's line weight at the size of an iOS row's arrow, centred under the X */
   .mx-out { color: var(--mx-mark); margin-right: 1px; }
 
-  .mx-music:focus-visible, .mx-row:focus-visible, .mx-seg button:focus-visible, .mx-hide-bar:focus-visible {
+  .mx-music:focus-visible, .mx-row:focus-visible {
     outline: 2px solid var(--mx-text);
     outline-offset: 2px;
   }
@@ -2132,26 +2076,6 @@ load();
     .mx-music:active, .mx-inner { transform: none; }
   }
 </style>
-
-<div class="mx-testbar" id="mxBar" role="group" aria-label="Music test settings">
-  <div class="mx-q">After choosing a song, the list</div>
-  <div class="mx-seg" data-setting="after">
-    <button type="button" data-v="close">Closes</button>
-    <button type="button" data-v="stay">Stays open</button>
-  </div>
-  <div class="mx-q">While the gallery scrolls, the button</div>
-  <div class="mx-seg" data-setting="scroll">
-    <button type="button" data-v="fade">Fades back</button>
-    <button type="button" data-v="stay">Stays</button>
-  </div>
-  <div class="mx-q">While a photo is open, the button</div>
-  <div class="mx-seg" data-setting="viewer">
-    <button type="button" data-v="hidden">Hides</button>
-    <button type="button" data-v="corner">Stays in the corner</button>
-  </div>
-  <div class="mx-q">Sample song names</div>
-  <button type="button" class="mx-hide-bar" id="mxHideBar">Hide this panel</button>
-</div>
 
 <button type="button" class="mx-music" id="mxMusic" aria-label="Music" aria-haspopup="dialog" aria-expanded="false">
   <svg class="mx-icon" viewBox="0 0 16 16" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2179,7 +2103,7 @@ load();
 </div>
 
 <script>
-/* ── MUSIC TEST — the music button opens a full-screen list; a chosen song opens in Spotify ── */
+/* ── MUSIC — the music button opens a full-screen list; a chosen song opens in Spotify ── */
 (() => {
   const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
 
@@ -2202,10 +2126,7 @@ load();
   const calm     = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const music   = document.getElementById('mxMusic');
   const lbEl    = document.getElementById('lb');
-  const bar     = document.getElementById('mxBar');
   const LAST    = 'mx-last-song';
-
-  const settings = { after: 'close', scroll: 'fade', viewer: 'hidden' };
 
   let last = null;
   try { last = sessionStorage.getItem(LAST); } catch (e) {}
@@ -2259,7 +2180,7 @@ load();
   music.addEventListener('click', () => (isOpen ? close() : open()));
   document.getElementById('mxClose').addEventListener('click', () => close());
 
-  // choosing a song: Spotify opens; with "Closes" the list is gone by the time the visitor comes back
+  // choosing a song: Spotify opens, and the list is gone by the time the visitor comes back
   list.addEventListener('click', e => {
     const row = e.target.closest('.mx-row');
     if (!row) return;
@@ -2268,7 +2189,7 @@ load();
     try { sessionStorage.setItem(LAST, last); } catch (err) {}
     setTimeout(render, 400);
 
-    if (settings.after === 'close') setTimeout(() => close(false), 150);
+    setTimeout(() => close(false), 150);
   });
 
   // a tap on empty space, beside the songs or up by the X, closes the list; taps on the title or between songs don't
@@ -2379,7 +2300,7 @@ load();
 
   // if the page is hidden before then (Spotify took over), close at once
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && isOpen && settings.after === 'close') close(false);
+    if (document.hidden && isOpen) close(false);
   });
 
   // keys go to the list first while it's open, so Escape and the arrows don't also move the photo viewer
@@ -2413,7 +2334,7 @@ load();
 
   // hidden while a photo is open, it's out of the Tab order and out of VoiceOver's reach too
   const hideInViewer = () => {
-    music.inert = document.body.classList.contains('mx-viewer') && settings.viewer === 'hidden';
+    music.inert = document.body.classList.contains('mx-viewer');
   };
 
   /* ── SCROLLING — the button steps back while the gallery moves and comes back as soon as it stops: once the page has
@@ -2427,12 +2348,11 @@ load();
     scrollTimer = setTimeout(() => document.body.classList.remove('mx-scrolling'), 150);
   }, { passive: true });
 
-  /* ── FOLLOW THE PHOTO VIEWER — the button moves into it, and hides when its controls do ── */
+  /* ── FOLLOW THE PHOTO VIEWER — the button hides while a photo is open and returns when it closes ── */
   new MutationObserver(() => {
     const viewing = lbEl.classList.contains('open');
 
     document.body.classList.toggle('mx-viewer', viewing);
-    document.body.classList.toggle('mx-bare', viewing && (lbEl.classList.contains('bare') || lbEl.classList.contains('dragging')));
     hideInViewer();
   }).observe(lbEl, { attributes: true, attributeFilter: ['class'] });
 
@@ -2444,28 +2364,6 @@ load();
       clearInterval(ready);
     }
   }, 200);
-
-  /* ── TEST BAR — every visit opens on the chosen design; a switch lasts only until the page is reloaded ── */
-  if (location.search) history.replaceState(null, '', location.pathname);   // drops choices an earlier version kept in the address
-
-  function apply(name, value) {
-    settings[name] = value;
-    document.body.dataset[name] = value;
-    bar.querySelectorAll(`[data-setting="${name}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
-    if (name === 'viewer') hideInViewer();
-  }
-
-  bar.querySelectorAll('.mx-seg').forEach(seg => {
-    const name = seg.dataset.setting;
-
-    seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => apply(name, b.dataset.v)));
-    apply(name, settings[name]);
-  });
-
-  document.getElementById('mxHideBar').addEventListener('click', () => {
-    const mini = bar.classList.toggle('mini');
-    document.getElementById('mxHideBar').textContent = mini ? 'Test settings' : 'Hide this panel';
-  });
 })();
 </script>
 
