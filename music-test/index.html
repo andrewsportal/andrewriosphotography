@@ -2124,10 +2124,17 @@ load();
 <script>
 /* ── MUSIC — the music button opens a full-screen list; a chosen song opens in Spotify ── */
 (() => {
-  const PLAYLIST = 'https://open.spotify.com/playlist/0fUhipCoIZhmEoJpWFEClB';
-
-  // eight sample rows until the real songs are in; until then each opens the playlist
-  const SONGS = Array.from({ length: 8 }, (_, i) => ({ title: `Song title ${i + 1}`, artist: 'Artist name', url: PLAYLIST }));
+  // the eight songs, in their chosen order; each opens its own track in Spotify
+  const SONGS = [
+    { title: 'Shine Shine',             artist: 'Boys Noize',               url: 'https://open.spotify.com/track/3XmUmtJ14etZw0nSS8xw6H' },
+    { title: 'Rumble',                  artist: 'Link Wray & His Wray Men', url: 'https://open.spotify.com/track/1wlaVrU7LfcavrsPFitykq' },
+    { title: 'Purple Haze',             artist: 'Jimi Hendrix',             url: 'https://open.spotify.com/track/0wJoRiX5K5BxlqZTolB2LD' },
+    { title: 'Oye Como Va',             artist: 'Santana',                  url: 'https://open.spotify.com/track/5u6y4u5EgDv0peILf60H5t' },
+    { title: 'Soul Bird (Tin Tin Deo)', artist: 'Cal Tjader',               url: 'https://open.spotify.com/track/0NFrhDfpnwXNuUsPKqWPkc' },
+    { title: 'Green Onions',            artist: 'Booker T. & the M.G.’s',   url: 'https://open.spotify.com/track/4fQMGlCawbTkH9yPPZ49kP' },
+    { title: 'The Passenger',           artist: 'Iggy Pop',                 url: 'https://open.spotify.com/track/15BQ7vEDv2LJuh8TxWIhtd' },
+    { title: 'Apache',                  artist: 'Incredible Bongo Band',    url: 'https://open.spotify.com/track/51ml2bJs9zDLv1PbzNQzPP' },
+  ];
 
   // sideways the songs split into two columns, the first the longer; this one heads the second
   const half = Math.ceil(SONGS.length / 2);
