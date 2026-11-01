@@ -36,6 +36,9 @@
   /* the hidden attribute always wins, even over a class that sets display (Try Again is a .pill) */
   [hidden] { display: none !important; }
 
+  /* selected text is grey too, not the system's blue */
+  ::selection { background: rgba(255,255,255,0.3); color: #fff; }
+
   :root {
     --gap: 1px;
     --safe-top:    env(safe-area-inset-top);
@@ -51,18 +54,18 @@
     --space-64: 64px;
 
     /* ── LOCKED DARK — always black regardless of system setting.
-       Brand accents: forest-tinted fills, gold accent, teal detail border. ── */
+       No colour anywhere: white, greys and black only, so the photos carry all of it. ── */
     --color-bg:            #000000;
-    --color-accent:        #d4af37;
-    --color-grid-item-bg:  #131a16;
+    --color-focus:         rgba(255,255,255,0.92);
+    --color-grid-item-bg:  #181818;
     /* 7:1 on black, the Dark Mode aim for small custom-coloured text */
-    --color-footer-text:   rgba(235,235,245,0.64);
-    --color-btn-bg:        rgba(118,128,120,0.26);
-    --color-btn-text:      rgba(240,244,240,0.85);
-    --color-btn-bg-hover:  rgba(118,128,120,0.33);
-    --color-btn-bg-active: rgba(118,128,120,0.42);
+    --color-footer-text:   rgba(255,255,255,0.6);
+    --color-btn-bg:        rgba(124,124,124,0.26);
+    --color-btn-text:      rgba(255,255,255,0.85);
+    --color-btn-bg-hover:  rgba(124,124,124,0.33);
+    --color-btn-bg-active: rgba(124,124,124,0.42);
     --color-lb-bg:         #000000;
-    --color-lb-close-bg:   rgba(58,66,61,0.62);
+    --color-lb-close-bg:   rgba(63,63,63,0.62);
     --color-lb-close-text: rgba(255,255,255,0.92);
     --color-lb-dot:        rgba(255,255,255,0.32);
     --color-lb-dot-active: #ffffff;
@@ -240,7 +243,7 @@
     width: 2px;
     height: 6px;
     border-radius: 1px;
-    background: rgba(235,235,245,0.6);
+    background: rgba(255,255,255,0.56);
     transform-origin: 1px 10px;
     transform: rotate(calc(var(--i) * 45deg));
     animation: spinnerFade 0.8s linear infinite;
@@ -342,8 +345,8 @@
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
     box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
                 0 2px 12px rgba(0,0,0,0.48),
                 0 1px 3px  rgba(0,0,0,0.30);
@@ -366,7 +369,7 @@
 
   .lb-close:active {
     transform: scale(0.90);
-    background: rgba(76,86,80,0.68);
+    background: rgba(82,82,82,0.68);
   }
 
   .lb-prev, .lb-next {
@@ -443,19 +446,19 @@
   /* an end dot shrinks when more photos lie past it, as in iOS */
   .lb-dot.more { transform: scale(0.67); }
 
-  /* ── FOCUS — visible keyboard focus, brand gold ── */
+  /* ── FOCUS — visible keyboard focus, in white ── */
   .pill:focus-visible,
   .lb-close:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   .grid-item:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: -2px;
   }
 
-  /* a black edge inside the ring keeps it visible on gold and orange photos */
+  /* a black edge inside the ring keeps it visible on white and pale photos */
   .grid-item:focus-visible::after {
     content: '';
     position: absolute;
@@ -466,7 +469,7 @@
 
   .lb-prev:focus-visible,
   .lb-next:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus);
     outline-offset: -6px;
   }
 
@@ -1812,6 +1815,592 @@ window.addEventListener('resize', () => {
 window.addEventListener('resize', layoutGrid, { passive: true });
 
 load();
+</script>
+
+<!-- ════ MUSIC — a round music button, the twin of the photo viewer's close button, opens a full-screen list of songs; each opens in Spotify ════ -->
+<style>
+  /* ── NO COLOUR — the music design is white, greys and black only, like the rest of the site; its glass blurs
+     whatever is behind it in grey ── */
+  :root {
+    --mx-glass:         rgba(63,63,63,0.62);
+    --mx-glass-hover:   rgba(72,72,72,0.66);
+    --mx-glass-pressed: rgba(82,82,82,0.68);
+    --mx-text:          rgba(255,255,255,0.92);
+    --mx-text-2:        rgba(255,255,255,0.6);    /* 7:1 on the list's black, as the footer's grey */
+    --mx-text-3:        rgba(255,255,255,0.48);   /* 4.5:1, the least for text */
+    --mx-mark:          rgba(255,255,255,0.42);   /* the arrows: 3:1, the least for a symbol */
+    --mx-line:          rgba(84,84,84,0.6);
+    --mx-fill:          rgba(124,124,124,0.42);   /* a song under the finger */
+  }
+
+  .mx-icon { display: block; flex: none; }
+
+  /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size, 16pt in from
+     the screen's bottom-right corner as the close button is from the top right. It belongs to the photos, not to the
+     page's controls: it sits just after the gallery, 16pt under the last photo's corner, taking no space (the margins
+     cancel its height), so Back to top keeps its own spacing and the two never read as a pair. Sticky, so while the
+     gallery scrolls it holds the screen's corner, and when the photos end it settles under the last one, covering
+     none of it, and scrolls away with it toward the footer. The browser does this itself, so it never lags behind
+     the page ── */
+  .mx-music {
+    position: sticky;
+    z-index: 50;
+    bottom: calc(var(--safe-bottom) + var(--space-16));
+    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + 32px)) auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mx-glass);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12), 0 2px 12px rgba(0,0,0,0.48), 0 1px 3px rgba(0,0,0,0.30);
+    color: var(--mx-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.2s ease-out, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
+  }
+
+  .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* 44pt to tap */
+
+  /* two notes with solid heads and rounded corners, like the X's rounded line ends; the size and weight of the X, centred
+     by their visual weight (the stems pull right). Drawn twice, each with its stem edges on whole pixels for one kind of
+     screen, so they stay sharp; the 16px box sits on whole pixels too. Solid white faded as one piece: no seams */
+  .mx-music svg { width: 16px; height: 16px; opacity: 0.92; }
+
+  .mx-music .n3 { display: none; }
+
+  @media (min-resolution: 2.5dppx), (-webkit-min-device-pixel-ratio: 2.5) {
+    .mx-music .n3 { display: inline; }   /* iPhone */
+    .mx-music .n2 { display: none; }     /* Mac Retina and other screens */
+  }
+
+  /* pressed, it shrinks and lightens exactly as the X does */
+  .mx-music:active { transform: scale(0.9); background: var(--mx-glass-pressed); }
+
+  /* not until the photos are in */
+  body:not(.mx-ready) .mx-music { display: none; }
+
+  /* it steps back while the gallery scrolls, and returns as soon as the page stops, in a fifth of a second */
+  body.mx-scrolling:not(.mx-viewer) .mx-music { opacity: 0.3; }
+
+  /* while a photo is open it's hidden, so the viewer holds only that photo's own controls */
+  body.mx-viewer .mx-music {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ── FULL-SCREEN LIST — it rises a little as it fades in, the way an iOS sheet comes up, and leaves by the X, a drag down
+     or a tap beside the songs ── */
+  .mx-full {
+    position: fixed;
+    z-index: 1100;
+    inset: 0;
+    color: var(--mx-text);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1), visibility 0s linear 0.28s;
+  }
+
+  .mx-full.open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.28s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* opened from the keyboard, the list itself takes focus without a ring (Safari would draw it in blue round the whole
+     screen); Tab then moves to the X and the songs, which show white rings */
+  .mx-full:focus { outline: none; }
+
+  /* behind the list; it fades as the list is dragged down, uncovering the gallery as an open photo does */
+  .mx-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    -webkit-backdrop-filter: grayscale(1) blur(30px);
+    backdrop-filter: grayscale(1) blur(30px);
+  }
+
+  .mx-scroll {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* the songs share the screen's height, so all eight fill an iPhone from the title down to the bottom edge with no
+     scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
+     80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
+  .mx-inner {
+    --mx-head: 40px;   /* the title's line, the X's height, and the space under it */
+    --mx-row-max: 100px;
+    width: 100%;
+    max-width: 560px;
+    flex: 1 0 auto;
+    max-height: calc(var(--mx-head) + var(--mx-rows, 5) * var(--mx-row-max));
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    transform-origin: 50% 0;
+    transform: translateY(24px);
+    transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @media (min-width: 600px) { .mx-inner { --mx-row-max: 80px; } }
+
+  .mx-full.open .mx-inner { transform: none; }
+
+  .mx-list { flex: 1 0 auto; display: flex; flex-direction: column; }
+
+  /* the X is the photo viewer's own close button (class lb-close), so the two can't drift apart; as in the viewer, it
+     steps aside while the list is dragged */
+  .mx-full .lb-close {
+    background: var(--mx-glass);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
+    color: var(--mx-text);
+    transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
+  }
+
+  .mx-full .lb-close:active { background: var(--mx-glass-pressed); }
+  .mx-full .lb-close:focus-visible { outline-color: var(--mx-text); }
+  .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
+
+  /* the title and the X share one line, as an iOS screen's title sits beside its Close button. The X belongs to the
+     list: on a phone it lands 16pt from the corner, where the photo viewer's is; on a wider screen it stays beside the
+     list instead of out in the window's corner. Either way its centre sits over the songs' arrows */
+  .mx-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .mx-label { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; }
+
+  .mx-head .lb-close { position: relative; top: auto; right: auto; flex: none; margin-right: -8px; }
+
+  .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mx-text-2); }
+  .mx-sub { font-size: 15px; line-height: 20px; color: var(--mx-text-2); }
+
+  .mx-row {
+    --mx-num: 28px;
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 8px 0;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* the hairlines between songs start at the song names, as in an iOS list, and leave the numbers in the margin */
+  .mx-row + .mx-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(var(--mx-num) + 12px);
+    right: 0;
+    height: 0.5px;
+    background: var(--mx-line);
+    transition: opacity 0.3s ease;
+  }
+
+  /* touched, a song lights up the way an iOS list row does and the hairlines beside it give way; the light fades as the
+     finger lifts. A drag down to close puts it out */
+  .mx-row::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 -12px;
+    border-radius: 12px;
+    background: var(--mx-fill);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .mx-row:hover::after { opacity: 0.6; }
+    .mx-row:hover::before, .mx-row:hover + .mx-row::before { opacity: 0; }
+  }
+
+  .mx-row:active::after { opacity: 1; transition: none; }
+  .mx-row:active::before, .mx-row:active + .mx-row::before { opacity: 0; transition: none; }
+  .mx-full.dragging .mx-row::after { opacity: 0; }
+  .mx-full.dragging .mx-row + .mx-row::before { opacity: 1; }
+
+  .mx-num {
+    width: var(--mx-num);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    color: var(--mx-text-3);
+    flex: none;
+  }
+
+  /* the song opened last shows a small white note in its number's place, so it's easy to pick a different one */
+  .mx-row.last .mx-num { color: var(--mx-text); }
+
+  /* Apple Music's list sizes: the song in iOS's Headline style (17pt semibold), the artist in Subheadline (15pt), each at
+     its own line height, so a row is 58pt before it grows to fill the screen */
+  .mx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .mx-title  { font-size: 17px; font-weight: 600; letter-spacing: -0.022em; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-artist { font-size: 15px; line-height: 20px; color: var(--mx-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* the X's line weight at the size of an iOS row's arrow, centred under the X */
+  .mx-out { color: var(--mx-mark); margin-right: 1px; }
+
+  .mx-music:focus-visible {
+    outline: 2px solid var(--mx-text);
+    outline-offset: 2px;
+  }
+
+  /* reached from the keyboard, a song takes the highlight's rounded shape with a white ring, as a focus ring on a Mac
+     follows the shape it marks */
+  .mx-row:focus-visible { outline: none; }
+  .mx-row:focus-visible::after { opacity: 1; background: rgba(124,124,124,0.25); box-shadow: inset 0 0 0 2px var(--mx-text); }
+  .mx-row:focus-visible::before, .mx-row:focus-visible + .mx-row::before { opacity: 0; }
+
+  /* with a mouse or trackpad, the music button and the X lighten a little under the pointer, as buttons do on a Mac
+     and an iPad; pressed, they still shrink and lighten further */
+  @media (hover: hover) and (pointer: fine) {
+    .mx-music:hover:not(:active), .lb-close:hover:not(:active) { background: var(--mx-glass-hover); }
+  }
+
+  /* a phone turned sideways: the songs split into two columns, so all eight still fit without scrolling */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .mx-scroll { padding-bottom: calc(var(--safe-bottom) + 12px); }
+    .mx-inner { --mx-row-max: 72px; max-width: 760px; max-height: calc(var(--mx-head) + var(--mx-half, 4) * var(--mx-row-max)); }
+    .mx-list { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(var(--mx-half, 4), 1fr); grid-auto-flow: column; column-gap: 32px; }
+    .mx-row.top2::before { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mx-full, .mx-full.open, .mx-full .lb-close, .mx-music, .mx-inner { transition: none; }
+    .mx-music:active, .mx-inner { transform: none; }
+  }
+</style>
+
+<button type="button" class="mx-music" id="mxMusic" aria-label="Music" aria-haspopup="dialog" aria-expanded="false">
+  <svg class="mx-icon" viewBox="0 0 16 16" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <g class="n3"><path d="M5.167 11.74V2.91L12.833 1.55V10.38" fill="none" stroke-width="1.667"/><circle cx="3.127" cy="11.74" r="2.44" stroke="none"/><circle cx="10.793" cy="10.38" r="2.44" stroke="none"/></g>
+    <g class="n2"><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g>
+  </svg>
+</button>
+
+<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Music" tabindex="-1">
+  <div class="mx-backdrop" id="mxBackdrop"></div>
+  <div class="mx-scroll" id="mxScroll">
+    <div class="mx-inner" id="mxInner">
+      <div class="mx-head">
+        <div class="mx-label">
+          <div class="mx-kicker">Music</div>
+          <div class="mx-sub">Listen on Spotify</div>
+        </div>
+        <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 1l14 14M15 1L1 15"/>
+          </svg>
+        </button>
+      </div>
+      <div class="mx-list" id="mxList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── MUSIC — the music button opens a full-screen list; a chosen song opens in Spotify ── */
+(() => {
+  // the eight songs, in the order of the Spotify playlist; each opens its own track in Spotify
+  const SONGS = [
+    { title: 'Purple Haze',             artist: 'Jimi Hendrix',             url: 'https://open.spotify.com/track/0wJoRiX5K5BxlqZTolB2LD' },
+    { title: 'Oye Como Va',             artist: 'Santana',                  url: 'https://open.spotify.com/track/5u6y4u5EgDv0peILf60H5t' },
+    { title: 'Rumble',                  artist: 'Link Wray & His Ray Men',  url: 'https://open.spotify.com/track/1wlaVrU7LfcavrsPFitykq' },
+    { title: 'Shine Shine',             artist: 'Boys Noize',               url: 'https://open.spotify.com/track/3XmUmtJ14etZw0nSS8xw6H' },
+    { title: 'Green Onions',            artist: 'Booker T. & the M.G.’s',   url: 'https://open.spotify.com/track/4fQMGlCawbTkH9yPPZ49kP' },
+    { title: 'The Passenger',           artist: 'Iggy Pop',                 url: 'https://open.spotify.com/track/15BQ7vEDv2LJuh8TxWIhtd' },
+    { title: 'Soul Bird (Tin Tin Deo)', artist: 'Cal Tjader',               url: 'https://open.spotify.com/track/0NFrhDfpnwXNuUsPKqWPkc' },
+    { title: 'Apache',                  artist: 'Incredible Bongo Band',    url: 'https://open.spotify.com/track/51ml2bJs9zDLv1PbzNQzPP' },
+  ];
+
+  // sideways the songs split into two columns, the first the longer; this one heads the second
+  const half = Math.ceil(SONGS.length / 2);
+
+  const OUT  = '<svg class="mx-icon mx-out" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5 12.5 3.5M5 3.5h7.5V11"/></svg>';
+  const NOTE = '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g ><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g></svg>';
+
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const list    = document.getElementById('mxList');
+  const full     = document.getElementById('mxFull');
+  const scroller = document.getElementById('mxScroll');
+  const inner    = document.getElementById('mxInner');
+  const backdrop = document.getElementById('mxBackdrop');
+  const calm     = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const music   = document.getElementById('mxMusic');
+  const lbEl    = document.getElementById('lb');
+  const LAST    = 'mx-last-song';
+
+  let last = null;
+  try { last = sessionStorage.getItem(LAST); } catch (e) {}
+
+  function render() {
+    list.innerHTML = SONGS.map((s, i) => `<a class="mx-row${String(i) === last ? ' last' : ''}${i === half ? ' top2' : ''}" href="${esc(s.url)}" target="_blank" rel="noopener" data-i="${i}"
+      aria-label="${esc(s.title)} by ${esc(s.artist)}${String(i) === last ? ', opened last' : ''}, opens in Spotify">
+      <span class="mx-num">${String(i) === last ? NOTE : i + 1}</span><span class="mx-text"><span class="mx-title">${esc(s.title)}</span><span class="mx-artist">${esc(s.artist)}</span></span>${OUT}</a>`).join('');
+  }
+
+  render();
+
+  // the list's height cap counts the songs
+  inner.style.setProperty('--mx-rows', SONGS.length);
+  inner.style.setProperty('--mx-half', half);
+
+  /* ── OPEN / CLOSE ── */
+  let isOpen = false;
+
+  full.inert = true;  // closed, it's out of the Tab order and out of VoiceOver's reach
+
+  function open() {
+    isOpen = true;
+    inner.style.transition = '';   // a drag may have left its own timing behind; the rise uses the stylesheet's
+    full.inert = false;
+    full.classList.add('open');
+    music.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+
+    // the song opened last comes into view, for picking a different one; only the list scrolls, never the gallery behind
+    const lastRow = list.querySelector('.mx-row.last');
+    scroller.scrollTop = lastRow ? Math.max(0, lastRow.offsetTop - scroller.clientHeight / 2 + lastRow.offsetHeight / 2) : 0;
+
+    setTimeout(() => full.focus({ preventScroll: true }), 50);
+  }
+
+  function close(restoreFocus = true) {
+    if (!isOpen) return;
+
+    isOpen = false;
+    full.classList.remove('open');
+    full.inert = true;
+    music.setAttribute('aria-expanded', 'false');
+
+    // the photo viewer keeps the page from scrolling while it's open
+    if (!lbEl.classList.contains('open')) document.body.style.overflow = '';
+
+    if (restoreFocus && getComputedStyle(music).opacity !== '0') music.focus({ preventScroll: true });
+  }
+
+  music.addEventListener('click', () => (isOpen ? close() : open()));
+  document.getElementById('mxClose').addEventListener('click', () => close());
+
+  // choosing a song: Spotify opens, and the list is gone by the time the visitor comes back
+  list.addEventListener('click', e => {
+    const row = e.target.closest('.mx-row');
+    if (!row) return;
+
+    last = row.dataset.i;
+    try { sessionStorage.setItem(LAST, last); } catch (err) {}
+    setTimeout(render, 400);
+
+    setTimeout(() => close(false), 150);
+  });
+
+  // a tap on empty space, beside the songs or up by the X, closes the list; taps on the title or between songs don't
+  full.addEventListener('click', e => {
+    if (e.target === scroller || e.target === backdrop) close();
+  });
+
+  /* ── DRAG DOWN TO CLOSE — the list follows the finger, shrinks a little and uncovers the gallery, as an open photo does ── */
+  let drag = null;
+  let dragged = false;
+
+  function follow(dy) {
+    const p = Math.min(1, Math.max(0, dy) / innerHeight);
+
+    inner.style.transition = 'none';
+    inner.style.transform = `translateY(${dy}px) scale(${1 - p * 0.15})`;
+    backdrop.style.transition = 'none';
+    backdrop.style.opacity = Math.max(0, 1 - p * 1.6);
+  }
+
+  function letGo(closing) {
+    const t = calm ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease';
+
+    inner.style.transition = t;
+    backdrop.style.transition = t;
+    full.classList.remove('dragging');
+
+    if (closing) {
+      inner.style.transform = `translateY(${innerHeight * 0.4}px) scale(0.85)`;
+      close(false);
+
+      setTimeout(() => {
+        inner.style.transition = 'none';
+        inner.style.transform = '';
+        backdrop.style.transition = 'none';
+        backdrop.style.opacity = '';
+      }, 320);
+    } else {
+      inner.style.transform = '';
+      backdrop.style.opacity = '';
+    }
+  }
+
+  scroller.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+
+    // only from the top of the list, so a list long enough to scroll still scrolls
+    drag = e.touches.length === 1 && scroller.scrollTop <= 0
+      ? { x0: t.clientX, y0: t.clientY, active: false, samples: [{ y: t.clientY, t: e.timeStamp }] }
+      : null;
+  }, { passive: true });
+
+  scroller.addEventListener('touchmove', e => {
+    if (!drag) return;
+
+    const t = e.touches[0];
+    const dx = t.clientX - drag.x0;
+    const dy = t.clientY - drag.y0;
+
+    if (!drag.active) {
+      if (Math.hypot(dx, dy) < 8) return;
+
+      if (dy <= 0 || Math.abs(dx) > dy) {
+        drag = null;
+        return;
+      }
+
+      drag.active = true;
+      full.classList.add('dragging');
+    }
+
+    e.preventDefault();
+
+    drag.samples.push({ y: t.clientY, t: e.timeStamp });
+    if (drag.samples.length > 8) drag.samples.shift();
+
+    follow(dy);
+  }, { passive: false });
+
+  function endDrag(cancelled) {
+    if (!drag) return;
+
+    const d = drag;
+    drag = null;
+
+    if (!d.active) return;
+
+    // the click that can follow a drag isn't a tap on a song
+    dragged = true;
+    setTimeout(() => { dragged = false; }, 400);
+
+    const last = d.samples[d.samples.length - 1];
+    const first = d.samples.find(s => last.t - s.t < 100) || last;
+    const v = (last.y - first.y) / Math.max(1, last.t - first.t);
+
+    letGo(!cancelled && (last.y - d.y0 > 110 || v > 0.5));
+  }
+
+  scroller.addEventListener('touchend', () => endDrag(false));
+  scroller.addEventListener('touchcancel', () => endDrag(true));
+
+  full.addEventListener('click', e => {
+    if (!dragged) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  // if the page is hidden before then (Spotify took over), close at once
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isOpen) close(false);
+  });
+
+  // keys go to the list first while it's open, so Escape and the arrows don't also move the photo viewer
+  window.addEventListener('keydown', e => {
+    if (!isOpen) return;
+
+    if (e.key === 'Escape') {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      close();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.stopImmediatePropagation();
+    } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+      // the arrows move between the songs, as in a list on a Mac, and stop at the first and the last
+      e.stopImmediatePropagation();
+      e.preventDefault();
+
+      const rows = [...list.querySelectorAll('.mx-row')];
+      const at = rows.indexOf(document.activeElement);
+      const down = e.key === 'ArrowDown';
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? rows.length - 1
+        : at === -1 ? (down ? 0 : rows.length - 1)
+        : Math.min(rows.length - 1, Math.max(0, at + (down ? 1 : -1)));
+
+      rows[next].focus();
+    } else if (e.key === 'Tab') {
+      e.stopImmediatePropagation();
+
+      const stops = [document.getElementById('mxClose'), ...list.querySelectorAll('.mx-row')];
+      const at = stops.indexOf(document.activeElement);
+      const next = e.shiftKey ? (at <= 0 ? stops.length - 1 : at - 1) : (at === -1 || at === stops.length - 1 ? 0 : at + 1);
+
+      e.preventDefault();
+      stops[next].focus();
+    }
+  }, true);
+
+  // Safari on iPhone holds a pressed look under the finger only on things that listen for touches: this gives the music
+  // button and the X theirs (the songs have the list's). Not the whole page, or photos would dim under a scrolling finger
+  [music, full].forEach(el => el.addEventListener('touchstart', () => {}, { passive: true }));
+
+  /* ── PLACE — just after <main>, not inside it: the photo viewer makes <main> inert while a photo is open ── */
+  document.querySelector('main').after(music);
+
+  // hidden while a photo is open, it's out of the Tab order and out of VoiceOver's reach too
+  const hideInViewer = () => {
+    music.inert = document.body.classList.contains('mx-viewer');
+  };
+
+  /* ── SCROLLING — the button steps back while the gallery moves and comes back as soon as it stops: once the page has
+     been still for 150ms. Safari reports the page's position frame by frame while it glides, so a pause that long
+     means it has stopped ── */
+  let scrollTimer = 0;
+
+  window.addEventListener('scroll', () => {
+    document.body.classList.add('mx-scrolling');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => document.body.classList.remove('mx-scrolling'), 150);
+  }, { passive: true });
+
+  /* ── FOLLOW THE PHOTO VIEWER — the button hides while a photo is open and returns when it closes ── */
+  new MutationObserver(() => {
+    const viewing = lbEl.classList.contains('open');
+
+    document.body.classList.toggle('mx-viewer', viewing);
+    hideInViewer();
+  }).observe(lbEl, { attributes: true, attributeFilter: ['class'] });
+
+  // the button appears with the photos
+  const bottomBar = document.getElementById('bottomBar');
+  const ready = setInterval(() => {
+    if (getComputedStyle(bottomBar).display !== 'none') {
+      document.body.classList.add('mx-ready');
+      clearInterval(ready);
+    }
+  }, 200);
+})();
 </script>
 
 </body>
