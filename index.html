@@ -63,10 +63,11 @@
     --color-grid-item-bg:  #181818;
     /* 7:1 on black, the Dark Mode aim for small custom-coloured text */
     --color-footer-text:   rgba(255,255,255,0.6);
-    --color-btn-bg:        rgba(124,124,124,0.26);
-    --color-btn-text:      rgba(255,255,255,0.85);
-    --color-btn-bg-hover:  rgba(124,124,124,0.33);
-    --color-btn-bg-active: rgba(124,124,124,0.42);
+    /* Back to top (and Try Again): the same glass as the X and the music button, at rest, under the pointer, pressed */
+    --color-btn-bg:        rgba(63,63,63,0.62);
+    --color-btn-text:      rgba(255,255,255,0.92);
+    --color-btn-bg-hover:  rgba(72,72,72,0.66);
+    --color-btn-bg-active: rgba(82,82,82,0.68);
     --color-lb-bg:         #000000;
     --color-lb-close-bg:   rgba(63,63,63,0.62);
     --color-lb-close-text: rgba(255,255,255,0.92);
@@ -157,8 +158,11 @@
     border-radius: 22px;
     border: none;
     background: var(--color-btn-bg);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08),
-                0 1px 6px rgba(0,0,0,0.22);
+    -webkit-backdrop-filter: grayscale(1) blur(24px);
+    backdrop-filter: grayscale(1) blur(24px);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.12),
+                0 2px 12px rgba(0,0,0,0.48),
+                0 1px 3px  rgba(0,0,0,0.30);
     color: var(--color-btn-text);
     font-size: var(--text-body);
     font-weight: 500;
@@ -186,11 +190,10 @@
     }
   }
 
+  /* pressed, it lightens as the X and the music button do, and shrinks a little less, being wider */
   .pill:active {
     background: var(--color-btn-bg-active);
     transform: scale(0.97);
-    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.06),
-                0 1px 2px rgba(0,0,0,0.16);
   }
 
   /* ── STATUS — loading spinner, then an error with Try Again if GitHub doesn't answer ── */
@@ -560,7 +563,7 @@
 <div id="bottomBar">
   <button class="pill" id="backTopBtn">
     Back to top
-    <svg width="13" height="8" viewBox="0 0 13 8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg width="13" height="8" viewBox="0 0 13 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="1.25 6.75 6.5 1.25 11.75 6.75"></polyline>
     </svg>
   </button>
