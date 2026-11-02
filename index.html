@@ -53,6 +53,9 @@
     --space-48: 48px;
     --space-64: 64px;
 
+    /* the X, the music button and Back to top's height: Apple's tap size */
+    --control-size: 44px;
+
     /* ── LOCKED DARK — always black regardless of system setting.
        No colour anywhere: white, greys and black only, so the photos carry all of it. ── */
     --color-bg:            #000000;
@@ -307,7 +310,8 @@
   .lb-zoom {
     position: absolute;
     inset: 0;
-    padding: calc(var(--safe-top) + var(--space-64)) var(--safe-right) calc(var(--safe-bottom) + 56px) var(--safe-left);
+    /* photos start 16pt clear of the X: its 16pt from the top, its size, then 16pt; each screen's own top inset first */
+    padding: calc(var(--safe-top) + var(--space-16) + var(--control-size) + var(--space-16)) var(--safe-right) calc(var(--safe-bottom) + 56px) var(--safe-left);
     transform-origin: center;
   }
 
@@ -338,8 +342,8 @@
     top:   calc(var(--safe-top)   + var(--space-16));
     right: calc(var(--safe-right) + var(--space-16));
     z-index: 10;
-    width: 44px;
-    height: 44px;
+    width: var(--control-size);
+    height: var(--control-size);
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
@@ -1838,9 +1842,9 @@ load();
     position: sticky;
     z-index: 50;
     bottom: calc(var(--safe-bottom) + var(--space-16));
-    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + 44px)) auto;
-    width: 44px;
-    height: 44px;
+    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + var(--control-size))) auto;
+    width: var(--control-size);
+    height: var(--control-size);
     border-radius: 50%;
     border: none;
     display: flex;
