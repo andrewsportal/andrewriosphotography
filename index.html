@@ -1835,8 +1835,9 @@ load();
 
   .mx-icon { display: block; flex: none; }
 
-  /* ── MUSIC BUTTON — the twin of the viewer's close button: the same 32pt circle, glass and glyph size, 16pt in from
-     the screen's bottom-right corner as the close button is from the top right. It belongs to the photos, not to the
+  /* ── MUSIC BUTTON — the photo viewer's close-button glass at 44pt: Apple's tap size and Back to top's height, so the
+     two sit in proportion at the end of the page (the X stays 32pt, as Apple keeps close buttons small and quiet).
+     16pt in from the screen's bottom-right corner, as the close button is from the top right. It belongs to the photos, not to the
      page's controls: it sits just after the gallery, 16pt under the last photo's corner, taking no space (the margins
      cancel its height), so Back to top keeps its own spacing and the two never read as a pair. Sticky, so while the
      gallery scrolls it holds the screen's corner, and when the photos end it settles under the last one, covering
@@ -1846,9 +1847,9 @@ load();
     position: sticky;
     z-index: 50;
     bottom: calc(var(--safe-bottom) + var(--space-16));
-    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + 32px)) auto;
-    width: 32px;
-    height: 32px;
+    margin: calc(var(--space-16) - var(--gap)) calc(var(--safe-right) + var(--space-16)) calc(-1 * (var(--space-16) - var(--gap) + 44px)) auto;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: none;
     display: flex;
@@ -1864,19 +1865,11 @@ load();
     transition: opacity 0.2s ease-out, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), background 0.15s ease;
   }
 
-  .mx-music::before { content: ''; position: absolute; inset: -6px; }   /* 44pt to tap */
-
-  /* two notes with solid heads and rounded corners, like the X's rounded line ends; the size and weight of the X, centred
-     by their visual weight (the stems pull right). Drawn twice, each with its stem edges on whole pixels for one kind of
-     screen, so they stay sharp; the 16px box sits on whole pixels too. Solid white faded as one piece: no seams */
-  .mx-music svg { width: 16px; height: 16px; opacity: 0.92; }
-
-  .mx-music .n3 { display: none; }
-
-  @media (min-resolution: 2.5dppx), (-webkit-min-device-pixel-ratio: 2.5) {
-    .mx-music .n3 { display: inline; }   /* iPhone */
-    .mx-music .n2 { display: none; }     /* Mac Retina and other screens */
-  }
+  /* two notes with solid heads and rounded corners, like the X's rounded line ends, centred by their visual weight (the
+     stems pull right). At 20pt their 2pt stems stand on whole points, so their edges fall on whole pixels on every
+     screen (1x, 2x, 3x) and stay sharp; the 20pt box sits on whole points in the 44pt circle too. Solid white faded
+     as one piece: no seams */
+  .mx-music svg { width: 20px; height: 20px; opacity: 0.92; }
 
   /* pressed, it shrinks and lightens exactly as the X does */
   .mx-music:active { transform: scale(0.9); background: var(--mx-glass-pressed); }
@@ -2092,9 +2085,8 @@ load();
 </style>
 
 <button type="button" class="mx-music" id="mxMusic" aria-label="Music" aria-haspopup="dialog" aria-expanded="false">
-  <svg class="mx-icon" viewBox="0 0 16 16" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <g class="n3"><path d="M5.167 11.74V2.91L12.833 1.55V10.38" fill="none" stroke-width="1.667"/><circle cx="3.127" cy="11.74" r="2.44" stroke="none"/><circle cx="10.793" cy="10.38" r="2.44" stroke="none"/></g>
-    <g class="n2"><path d="M4.75 11.74V2.91L13.25 1.55V10.38" fill="none" stroke-width="1.5"/><circle cx="2.71" cy="11.74" r="2.44" stroke="none"/><circle cx="11.21" cy="10.38" r="2.44" stroke="none"/></g>
+  <svg class="mx-icon" viewBox="0 0 20 20" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M6 14.68V3.64L16 1.94V12.98" fill="none" stroke-width="2"/><circle cx="3.85" cy="14.68" r="3.05" stroke="none"/><circle cx="13.85" cy="12.98" r="3.05" stroke="none"/>
   </svg>
 </button>
 
