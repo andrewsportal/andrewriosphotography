@@ -174,12 +174,9 @@
     flex: none;
   }
 
-  /* ── HOVER — pointer devices only ── */
+  /* ── HOVER — pointer devices only. The photos stay still under the pointer, shown whole: the hand pointer says they
+     open ── */
   @media (hover: hover) and (pointer: fine) {
-    .grid-item:hover img {
-      transform: scale(1.016);
-    }
-
     /* lightens in place, as the music button does, the way a button under the pointer does on a Mac */
     .pill:hover {
       background: var(--color-btn-bg-hover);
@@ -476,8 +473,7 @@
   /* ── MOTION — transforms animate only when the user allows it ── */
   @media (prefers-reduced-motion: no-preference) {
     .grid-item img {
-      transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
-                  opacity   0.18s ease;
+      transition: opacity 0.18s ease;
     }
 
     @keyframes fadeIn {
