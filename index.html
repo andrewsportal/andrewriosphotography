@@ -331,14 +331,15 @@
     white-space: nowrap;
   }
 
-  /* ── LIGHTBOX CLOSE ── */
+  /* ── LIGHTBOX CLOSE — a 44pt glass circle, Apple's tap size, as close buttons are on iOS 26; the music button is its
+     twin, and Back to top shares its height ── */
   .lb-close {
     position: absolute;
     top:   calc(var(--safe-top)   + var(--space-16));
     right: calc(var(--safe-right) + var(--space-16));
     z-index: 10;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: none;
     background: var(--color-lb-close-bg);
@@ -354,12 +355,6 @@
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: background 0.15s ease;
-  }
-
-  .lb-close::before {
-    content: '';
-    position: absolute;
-    inset: -6px;
   }
 
   .lb-close svg { pointer-events: none; }
@@ -581,8 +576,8 @@
   </div>
 
   <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M1 1l14 14M15 1L1 15"/>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M2 2l14 14M16 2L2 16"/>
     </svg>
   </button>
 
@@ -1831,9 +1826,9 @@ load();
 
   .mx-icon { display: block; flex: none; }
 
-  /* ── MUSIC BUTTON — the photo viewer's close-button glass at 44pt: Apple's tap size and Back to top's height, so the
-     two sit in proportion at the end of the page (the X stays 32pt, as Apple keeps close buttons small and quiet).
-     16pt in from the screen's bottom-right corner, as the close button is from the top right. It belongs to the photos, not to the
+  /* ── MUSIC BUTTON — the twin of the photo viewer's close button: the same 44pt glass circle, Apple's tap size and
+     Back to top's height, so the two sit in proportion at the end of the page. 16pt in from the screen's bottom-right
+     corner, as the close button is from the top right. It belongs to the photos, not to the
      page's controls: it sits just after the gallery, 16pt under the last photo's corner, taking no space (the margins
      cancel its height), so Back to top keeps its own spacing and the two never read as a pair. Sticky, so while the
      gallery scrolls it holds the screen's corner, and when the photos end it settles under the last one, covering
@@ -1919,7 +1914,7 @@ load();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 24px);
+    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 30px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 30px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -1928,7 +1923,7 @@ load();
      scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
      80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
   .mx-inner {
-    --mx-head: 40px;   /* the title's line, the X's height, and the space under it */
+    --mx-head: 46px;   /* the title's line, the X's height, and the space under it */
     --mx-row-max: 100px;
     width: 100%;
     max-width: 560px;
@@ -1969,12 +1964,13 @@ load();
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 2px;   /* the 44pt X already leaves 12pt under the title's line */
   }
 
   .mx-label { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; }
 
-  .mx-head .lb-close { position: relative; top: auto; right: auto; flex: none; margin-right: -8px; }
+  /* 30pt margins and this pull put the X 16pt from a phone's edge with its centre over the arrows */
+  .mx-head .lb-close { position: relative; top: auto; right: auto; flex: none; margin-right: -14px; }
 
   .mx-kicker { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mx-text-2); }
   .mx-sub { font-size: 15px; line-height: 20px; color: var(--mx-text-2); }
@@ -2096,8 +2092,8 @@ load();
           <div class="mx-sub">Listen on Spotify</div>
         </div>
         <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M1 1l14 14M15 1L1 15"/>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 2l14 14M16 2L2 16"/>
           </svg>
         </button>
       </div>
