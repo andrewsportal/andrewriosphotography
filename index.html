@@ -1921,7 +1921,7 @@ load();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 30px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 30px);
+    padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 30px) calc(var(--safe-bottom) + 10px) calc(var(--safe-left) + 30px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -1930,7 +1930,7 @@ load();
      scrolling, whatever Safari's toolbar is doing. Past the tallest iPhone each song stops growing (100pt on a phone,
      80pt on a wider screen) and the list sits in the middle; only very large text scrolls */
   .mx-inner {
-    --mx-head: 46px;   /* the title's line, the X's height, and the space under it */
+    --mx-head: 52px;   /* the title's line, the X's height, and the space under it */
     --mx-row-max: 100px;
     width: 100%;
     max-width: 560px;
@@ -1972,7 +1972,7 @@ load();
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 2px;   /* the 44pt X already leaves 12pt under the title's line */
+    margin-bottom: 8px;   /* 8pt of air between the X and the first song's highlight */
   }
 
   .mx-label { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
