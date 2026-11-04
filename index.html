@@ -1964,9 +1964,10 @@ load();
   .mx-full .lb-close:focus-visible { outline-color: var(--mx-text); }
   .mx-full.dragging .lb-close { opacity: 0; pointer-events: none; }
 
-  /* the title and the X share one line, as an iOS screen's title sits beside its Close button. The X belongs to the
-     list: on a phone it lands 16pt from the corner, where the photo viewer's is; on a wider screen it stays beside the
-     list instead of out in the window's corner. Either way its centre sits over the songs' arrows */
+  /* the title sits beside the X, as an iOS screen's title sits beside its Close button: "Music while you look" over
+     "Listen on Spotify", the two lines centred on the X within its 44pt. The X belongs to the list: on a phone it lands
+     16pt from the corner, where the photo viewer's is; on a wider screen it stays beside the list instead of out in the
+     window's corner. Either way its centre sits over the songs' arrows */
   .mx-head {
     display: flex;
     align-items: center;
@@ -1974,7 +1975,7 @@ load();
     margin-bottom: 2px;   /* the 44pt X already leaves 12pt under the title's line */
   }
 
-  .mx-label { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; }
+  .mx-label { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
 
   /* 30pt margins and this pull put the X 16pt from a phone's edge with its centre over the arrows */
   .mx-head .lb-close { position: relative; top: auto; right: auto; flex: none; margin-right: -14px; }
@@ -2089,13 +2090,13 @@ load();
   </svg>
 </button>
 
-<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Music" tabindex="-1">
+<div class="mx-full" id="mxFull" role="dialog" aria-modal="true" aria-label="Music while you look" tabindex="-1">
   <div class="mx-backdrop" id="mxBackdrop"></div>
   <div class="mx-scroll" id="mxScroll">
     <div class="mx-inner" id="mxInner">
       <div class="mx-head">
         <div class="mx-label">
-          <div class="mx-kicker">Music</div>
+          <div class="mx-kicker">Music while you look</div>
           <div class="mx-sub">Listen on Spotify</div>
         </div>
         <button type="button" class="lb-close" id="mxClose" aria-label="Close music">
